@@ -9,7 +9,7 @@ import inspect
 from textwrap import dedent
 
 import six
-from diff_match_patch import diff_match_patch as DMP
+import whatthepatch
 
 
 def replace(func, find, replace, count=None):
@@ -37,15 +37,17 @@ def patch(func, patch):
     source = _get_source(func)
 
     # Diff
-    patcher = DMP()
-    patches = patcher.patch_fromText(patch)
-    source, didapply = patcher.patch_apply(patches, source)
-
-    for i, v in enumerate(didapply, 1):
-        if not v:
+    diffs = [x for x in whatthepatch.parse_patch(patch)]
+    for i, diff in enumerate(diffs, 1):
+        try:
+            source = '\n'.join(whatthepatch.apply_diff(diff, source))
+        except AssertionError:
             raise ValueError(
-                "Part {} of the patch did not apply"
-                .format(i)
+                "Hunk {num} of the patch was invalid - could not apply:\n\n"
+                "{patch}\n"
+                "to source:\n\n"
+                "{source}"
+                .format(num=i, patch=patch, source=source)
             )
 
     # Recompile

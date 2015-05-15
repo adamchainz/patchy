@@ -97,17 +97,17 @@ class TestPatchy(unittest.TestCase):
         def sample():
             return 1
 
-        with self.assertRaises(ValueError):
-            patchy.patch(
-                sample,
-                """
-                @@ -1,2 +1,2 @@
-                 def sample():
-                -    return 2
-                +    return 23
-                """
-            )
+        bad_patch = """
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    return 2
+            +    return 23
+            """
+        with self.assertRaises(ValueError) as cm:
+            patchy.patch(sample, bad_patch)
 
+        msg = str(cm.exception)
+        self.assertIn("could not apply", msg)
         self.assertEqual(sample(), 1)
 
 

@@ -1,2 +1,2 @@
-diff_match_patch
+whatthepatch==0.0.3
 wheel==0.23.0
