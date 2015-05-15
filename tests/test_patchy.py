@@ -110,6 +110,25 @@ class TestPatchy(unittest.TestCase):
         self.assertIn("could not apply", msg)
         self.assertEqual(sample(), 1)
 
+    def test_patch_twice(self):
+        def sample():
+            return 1
+
+        patchy.patch(sample, """
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    return 1
+            +    return 2
+        """)
+        patchy.patch(sample, """
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    return 2
+            +    return 3
+        """)
+
+        self.assertEqual(sample(), 3)
+
 
 if __name__ == '__main__':
     unittest.main()
