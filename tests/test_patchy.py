@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import six
 import unittest
+from textwrap import dedent
 
 import patchy
 
@@ -129,6 +131,20 @@ class TestPatchy(unittest.TestCase):
 
         self.assertEqual(sample(), 3)
 
+    @unittest.skipUnless(six.PY3, "Python 3")
+    @unittest.expectedFailure
+    def test_replace_nonlocal(self):
+        unittest = 5  # shadow a global name
+
+        # Using exec because 'nonlocal' would SyntaxError when testing on 2.7
+        sample = six.exec_(dedent("""\
+            def sample():
+                nonlocal unittest
+                multiple = 3
+                return multiple * unittest"""), globals(), locals())['sample']
+
+        patchy.replace(sample, find='multiple = 3', replace='multiple = 4')
+        self.assertEqual(sample(), 20)
 
 if __name__ == '__main__':
     unittest.main()
