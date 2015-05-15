@@ -68,12 +68,12 @@ def _get_source(func):
 
 def _set_source(func, new_source):
     loc = {}
-    six.exec_(new_source, func.func_globals, loc)
+    six.exec_(new_source, func.__globals__, loc)
     new_func = loc[func.__name__]
 
     if inspect.ismethod(func):
-        func.im_func.func_code = new_func.func_code
+        func.im_func.__code__ = new_func.__code__
         func.im_func._patchy_the_source = new_source
     else:
-        func.func_code = new_func.func_code
+        func.__code__ = new_func.__code__
         func._patchy_the_source = new_source
