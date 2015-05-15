@@ -58,10 +58,8 @@ class TestPatchy(unittest.TestCase):
             return 1
 
         patchy.replace(sample, '1', '2')
-
-        # inspect.findsource can't do its job
-        with self.assertRaises(IOError):
-            patchy.replace(sample, '2', '3')
+        patchy.replace(sample, '2', '3')
+        self.assertEqual(sample(), 3)
 
     def test_patch(self):
         def sample():

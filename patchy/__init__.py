@@ -53,9 +53,15 @@ def patch(func, patch):
 
 
 def _get_source(func):
-    source = inspect.getsource(func)
-    source = dedent(source)
-    return source
+    try:
+        if inspect.ismethod(func):
+            return func.im_func._patchy_the_source
+        else:
+            return func._patchy_the_source
+    except AttributeError:
+        source = inspect.getsource(func)
+        source = dedent(source)
+        return source
 
 
 def _set_source(func, new_source):
@@ -65,5 +71,7 @@ def _set_source(func, new_source):
 
     if inspect.ismethod(func):
         func.im_func.func_code = new_func.func_code
+        func.im_func._patchy_the_source = new_source
     else:
         func.func_code = new_func.func_code
+        func._patchy_the_source = new_source
