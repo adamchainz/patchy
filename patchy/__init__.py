@@ -38,6 +38,9 @@ def patch(func, patch):
 
     # Diff
     diffs = [x for x in whatthepatch.parse_patch(patch)]
+    if not len(diffs):
+        raise ValueError("Invalid patch.")
+
     for i, diff in enumerate(diffs, 1):
         try:
             source = '\n'.join(whatthepatch.apply_diff(diff, source))
@@ -57,7 +60,11 @@ def patch(func, patch):
 def _get_source(func):
     try:
         if inspect.ismethod(func):
-            return func.im_func._patchy_the_source
+            if hasattr(func, '__func__'):
+                # classmethod, staticmethod
+                return func.__func__._patchy_the_source
+            else:
+                return func.im_func._patchy_the_source
         else:
             return func._patchy_the_source
     except AttributeError:
@@ -67,13 +74,24 @@ def _get_source(func):
 
 
 def _set_source(func, new_source):
-    loc = {}
-    six.exec_(new_source, func.__globals__, loc)
-    new_func = loc[func.__name__]
-
-    if inspect.ismethod(func):
-        func.im_func.__code__ = new_func.__code__
-        func.im_func._patchy_the_source = new_source
+    # Compile and retrieve the new Code object
+    localz = {}
+    six.exec_(new_source, func.__globals__, localz)
+    new_func = localz[func.__name__]
+    if isinstance(new_func, (classmethod, staticmethod)):
+        new_code = new_func.__func__.__code__
     else:
-        func.__code__ = new_func.__code__
+        new_code = new_func.__code__
+
+    # Figure out how to put the new code back
+    if inspect.ismethod(func):
+        try:
+            # classmethod, staticmethod
+            real_func = func.__func__
+        except AttributeError:
+            real_func = func.im_func
+        real_func.__code__ = new_code
+        real_func._patchy_the_source = new_source
+    else:
+        func.__code__ = new_code
         func._patchy_the_source = new_source
