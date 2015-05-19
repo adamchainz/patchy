@@ -51,42 +51,46 @@ to chase any references that may exist to the function.
 API
 ===
 
-.. method:: find_replace(func, find, replace, count=None)
+``replace(func, find, replace, count=None)``
+--------------------------------------------
 
-    A simple find and replace on the function `func`’s source, for when you
-    don’t want to have to write a patch. `find` and `replace` should both be
-    strings that will be passed to `str.replace`.
+Perform a simple find and replace on source of the function ``func``’s source,
+for when you don’t want to have to write a patch. ``find`` and ``replace``
+should both be strings that will be passed to ``str.replace``.
 
-    If `count` is specified, it will be checked that exactly `count` occurences
-    of `find` exist, and `ValueError` will be raised if not.
+If ``count`` is specified, it will be checked that exactly ``count``
+occurrences of ``find`` exist, and ``ValueError`` will be raised if not.
 
-    Examples::
+Examples::
 
-        >>> def sample():
-        ...     return "Hi" * 5
-        >>> patchy.find_replace("Hi", "Hello")
-        >>> patchy.find_replace("5", "1")
-        >>> sample()
-        "Hello"
+    >>> def sample():
+    ...     return "Hi" * 5
+    ...
+    >>> patchy.replace("Hi", "Hello")
+    >>> patchy.replace("5", "1")
+    >>> sample()
+    "Hello"
 
 
-.. method:: patch(func, patch_text)
+patch(func, patch_text)
+-----------------------
 
-    Apply a patch to the source of function `func`. The patch will be
-    `textwrap.dedent()`’d and blank lines at the start and end stripped, so you
-    can write it inline with `"""` strings without breaking indendation.
+Apply a patch to the source of function ``func``. ``patch_text`` will be
+``textwrap.dedent()``’d and blank lines at the start and end stripped, so you
+can write it inline with ``"""`` strings in your source code without breaking
+your indendation levels.
 
-    If the patch is invalid, for example the context lines don’t match,
-    `ValueError` will be raised.
+If the patch is invalid, for example the context lines don’t match,
+``ValueError`` will be raised.
 
-    Examples::
+Examples::
 
-        >>> def sample():
-        ...     return 1
-        >>> patchy.patch(sample, """
-        ...     @@ -2,2 +2,2 @@
-        ...     -    return 1
-        ...     +    return 2
-        ... """)
-        >>> sample()
-        2
+    >>> def sample():
+    ...     return 1
+    >>> patchy.patch(sample, """
+    ...     @@ -2,2 +2,2 @@
+    ...     -    return 1
+    ...     +    return 2
+    ... """)
+    >>> sample()
+    2
