@@ -32,8 +32,6 @@ def replace(func, find, replace, count=None):
 
 
 def patch(func, patch):
-    patch = dedent(patch).lstrip()
-
     source = _get_source(func)
 
     # Diff

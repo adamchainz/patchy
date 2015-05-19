@@ -75,10 +75,7 @@ Examples::
 patch(func, patch_text)
 -----------------------
 
-Apply a patch to the source of function ``func``. ``patch_text`` will be
-``textwrap.dedent()``’d and blank lines at the start and end stripped, so you
-can write it inline with ``"""`` strings in your source code without breaking
-your indendation levels.
+Apply a patch to the source of function ``func``.
 
 If the patch is invalid, for example the context lines don’t match,
 ``ValueError`` will be raised.

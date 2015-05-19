@@ -69,12 +69,11 @@ class TestPatchy(unittest.TestCase):
 
         patchy.patch(
             sample,
-            """
-            @@ -1,2 +1,2 @@
-             def sample():
-            -    return 1
-            +    return 2
-            """
+            """\
+@@ -1,2 +1,2 @@
+ def sample():
+-    return 1
++    return 2"""
         )
         self.assertEqual(sample(), 2)
 
@@ -84,11 +83,10 @@ class TestPatchy(unittest.TestCase):
 
         patchy.patch(
             sample,
-            """
-            @@ -2,2 +2,2 @@
-            -    return 1
-            +    return 2
-            """
+            """\
+@@ -2,2 +2,2 @@
+-    return 1
++    return 2"""
         )
         self.assertEqual(sample(), 2)
 
@@ -115,12 +113,11 @@ class TestPatchy(unittest.TestCase):
         def sample():
             return 1
 
-        bad_patch = """
-            @@ -1,2 +1,2 @@
-             def sample():
-            -    return 2
-            +    return 23
-            """
+        bad_patch = """\
+@@ -1,2 +1,2 @@
+ def sample():
+-    return 2
++    return 23"""
         with self.assertRaises(ValueError) as cm:
             patchy.patch(sample, bad_patch)
 
@@ -132,18 +129,16 @@ class TestPatchy(unittest.TestCase):
         def sample():
             return 1
 
-        patchy.patch(sample, """
-            @@ -1,2 +1,2 @@
-             def sample():
-            -    return 1
-            +    return 2
-        """)
-        patchy.patch(sample, """
-            @@ -1,2 +1,2 @@
-             def sample():
-            -    return 2
-            +    return 3
-        """)
+        patchy.patch(sample, """\
+@@ -1,2 +1,2 @@
+ def sample():
+-    return 1
++    return 2""")
+        patchy.patch(sample, """\
+@@ -1,2 +1,2 @@
+ def sample():
+-    return 2
++    return 3""")
 
         self.assertEqual(sample(), 3)
 
@@ -152,12 +147,11 @@ class TestPatchy(unittest.TestCase):
             def method(self):
                 return 'Chalk'
 
-        patchy.patch(Artist.method, """
-            @@ -1,2 +1,2 @@
-             def method(self):
-            -    return 'Chalk'
-            +    return 'Cheese'
-        """)
+        patchy.patch(Artist.method, """\
+@@ -1,2 +1,2 @@
+ def method(self):
+-    return 'Chalk'
++    return 'Cheese'""")
 
         self.assertEqual(Artist().method(), "Cheese")
 
@@ -166,19 +160,17 @@ class TestPatchy(unittest.TestCase):
             def method(self):
                 return 'Chalk'
 
-        patchy.patch(Artist.method, """
-            @@ -1,2 +1,2 @@
-             def method(self):
-            -    return 'Chalk'
-            +    return 'Cheese'
-        """)
+        patchy.patch(Artist.method, """\
+@@ -1,2 +1,2 @@
+ def method(self):
+-    return 'Chalk'
++    return 'Cheese'""")
 
-        patchy.patch(Artist.method, """
-            @@ -1,2 +1,2 @@
-             def method(self):
-            -    return 'Cheese'
-            +    return 'Crackers'
-        """)
+        patchy.patch(Artist.method, """\
+@@ -1,2 +1,2 @@
+ def method(self):
+-    return 'Cheese'
++    return 'Crackers'""")
 
         self.assertEqual(Artist().method(), "Crackers")
 
@@ -191,13 +183,12 @@ class TestPatchy(unittest.TestCase):
             def create(cls, name):
                 return cls(name)
 
-        patchy.patch(Emotion.create, """
-            @@ -1,3 +1,3 @@
-             @classmethod
-             def create(cls, name):
-            +    name = name.title()
-                 return cls(name)
-        """)
+        patchy.patch(Emotion.create, """\
+@@ -1,3 +1,3 @@
+ @classmethod
+ def create(cls, name):
++    name = name.title()
+     return cls(name)""")
 
         self.assertEqual(Emotion.create("Happy").name, "Happy")
         self.assertEqual(Emotion.create("happy").name, "Happy")
@@ -211,22 +202,20 @@ class TestPatchy(unittest.TestCase):
             def create(cls, name):
                 return cls(name)
 
-        patchy.patch(Emotion.create, """
-            @@ -1,3 +1,3 @@
-             @classmethod
-             def create(cls, name):
-            +    name = name.title()
-                 return cls(name)
-        """)
+        patchy.patch(Emotion.create, """\
+@@ -1,3 +1,3 @@
+ @classmethod
+ def create(cls, name):
++    name = name.title()
+     return cls(name)""")
 
-        patchy.patch(Emotion.create, """
-            @@ -1,3 +1,3 @@
-             @classmethod
-             def create(cls, name):
-            -    name = name.title()
-            +    name = name.lower()
-                 return cls(name)
-        """)
+        patchy.patch(Emotion.create, """\
+@@ -1,3 +1,3 @@
+ @classmethod
+ def create(cls, name):
+-    name = name.title()
++    name = name.lower()
+     return cls(name)""")
 
         self.assertEqual(Emotion.create("happy").name, "happy")
         self.assertEqual(Emotion.create("Happy").name, "happy")
@@ -238,13 +227,12 @@ class TestPatchy(unittest.TestCase):
             def bark():
                 return "Woof"
 
-        patchy.patch(Doge.bark, """
-            @@ -1,3 +1,3 @@
-             @staticmethod
-             def bark():
-            -    return "Woof"
-            +    return "Wow"
-        """)
+        patchy.patch(Doge.bark, """\
+@@ -1,3 +1,3 @@
+ @staticmethod
+ def bark():
+-    return "Woof"
++    return "Wow\"""")
 
         self.assertEqual(Doge.bark(), "Wow")
 
@@ -254,21 +242,19 @@ class TestPatchy(unittest.TestCase):
             def bark():
                 return "Woof"
 
-        patchy.patch(Doge.bark, """
-            @@ -1,3 +1,3 @@
-             @staticmethod
-             def bark():
-            -    return "Woof"
-            +    return "Wow"
-        """)
+        patchy.patch(Doge.bark, """\
+@@ -1,3 +1,3 @@
+ @staticmethod
+ def bark():
+-    return "Woof"
++    return "Wow\"""")
 
-        patchy.patch(Doge.bark, """
-            @@ -1,3 +1,3 @@
-             @staticmethod
-             def bark():
-            -    return "Wow"
-            +    return "Wowowow"
-        """)
+        patchy.patch(Doge.bark, """\
+@@ -1,3 +1,3 @@
+ @staticmethod
+ def bark():
+-    return "Wow"
++    return "Wowowow\"""")
 
         self.assertEqual(Doge.bark(), "Wowowow")
 
