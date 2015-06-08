@@ -18,10 +18,6 @@ requirements = [
     'six==1.9.0'
 ]
 
-test_requirements = [
-    # TODO: put package test requirements here
-]
-
 setup(
     name='patchy',
     version='1.0.0',
@@ -52,6 +48,4 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
-    test_suite='tests',
-    tests_require=test_requirements
 )
