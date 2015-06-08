@@ -40,23 +40,31 @@ def patch(func, patch):
     # Write out files
     tempdir = tempfile.mkdtemp(prefix='patchy')
     try:
-        source_path = os.path.join(tempdir, 'source.py')
+        source_path = os.path.join(tempdir, func.__name__ + '.py')
         with open(source_path, 'w') as source_file:
             source_file.write(source)
 
-        patch_path = os.path.join(tempdir, 'the.patch')
+        patch_path = os.path.join(tempdir, func.__name__ + '.patch')
         with open(patch_path, 'w') as patch_file:
             patch_file.write(patch)
             if not patch.endswith('\n'):
                 patch_file.write('\n')
 
         # Call `patch` command
-        try:
-            subprocess.check_output(['patch', source_path, patch_path])
-        except subprocess.CalledProcessError as exc:
-            msg = "Invalid patch."
-            if exc.output:
-                msg += '\n' + exc.output.decode('utf-8')
+        proc = subprocess.Popen(
+            ['patch', source_path, patch_path],
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE
+        )
+        stdout, stderr = proc.communicate()
+
+        if proc.returncode != 0:
+            msg = "Could not apply the patch to '{}'.".format(func.__name__)
+            if stdout or stderr:
+                msg += " The message from `patch` was:\n{}\n{}".format(
+                    stdout.decode('utf-8'),
+                    stderr.decode('utf-8')
+                )
             raise ValueError(msg)
 
         with open(source_path, 'r') as source_file:

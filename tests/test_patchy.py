@@ -122,7 +122,8 @@ class PatchTests(unittest.TestCase):
             patchy.patch(sample, bad_patch)
 
         msg = str(excinfo.value)
-        assert msg == "Invalid patch."
+        assert msg.startswith("Could not apply the patch to 'sample'.")
+        assert "Only garbage was found in the patch input."
         assert sample() == 1
 
     def test_patch_invalid_hunk(self):
