@@ -93,8 +93,9 @@ class PatchTests(unittest.TestCase):
             @@ -1,2 +1,2 @@
              def sample():
             -    return 1
-            +    return 2""")
-        assert sample() == 2
+            +    return 9001
+            """)
+        assert sample() == 9001
 
     def test_patch_simple(self):
         def sample():
