@@ -50,7 +50,7 @@ def patch(func, patch):
             if not patch.endswith('\n'):
                 patch_file.write('\n')
 
-        # Call GNU(?) patch
+        # Call `patch` command
         try:
             subprocess.check_output(['patch', source_path, patch_path])
         except subprocess.CalledProcessError as exc:
