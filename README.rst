@@ -47,8 +47,9 @@ There are of course a lot of reasons against:
 
 * It’s (relatively) slow (since it writes the source to disk and calls the
   ``patch`` command)
-* If you have patch, why not just fork the library and apply it?
-* At least with monkey-patching you know what you end up with
+* If you have a patch file, why not just fork the library and apply it?
+* At least with monkey-patching you know you end up with, rather than having a
+  the changes being done at runtime
 
 All are valid arguments. However once in a while this might be the right
 solution.
@@ -57,12 +58,12 @@ solution.
 How?
 ====
 
-The standard library function `inspect.getsource()` is used to retrieve the
+The standard library function ``inspect.getsource()`` is used to retrieve the
 source code of the function, the patch is applied with the commandline utility
-`patch`, the code is recompiled, and the function’s code object is replaced the
-new one. Because nothing tends to poke around at code objects apart from dodgy
-hacks like this, you don’t need to worry about chasing any references that may
-exist to the function, unlike ``mock.patch``.
+``patch``, the code is recompiled, and the function’s code object is replaced
+the new one. Because nothing tends to poke around at code objects apart from
+dodgy hacks like this, you don’t need to worry about chasing any references
+that may exist to the function, unlike ``mock.patch``.
 
 
 API
@@ -71,8 +72,8 @@ API
 ``replace(func, find, replace, count=None)``
 --------------------------------------------
 
-Perform a simple find and replace on source of the function ``func``’s source.
-For when you don’t want to have to write a patch. ``find`` and ``replace``
+Perform a simple find and replace on source of the function ``func``’s source -
+for when you don’t want to have to write a patch. ``find`` and ``replace``
 should both be strings that will be passed to ``str.replace``.
 
 If ``count`` is specified, it will be checked that exactly ``count``
@@ -89,19 +90,20 @@ Example::
     "Hello"
 
 
-patch(func, patch_text)
------------------------
+``patch(func, patch_text)``
+---------------------------
 
-Apply a patch to the source of function ``func``.
+Apply the patch ``patch_text`` to the source of function ``func``.
 
 If the patch is invalid, for example the context lines don’t match,
-``ValueError`` will be raised.
+``ValueError`` will be raised, with a message that includes all the output from
+the ``patch`` utility.
 
-Note that the patch will be ``textwrap.dedent()``’ed, but leading whitespace
-will not be removed. Therefore the correct way to include the patch is with
-a triple-quoted string with a backslash - ``"""\`` - which starts the string
-and avoids including the first newline. A final newline is not required and
-will be automatically added.
+Note that ``patch_text`` will be ``textwrap.dedent()``’ed, but leading
+whitespace will not be removed. Therefore the correct way to include the patch
+is with a triple-quoted string with a backslash - ``"""\`` - which starts the
+string and avoids including the first newline. A final newline is not required
+and will be automatically added if not present.
 
 Example::
 
@@ -115,7 +117,7 @@ Example::
     2
 
 
-How to create a patch
+How to Create a Patch
 =====================
 
 1. Save the source of the function of interest in a ``.py`` file, e.g.
