@@ -86,6 +86,20 @@ class TestPatchy(unittest.TestCase):
             """\
 @@ -2,2 +2,2 @@
 -    return 1
++    return 2
+"""
+        )
+        self.assertEqual(sample(), 2)
+
+    def test_patch_simple_no_newline(self):
+        def sample():
+            return 1
+
+        patchy.patch(
+            sample,
+            """\
+@@ -2,2 +2,2 @@
+-    return 1
 +    return 2"""
         )
         self.assertEqual(sample(), 2)
@@ -122,7 +136,7 @@ class TestPatchy(unittest.TestCase):
             patchy.patch(sample, bad_patch)
 
         msg = str(cm.exception)
-        self.assertIn("could not apply", msg)
+        self.assertIn("Hunk #1 FAILED", msg)
         self.assertEqual(sample(), 1)
 
     def test_patch_twice(self):
@@ -184,7 +198,7 @@ class TestPatchy(unittest.TestCase):
                 return cls(name)
 
         patchy.patch(Emotion.create, """\
-@@ -1,3 +1,3 @@
+@@ -1,2 +1,3 @@
  @classmethod
  def create(cls, name):
 +    name = name.title()
@@ -203,7 +217,7 @@ class TestPatchy(unittest.TestCase):
                 return cls(name)
 
         patchy.patch(Emotion.create, """\
-@@ -1,3 +1,3 @@
+@@ -1,2 +1,3 @@
  @classmethod
  def create(cls, name):
 +    name = name.title()

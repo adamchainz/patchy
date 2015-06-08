@@ -6,10 +6,13 @@ __version__ = '1.0.0'
 
 
 import inspect
+import subprocess
+import tempfile
+import os
+import shutil
 from textwrap import dedent
 
 import six
-import whatthepatch
 
 
 def replace(func, find, replace, count=None):
@@ -34,22 +37,32 @@ def replace(func, find, replace, count=None):
 def patch(func, patch):
     source = _get_source(func)
 
-    # Diff
-    diffs = [x for x in whatthepatch.parse_patch(patch)]
-    if not len(diffs):
-        raise ValueError("Invalid patch.")
+    # Write out files
+    tempdir = tempfile.mkdtemp(prefix='patchy')
+    try:
+        source_path = os.path.join(tempdir, 'source.py')
+        with open(source_path, 'w') as source_file:
+            source_file.write(source)
 
-    for i, diff in enumerate(diffs, 1):
+        patch_path = os.path.join(tempdir, 'the.patch')
+        with open(patch_path, 'w') as patch_file:
+            patch_file.write(patch)
+            if not patch.endswith('\n'):
+                patch_file.write('\n')
+
+        # Call GNU(?) patch
         try:
-            source = '\n'.join(whatthepatch.apply_diff(diff, source))
-        except AssertionError:
-            raise ValueError(
-                "Hunk {num} of the patch was invalid - could not apply:\n\n"
-                "{patch}\n"
-                "to source:\n\n"
-                "{source}"
-                .format(num=i, patch=patch, source=source)
-            )
+            subprocess.check_output(['patch', source_path, patch_path])
+        except subprocess.CalledProcessError as exc:
+            msg = "Invalid patch."
+            if exc.output:
+                msg += '\n' + exc.output.decode('utf-8')
+            raise ValueError(msg)
+
+        with open(source_path, 'r') as source_file:
+            source = source_file.read()
+    finally:
+        shutil.rmtree(tempdir)
 
     # Recompile
     _set_source(func, source)
