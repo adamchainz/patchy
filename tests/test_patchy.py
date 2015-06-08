@@ -4,27 +4,29 @@ import six
 import unittest
 from textwrap import dedent
 
+import pytest
+
 import patchy
 
 
-class TestPatchy(unittest.TestCase):
+class ReplaceTests(unittest.TestCase):
 
     def test_replace(self):
         def sample():
             return 1
 
-        self.assertEqual(sample(), 1)
+        assert sample() == 1
         patchy.replace(sample, find='1', replace='2')
-        self.assertEqual(sample(), 2)
+        assert sample() == 2
 
     def test_replace_multiline(self):
         def sample(arg1):
             output = arg1 * 5
             return output
 
-        self.assertEqual(sample('Snoo'), 'SnooSnooSnooSnooSnoo')
+        assert sample('Snoo') == 'SnooSnooSnooSnooSnoo'
         patchy.replace(sample, find='* 5', replace='* 2')
-        self.assertEqual(sample('Snoo'), 'SnooSnoo')
+        assert sample('Snoo') == 'SnooSnoo'
 
     def test_replace_class(self):
         class Artist(object):
@@ -32,13 +34,13 @@ class TestPatchy(unittest.TestCase):
                 return 'Chalk'
 
         patchy.replace(Artist.method, 'Chalk', 'Watercolour')
-        self.assertEqual(Artist().method(), 'Watercolour')
+        assert Artist().method() == 'Watercolour'
 
     def test_replace_invalid(self):
         def sample():
             return "A"
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             patchy.replace(sample, find='B', replace='C')
 
     def test_replace_count(self):
@@ -46,13 +48,13 @@ class TestPatchy(unittest.TestCase):
             return 2 * 2
 
         patchy.replace(sample, '2', '4', count=2)
-        self.assertEqual(sample(), 16)
+        assert sample() == 16
 
     def test_replace_count_bad(self):
         def sample():
             return 2 * 1
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             patchy.replace(sample, '2', '4', count=2)
 
     def test_replace_twice(self):
@@ -61,7 +63,10 @@ class TestPatchy(unittest.TestCase):
 
         patchy.replace(sample, '1', '2')
         patchy.replace(sample, '2', '3')
-        self.assertEqual(sample(), 3)
+        assert sample() == 3
+
+
+class PatchTests(unittest.TestCase):
 
     def test_patch(self):
         def sample():
@@ -75,7 +80,7 @@ class TestPatchy(unittest.TestCase):
 -    return 1
 +    return 2"""
         )
-        self.assertEqual(sample(), 2)
+        assert sample() == 2
 
     def test_patch_simple(self):
         def sample():
@@ -89,7 +94,7 @@ class TestPatchy(unittest.TestCase):
 +    return 2
 """
         )
-        self.assertEqual(sample(), 2)
+        assert sample() == 2
 
     def test_patch_simple_no_newline(self):
         def sample():
@@ -102,7 +107,7 @@ class TestPatchy(unittest.TestCase):
 -    return 1
 +    return 2"""
         )
-        self.assertEqual(sample(), 2)
+        assert sample() == 2
 
     def test_patch_invalid(self):
         """
@@ -113,12 +118,12 @@ class TestPatchy(unittest.TestCase):
 
         bad_patch = """
             """
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as excinfo:
             patchy.patch(sample, bad_patch)
 
-        msg = str(cm.exception)
-        self.assertEqual(msg, "Invalid patch.", )
-        self.assertEqual(sample(), 1)
+        msg = str(excinfo.value)
+        assert msg == "Invalid patch."
+        assert sample() == 1
 
     def test_patch_invalid_hunk(self):
         """
@@ -132,12 +137,12 @@ class TestPatchy(unittest.TestCase):
  def sample():
 -    return 2
 +    return 23"""
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as excinfo:
             patchy.patch(sample, bad_patch)
 
-        msg = str(cm.exception)
-        self.assertIn("Hunk #1 FAILED", msg)
-        self.assertEqual(sample(), 1)
+        msg = str(excinfo.value)
+        assert "Hunk #1 FAILED" in msg
+        assert sample() == 1
 
     def test_patch_twice(self):
         def sample():
@@ -154,7 +159,7 @@ class TestPatchy(unittest.TestCase):
 -    return 2
 +    return 3""")
 
-        self.assertEqual(sample(), 3)
+        assert sample() == 3
 
     def test_patch_instancemethod(self):
         class Artist(object):
@@ -167,7 +172,7 @@ class TestPatchy(unittest.TestCase):
 -    return 'Chalk'
 +    return 'Cheese'""")
 
-        self.assertEqual(Artist().method(), "Cheese")
+        assert Artist().method() == "Cheese"
 
     def test_patch_instancemethod_twice(self):
         class Artist(object):
@@ -186,7 +191,7 @@ class TestPatchy(unittest.TestCase):
 -    return 'Cheese'
 +    return 'Crackers'""")
 
-        self.assertEqual(Artist().method(), "Crackers")
+        assert Artist().method() == "Crackers"
 
     def test_patch_classmethod(self):
         class Emotion(object):
@@ -204,8 +209,8 @@ class TestPatchy(unittest.TestCase):
 +    name = name.title()
      return cls(name)""")
 
-        self.assertEqual(Emotion.create("Happy").name, "Happy")
-        self.assertEqual(Emotion.create("happy").name, "Happy")
+        assert Emotion.create("Happy").name == "Happy"
+        assert Emotion.create("happy").name == "Happy"
 
     def test_patch_classmethod_twice(self):
         class Emotion(object):
@@ -231,9 +236,9 @@ class TestPatchy(unittest.TestCase):
 +    name = name.lower()
      return cls(name)""")
 
-        self.assertEqual(Emotion.create("happy").name, "happy")
-        self.assertEqual(Emotion.create("Happy").name, "happy")
-        self.assertEqual(Emotion.create("HAPPY").name, "happy")
+        assert Emotion.create("happy").name == "happy"
+        assert Emotion.create("Happy").name == "happy"
+        assert Emotion.create("HAPPY").name == "happy"
 
     def test_patch_staticmethod(self):
         class Doge(object):
@@ -248,7 +253,7 @@ class TestPatchy(unittest.TestCase):
 -    return "Woof"
 +    return "Wow\"""")
 
-        self.assertEqual(Doge.bark(), "Wow")
+        assert Doge.bark() == "Wow"
 
     def test_patch_staticmethod_twice(self):
         class Doge(object):
@@ -270,7 +275,7 @@ class TestPatchy(unittest.TestCase):
 -    return "Wow"
 +    return "Wowowow\"""")
 
-        self.assertEqual(Doge.bark(), "Wowowow")
+        assert Doge.bark() == "Wowowow"
 
     @unittest.skipUnless(six.PY3, "Python 3")
     @unittest.expectedFailure
@@ -285,7 +290,4 @@ class TestPatchy(unittest.TestCase):
                 return multiple * unittest"""), globals(), locals())['sample']
 
         patchy.replace(sample, find='multiple = 3', replace='multiple = 4')
-        self.assertEqual(sample(), 20)
-
-if __name__ == '__main__':
-    unittest.main()
+        assert sample() == 20
