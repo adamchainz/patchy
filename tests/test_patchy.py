@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 import six
 import unittest
 from textwrap import dedent
@@ -141,8 +143,36 @@ class PatchTests(unittest.TestCase):
         with pytest.raises(ValueError) as excinfo:
             patchy.patch(sample, bad_patch)
 
-        msg = str(excinfo.value)
-        assert "Hunk #1 FAILED" in msg
+        assert "Hunk #1 FAILED" in str(excinfo.value)
+        assert sample() == 1
+
+    def test_patch_invalid_hunk_2(self):
+        """
+        We need to balk on patches that fail on application
+        """
+        def sample():
+            if True:
+                print("yes")
+            if False:
+                print("no")
+            return 1
+
+        bad_patch = """\
+@@ -1,2 +1,2 @@
+ def sample():
+-    if True:
++    if False:
+@@ -3,5 +3,5 @@
+         print("yes")
+-    if Falsy:
++    if Truey:
+         print("no")
+"""
+        with pytest.raises(ValueError) as excinfo:
+            patchy.patch(sample, bad_patch)
+
+        print(excinfo.value)
+        assert "Hunk #2 FAILED" in str(excinfo.value)
         assert sample() == 1
 
     def test_patch_twice(self):
