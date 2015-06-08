@@ -36,6 +36,7 @@ def replace(func, find, replace, count=None):
 
 def patch(func, patch):
     source = _get_source(func)
+    patch = dedent(patch)
 
     # Write out files
     tempdir = tempfile.mkdtemp(prefix='patchy')

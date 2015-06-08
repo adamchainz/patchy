@@ -67,6 +67,21 @@ class ReplaceTests(unittest.TestCase):
         patchy.replace(sample, '2', '3')
         assert sample() == 3
 
+    @unittest.skipUnless(six.PY3, "Python 3")
+    @unittest.expectedFailure
+    def test_replace_nonlocal(self):
+        unittest = 5  # shadow a global name
+
+        # Using exec because 'nonlocal' would SyntaxError when testing on 2.7
+        sample = six.exec_(dedent("""\
+            def sample():
+                nonlocal unittest
+                multiple = 3
+                return multiple * unittest"""), globals(), locals())['sample']
+
+        patchy.replace(sample, find='multiple = 3', replace='multiple = 4')
+        assert sample() == 20
+
 
 class PatchTests(unittest.TestCase):
 
@@ -74,41 +89,32 @@ class PatchTests(unittest.TestCase):
         def sample():
             return 1
 
-        patchy.patch(
-            sample,
-            """\
-@@ -1,2 +1,2 @@
- def sample():
--    return 1
-+    return 2"""
-        )
+        patchy.patch(sample, """\
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    return 1
+            +    return 2""")
         assert sample() == 2
 
     def test_patch_simple(self):
         def sample():
             return 1
 
-        patchy.patch(
-            sample,
-            """\
-@@ -2,2 +2,2 @@
--    return 1
-+    return 2
-"""
-        )
+        patchy.patch(sample, """\
+            @@ -2,2 +2,2 @@
+            -    return 1
+            +    return 2
+            """)
         assert sample() == 2
 
     def test_patch_simple_no_newline(self):
         def sample():
             return 1
 
-        patchy.patch(
-            sample,
-            """\
-@@ -2,2 +2,2 @@
--    return 1
-+    return 2"""
-        )
+        patchy.patch(sample, """\
+            @@ -2,2 +2,2 @@
+            -    return 1
+            +    return 2""")
         assert sample() == 2
 
     def test_patch_invalid(self):
@@ -136,10 +142,10 @@ class PatchTests(unittest.TestCase):
             return 1
 
         bad_patch = """\
-@@ -1,2 +1,2 @@
- def sample():
--    return 2
-+    return 23"""
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    return 2
+            +    return 23"""
         with pytest.raises(ValueError) as excinfo:
             patchy.patch(sample, bad_patch)
 
@@ -158,16 +164,16 @@ class PatchTests(unittest.TestCase):
             return 1
 
         bad_patch = """\
-@@ -1,2 +1,2 @@
- def sample():
--    if True:
-+    if False:
-@@ -3,5 +3,5 @@
-         print("yes")
--    if Falsy:
-+    if Truey:
-         print("no")
-"""
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    if True:
+            +    if False:
+            @@ -3,5 +3,5 @@
+                     print("yes")
+            -    if Falsy:
+            +    if Truey:
+                     print("no")
+            """
         with pytest.raises(ValueError) as excinfo:
             patchy.patch(sample, bad_patch)
 
@@ -180,15 +186,16 @@ class PatchTests(unittest.TestCase):
             return 1
 
         patchy.patch(sample, """\
-@@ -1,2 +1,2 @@
- def sample():
--    return 1
-+    return 2""")
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    return 1
+            +    return 2""")
         patchy.patch(sample, """\
-@@ -1,2 +1,2 @@
- def sample():
--    return 2
-+    return 3""")
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    return 2
+            +    return 3
+            """)
 
         assert sample() == 3
 
@@ -198,10 +205,11 @@ class PatchTests(unittest.TestCase):
                 return 'Chalk'
 
         patchy.patch(Artist.method, """\
-@@ -1,2 +1,2 @@
- def method(self):
--    return 'Chalk'
-+    return 'Cheese'""")
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    return 'Chalk'
+            +    return 'Cheese'
+            """)
 
         assert Artist().method() == "Cheese"
 
@@ -211,16 +219,16 @@ class PatchTests(unittest.TestCase):
                 return 'Chalk'
 
         patchy.patch(Artist.method, """\
-@@ -1,2 +1,2 @@
- def method(self):
--    return 'Chalk'
-+    return 'Cheese'""")
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    return 'Chalk'
+            +    return 'Cheese'""")
 
         patchy.patch(Artist.method, """\
-@@ -1,2 +1,2 @@
- def method(self):
--    return 'Cheese'
-+    return 'Crackers'""")
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    return 'Cheese'
+            +    return 'Crackers'""")
 
         assert Artist().method() == "Crackers"
 
@@ -234,11 +242,11 @@ class PatchTests(unittest.TestCase):
                 return cls(name)
 
         patchy.patch(Emotion.create, """\
-@@ -1,2 +1,3 @@
- @classmethod
- def create(cls, name):
-+    name = name.title()
-     return cls(name)""")
+            @@ -1,2 +1,3 @@
+             @classmethod
+             def create(cls, name):
+            +    name = name.title()
+                 return cls(name)""")
 
         assert Emotion.create("Happy").name == "Happy"
         assert Emotion.create("happy").name == "Happy"
@@ -253,19 +261,19 @@ class PatchTests(unittest.TestCase):
                 return cls(name)
 
         patchy.patch(Emotion.create, """\
-@@ -1,2 +1,3 @@
- @classmethod
- def create(cls, name):
-+    name = name.title()
-     return cls(name)""")
+            @@ -1,2 +1,3 @@
+             @classmethod
+             def create(cls, name):
+            +    name = name.title()
+                 return cls(name)""")
 
         patchy.patch(Emotion.create, """\
-@@ -1,3 +1,3 @@
- @classmethod
- def create(cls, name):
--    name = name.title()
-+    name = name.lower()
-     return cls(name)""")
+            @@ -1,3 +1,3 @@
+             @classmethod
+             def create(cls, name):
+            -    name = name.title()
+            +    name = name.lower()
+                 return cls(name)""")
 
         assert Emotion.create("happy").name == "happy"
         assert Emotion.create("Happy").name == "happy"
@@ -278,11 +286,11 @@ class PatchTests(unittest.TestCase):
                 return "Woof"
 
         patchy.patch(Doge.bark, """\
-@@ -1,3 +1,3 @@
- @staticmethod
- def bark():
--    return "Woof"
-+    return "Wow\"""")
+            @@ -1,3 +1,3 @@
+             @staticmethod
+             def bark():
+            -    return "Woof"
+            +    return "Wow\"""")
 
         assert Doge.bark() == "Wow"
 
@@ -293,32 +301,17 @@ class PatchTests(unittest.TestCase):
                 return "Woof"
 
         patchy.patch(Doge.bark, """\
-@@ -1,3 +1,3 @@
- @staticmethod
- def bark():
--    return "Woof"
-+    return "Wow\"""")
+            @@ -1,3 +1,3 @@
+             @staticmethod
+             def bark():
+            -    return "Woof"
+            +    return "Wow\"""")
 
         patchy.patch(Doge.bark, """\
-@@ -1,3 +1,3 @@
- @staticmethod
- def bark():
--    return "Wow"
-+    return "Wowowow\"""")
+            @@ -1,3 +1,3 @@
+             @staticmethod
+             def bark():
+            -    return "Wow"
+            +    return "Wowowow\"""")
 
         assert Doge.bark() == "Wowowow"
-
-    @unittest.skipUnless(six.PY3, "Python 3")
-    @unittest.expectedFailure
-    def test_replace_nonlocal(self):
-        unittest = 5  # shadow a global name
-
-        # Using exec because 'nonlocal' would SyntaxError when testing on 2.7
-        sample = six.exec_(dedent("""\
-            def sample():
-                nonlocal unittest
-                multiple = 3
-                return multiple * unittest"""), globals(), locals())['sample']
-
-        patchy.replace(sample, find='multiple = 3', replace='multiple = 4')
-        assert sample() == 20
