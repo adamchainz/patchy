@@ -15,11 +15,9 @@ A quick example::
     >>> def sample():
     ...    return 1
     >>> patchy.patch(sample, """\
-    ...     @@ -1,2 +1,2 @@
-    ...      def sample():
+    ...     @@ -2,2 +2,2 @@
     ...     -    return 1
-    ...     +    return 9001
-    ...     """)
+    ...     +    return 9001""")
     >>> sample()
     9001
 
