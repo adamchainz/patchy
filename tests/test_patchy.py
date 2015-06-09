@@ -200,6 +200,28 @@ class PatchTests(unittest.TestCase):
 
         assert sample() == 3
 
+    def test_patch_mutable_default_arg(self):
+        def foo(append=None, mutable=[]):
+            if append is not None:
+                mutable.append(append)
+            return len(mutable)
+
+        assert foo() == 0
+        assert foo('v1') == 1
+        assert foo('v2') == 2
+        assert foo(mutable=[]) == 0
+
+        patchy.patch(foo, """\
+            @@ -1,2 +1,3 @@
+             def foo(append=None, mutable=[]):
+            +    len(mutable)
+                 if append is not None:
+            """)
+
+        assert foo() == 2
+        assert foo('v3') == 3
+        assert foo(mutable=[]) == 0
+
     def test_patch_instancemethod(self):
         class Artist(object):
             def method(self):
