@@ -66,6 +66,10 @@ def patch(func, patch):
                     stdout.decode('utf-8'),
                     stderr.decode('utf-8')
                 )
+            msg += (
+                "\nThe code to patch was:\n{}\nThe patch was:\n{}"
+                .format(source, patch)
+            )
             raise ValueError(msg)
 
         with open(source_path, 'r') as source_file:
