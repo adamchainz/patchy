@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import six
 import unittest
+from functools import wraps
 from textwrap import dedent
 
 import pytest
@@ -338,3 +339,26 @@ class PatchTests(unittest.TestCase):
             +    return "Wowowow\"""")
 
         assert Doge.bark() == "Wowowow"
+
+    def test_patch_wrapped_func(self):
+        @assert_args
+        def sample(*args):
+            return len(args)
+
+        assert sample(1, 2) == 2
+
+        import pdb; pdb.set_trace()
+        patchy.patch(sample.__wrapped__, """\
+            @@ -1,2 +1,2 @@
+             def sample(*args):
+            -    return len(args)
+            +    return len(args) * 2
+            """)
+
+
+def assert_args(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        assert len(args)
+        return func(*args, **kwargs)
+    return wrapper
