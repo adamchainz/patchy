@@ -6,10 +6,10 @@ __version__ = '1.0.0'
 
 
 import inspect
-import subprocess
-import tempfile
 import os
 import shutil
+import subprocess
+import tempfile
 from textwrap import dedent
 
 import six
@@ -37,6 +37,8 @@ def replace(func, find, replace, count=None):
 def patch(func, patch):
     source = _get_source(func)
     patch = dedent(patch)
+    if not patch.endswith('\n'):
+        patch += '\n'
 
     # Write out files
     tempdir = tempfile.mkdtemp(prefix='patchy')
@@ -45,19 +47,18 @@ def patch(func, patch):
         with open(source_path, 'w') as source_file:
             source_file.write(source)
 
-        patch_path = os.path.join(tempdir, func.__name__ + '.patch')
-        with open(patch_path, 'w') as patch_file:
-            patch_file.write(patch)
-            if not patch.endswith('\n'):
-                patch_file.write('\n')
+        # patch_path = os.path.join(tempdir, func.__name__ + '.patch')
+        # with open(patch_path, 'w') as patch_file:
+        #     patch_file.write(patch)
 
         # Call `patch` command
         proc = subprocess.Popen(
-            ['patch', source_path, patch_path],
+            ['patch', source_path],
+            stdin=subprocess.PIPE,
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE
         )
-        stdout, stderr = proc.communicate()
+        stdout, stderr = proc.communicate(patch.encode('utf-8'))
 
         if proc.returncode != 0:
             msg = "Could not apply the patch to '{}'.".format(func.__name__)
