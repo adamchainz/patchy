@@ -4,7 +4,6 @@ from __future__ import print_function
 
 import six
 import unittest
-from textwrap import dedent
 
 import pytest
 
@@ -66,21 +65,6 @@ class ReplaceTests(unittest.TestCase):
         patchy.replace(sample, '1', '2')
         patchy.replace(sample, '2', '3')
         assert sample() == 3
-
-    @unittest.skipUnless(six.PY3, "Python 3")
-    @unittest.expectedFailure
-    def test_replace_nonlocal(self):
-        unittest = 5  # shadow a global name
-
-        # Using exec because 'nonlocal' would SyntaxError when testing on 2.7
-        sample = six.exec_(dedent("""\
-            def sample():
-                nonlocal unittest
-                multiple = 3
-                return multiple * unittest"""), globals(), locals())['sample']
-
-        patchy.replace(sample, find='multiple = 3', replace='multiple = 4')
-        assert sample() == 20
 
 
 class PatchTests(unittest.TestCase):
@@ -338,3 +322,17 @@ class PatchTests(unittest.TestCase):
             +    return "Wowowow\"""")
 
         assert Doge.bark() == "Wowowow"
+
+    @unittest.skipUnless(six.PY3, "Python 3")
+    def test_patch_nonlocal_fails(self):
+        # Kept in separate file since it would SyntaxError on Python 2
+        from py3_nonlocal import sample
+
+        with pytest.raises(SyntaxError) as excinfo:
+            patchy.patch(sample, """\
+                @@ -2,3 +2,3 @@
+                     nonlocal variab
+                -    multiple = 3
+                +    multiple = 4
+                """)
+        assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
