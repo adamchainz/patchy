@@ -71,7 +71,7 @@ setup(
     zip_safe=False,
     keywords='patchy',
     classifiers=[
-        'Development Status :: Development Status :: 5 - Production/Stable',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
