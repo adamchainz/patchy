@@ -69,27 +69,6 @@ that may exist to the function, unlike ``mock.patch``.
 API
 ===
 
-``replace(func, find, replace, count=None)``
---------------------------------------------
-
-Perform a simple find and replace on source of the function ``func``’s source -
-for when you don’t want to have to write a patch. ``find`` and ``replace``
-should both be strings that will be passed to ``str.replace``.
-
-If ``count`` is specified, it will be checked that exactly ``count``
-occurrences of ``find`` exist, and ``ValueError`` will be raised if not.
-
-Example::
-
-    >>> def sample():
-    ...     return "Hi" * 5
-    ...
-    >>> patchy.replace("Hi", "Hello")
-    >>> patchy.replace("5", "1")
-    >>> sample()
-    "Hello"
-
-
 ``patch(func, patch_text)``
 ---------------------------
 

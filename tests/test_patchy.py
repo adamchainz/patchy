@@ -10,63 +10,6 @@ import pytest
 import patchy
 
 
-class ReplaceTests(unittest.TestCase):
-
-    def test_replace(self):
-        def sample():
-            return 1
-
-        assert sample() == 1
-        patchy.replace(sample, find='1', replace='2')
-        assert sample() == 2
-
-    def test_replace_multiline(self):
-        def sample(arg1):
-            output = arg1 * 5
-            return output
-
-        assert sample('Snoo') == 'SnooSnooSnooSnooSnoo'
-        patchy.replace(sample, find='* 5', replace='* 2')
-        assert sample('Snoo') == 'SnooSnoo'
-
-    def test_replace_class(self):
-        class Artist(object):
-            def method(self):
-                return 'Chalk'
-
-        patchy.replace(Artist.method, 'Chalk', 'Watercolour')
-        assert Artist().method() == 'Watercolour'
-
-    def test_replace_invalid(self):
-        def sample():
-            return "A"
-
-        with pytest.raises(ValueError):
-            patchy.replace(sample, find='B', replace='C')
-
-    def test_replace_count(self):
-        def sample():
-            return 2 * 2
-
-        patchy.replace(sample, '2', '4', count=2)
-        assert sample() == 16
-
-    def test_replace_count_bad(self):
-        def sample():
-            return 2 * 1
-
-        with pytest.raises(ValueError):
-            patchy.replace(sample, '2', '4', count=2)
-
-    def test_replace_twice(self):
-        def sample():
-            return 1
-
-        patchy.replace(sample, '1', '2')
-        patchy.replace(sample, '2', '3')
-        assert sample() == 3
-
-
 class PatchTests(unittest.TestCase):
 
     def test_patch(self):
