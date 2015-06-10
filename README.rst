@@ -121,6 +121,41 @@ Example:
     >>> sample()
     1
 
+
+``temp_patch(func, patch_text)``
+--------------------------------
+
+Usable as a context manager or function decorator to wrap code with a call to
+``patch`` before and ``unpatch`` after.
+
+Context manager example:
+
+.. code-block:: python
+
+    def sample():
+        return 1234
+
+    patch_text = """\
+        @@ -1,2 +1,2 @@
+         def sample():
+        -    return 1234
+        +    return 5678
+        """
+
+    with patchy.temp_patch(sample, patch_text):
+        print(sample())  # prints 5678
+
+Decorator example, using the same ``sample`` and ``patch_text``:
+
+.. code-block:: python
+
+    @patchy.temp_patch(sample, patch_text)
+    def my_func():
+        return sample() == 5678
+
+    print(my_func())  # prints True
+
+
 How to Create a Patch
 =====================
 
@@ -154,8 +189,8 @@ How to Create a Patch
       -    print("Change me")
       +    print("Changed")
 
-4. The filenames are not necessary for patchy to work. Take only from the first
-   ``@@`` line onwards into the multiline string you pass to
+4. The filenames are not necessary for ``patchy`` to work. Take only from the
+   first ``@@`` line onwards into the multiline string you pass to
    ``patchy.patch()``:
 
    .. code-block:: python

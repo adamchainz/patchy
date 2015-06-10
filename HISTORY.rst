@@ -7,6 +7,7 @@ History
 ---------------
 
 * Added ``unpatch`` method
+* Added ``temp_patch`` context manager/decorator
 
 
 1.0.0 (2015-06-09)

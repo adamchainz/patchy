@@ -4,12 +4,15 @@ import subprocess
 import tempfile
 import os
 import shutil
+from functools import wraps
 from textwrap import dedent
 
 import six
 
-__all__ = ('patch', 'unpatch')
+__all__ = ('patch', 'unpatch', 'temp_patch')
 
+
+# Public API
 
 def patch(func, patch_text):
     return _do_patch(func, patch_text, forwards=True)
@@ -18,6 +21,28 @@ def patch(func, patch_text):
 def unpatch(func, patch_text):
     return _do_patch(func, patch_text, forwards=False)
 
+
+class temp_patch(object):
+    def __init__(self, func, patch_text):
+        self.func = func
+        self.patch_text = patch_text
+
+    def __enter__(self):
+        patch(self.func, self.patch_text)
+
+    def __exit__(self, _, __, ___):
+        unpatch(self.func, self.patch_text)
+
+    def __call__(self, decorable):
+        @wraps(decorable)
+        def wrapper(*args, **kwargs):
+            with self:
+                decorable(*args, **kwargs)
+
+        return wrapper
+
+
+# Gritty internals
 
 def _do_patch(func, patch_text, forwards):
     source = _get_source(func)
