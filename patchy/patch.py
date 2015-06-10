@@ -8,10 +8,20 @@ from textwrap import dedent
 
 import six
 
+__all__ = ('patch', 'unpatch')
 
-def patch(func, patch):
+
+def patch(func, patch_text):
+    return _do_patch(func, patch_text, forwards=True)
+
+
+def unpatch(func, patch_text):
+    return _do_patch(func, patch_text, forwards=False)
+
+
+def _do_patch(func, patch_text, forwards):
     source = _get_source(func)
-    patch = dedent(patch)
+    patch_text = dedent(patch_text)
 
     # Write out files
     tempdir = tempfile.mkdtemp(prefix='patchy')
@@ -22,20 +32,28 @@ def patch(func, patch):
 
         patch_path = os.path.join(tempdir, func.__name__ + '.patch')
         with open(patch_path, 'w') as patch_file:
-            patch_file.write(patch)
-            if not patch.endswith('\n'):
+            patch_file.write(patch_text)
+            if not patch_text.endswith('\n'):
                 patch_file.write('\n')
 
         # Call `patch` command
+        command = ['patch']
+        if not forwards:
+            command.append('--reverse')
+        command.extend([source_path, patch_path])
         proc = subprocess.Popen(
-            ['patch', source_path, patch_path],
+            command,
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE
         )
         stdout, stderr = proc.communicate()
 
         if proc.returncode != 0:
-            msg = "Could not apply the patch to '{}'.".format(func.__name__)
+            msg = "Could not {action} the patch {prep} '{name}'.".format(
+                action=("apply" if forwards else "unapply"),
+                prep=("to" if forwards else "from"),
+                name=func.__name__
+            )
             if stdout or stderr:
                 msg += " The message from `patch` was:\n{}\n{}".format(
                     stdout.decode('utf-8'),
@@ -43,7 +61,7 @@ def patch(func, patch):
                 )
             msg += (
                 "\nThe code to patch was:\n{}\nThe patch was:\n{}"
-                .format(source, patch)
+                .format(source, patch_text)
             )
             raise ValueError(msg)
 

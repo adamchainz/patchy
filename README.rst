@@ -100,6 +100,27 @@ Example:
     2
 
 
+``unpatch(func, patch_text)``
+-----------------------------
+
+Unapply the patch ``patch_text`` from the source of function ``func``. This is
+the reverse of ``patch()``\ing it, and calls ``patch --reverse``.
+
+The same error and formatting rules apply as in ``patch()``.
+
+Example:
+
+.. code-block:: python
+
+    >>> def sample():
+    ...     return 2
+    >>> patchy.unpatch(sample, """\
+    ...     @@ -2,2 +2,2 @@
+    ...     -    return 1
+    ...     +    return 2""")
+    >>> sample()
+    1
+
 How to Create a Patch
 =====================
 
