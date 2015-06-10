@@ -90,14 +90,17 @@ Example:
 
 .. code-block:: python
 
-    >>> def sample():
-    ...     return 1
-    >>> patchy.patch(sample, """\
-    ...     @@ -2,2 +2,2 @@
-    ...     -    return 1
-    ...     +    return 2""")
-    >>> sample()
-    2
+    import patchy
+
+    def sample():
+        return 1
+
+    patchy.patch(sample, """\
+        @@ -2,2 +2,2 @@
+        -    return 1
+        +    return 2""")
+
+    print(sample())  # prints 2
 
 
 ``unpatch(func, patch_text)``
@@ -112,14 +115,17 @@ Example:
 
 .. code-block:: python
 
-    >>> def sample():
-    ...     return 2
-    >>> patchy.unpatch(sample, """\
-    ...     @@ -2,2 +2,2 @@
-    ...     -    return 1
-    ...     +    return 2""")
-    >>> sample()
-    1
+    import patchy
+
+    def sample():
+        return 2
+
+    patchy.unpatch(sample, """\
+        @@ -2,2 +2,2 @@
+        -    return 1
+        +    return 2""")
+
+    print(sample())  # prints 1
 
 
 ``temp_patch(func, patch_text)``
