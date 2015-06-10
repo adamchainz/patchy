@@ -10,7 +10,9 @@ Patchy
 
 Patch the source of python functions at runtime.
 
-A quick example::
+A quick example:
+
+.. code-block:: python
 
     >>> def sample():
     ...    return 1
@@ -84,7 +86,9 @@ is with a triple-quoted string with a backslash - ``"""\`` - which starts the
 string and avoids including the first newline. A final newline is not required
 and will be automatically added if not present.
 
-Example::
+Example:
+
+.. code-block:: python
 
     >>> def sample():
     ...     return 1
@@ -101,18 +105,24 @@ How to Create a Patch
 
 1. Save the source of the function of interest in a ``.py`` file, e.g.
    ``before.py``. Make sure you dedent it so there is no whitespace before the
-   ``def``::
+   ``def``:
+
+   .. code-block:: python
 
        def foo():
            print("Change me")
 
 2. Copy that ``.py`` file, to e.g. ``after.py``, and make the changes you
-   want::
+   want:
+
+   .. code-block:: python
 
        def foo():
            print("Changed")
 
-3. Run ``diff``, e.g. ``diff before.py after.py``. You will get output like::
+3. Run ``diff``, e.g. ``diff before.py after.py``. You will get output like:
+
+   .. code-block:: diff
 
       diff --git a/Users/chainz/tmp/before.py b/Users/chainz/tmp/after.py
       index e6b32c6..31fe8d9 100644
@@ -125,7 +135,9 @@ How to Create a Patch
 
 4. The filenames are not necessary for patchy to work. Take only from the first
    ``@@`` line onwards into the multiline string you pass to
-   ``patchy.patch()``::
+   ``patchy.patch()``:
+
+   .. code-block:: python
 
       patchy.patch(foo, """\
           @@ -1,2 +1,2 @@
