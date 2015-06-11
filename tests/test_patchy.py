@@ -280,6 +280,46 @@ class PatchTests(unittest.TestCase):
                 """)
         assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
 
+    @unittest.skipUnless(six.PY2, "Python 2")
+    def test_patch_future(self):
+        from python2_future import sample
+
+        assert sample() is unicode
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,3 @@
+             def sample():
+            +    pass
+                 return type('example string')
+            """)
+
+        assert sample() is unicode
+
+    @unittest.skipUnless(six.PY2, "Python 2")
+    def test_patch_future_twice(self):
+        from python2_future import sample2
+
+        assert sample2() is unicode
+
+        patchy.patch(sample2, """\
+            @@ -1,2 +1,3 @@
+             def sample2():
+            +    pass
+                 return type('example string 2')
+            """)
+
+        assert sample2() is unicode
+
+        patchy.patch(sample2, """\
+            @@ -1,3 +1,4 @@
+             def sample2():
+                 pass
+            +    pass
+                 return type('example string 2')
+            """)
+
+        assert sample() is unicode
+
 
 class UnpatchTests(unittest.TestCase):
 

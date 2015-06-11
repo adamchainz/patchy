@@ -118,8 +118,30 @@ def _get_source(func):
 def _set_source(func, new_source):
     # Compile and retrieve the new Code object
     localz = {}
+
+    # Figure out any future headers that may be required
+    try:
+        func_mod = func._patchy_the_module
+    except AttributeError:
+        func_mod = inspect.getmodule(func)
+        # func._patchy_the_module = func_mod
+
+    futures_to_use = []
+    import __future__
+    for name in __future__.__all__:
+        if hasattr(func_mod, name):
+            feature = getattr(func_mod, name)
+            if feature is getattr(__future__, name):
+                futures_to_use.append(name)
+
+    if futures_to_use:
+        line = 'from __future__ import {}\n'.format(', '.join(futures_to_use))
+        new_source = line + new_source
+
     six.exec_(new_source, func.__globals__, localz)
     new_func = localz[func.__name__]
+
+    # Figure out how to get the code object
     if isinstance(new_func, (classmethod, staticmethod)):
         new_code = new_func.__func__.__code__
     else:
