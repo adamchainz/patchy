@@ -115,25 +115,49 @@ def _get_source(func):
         return source
 
 
-def _set_source(func, new_source):
-    # Compile and retrieve the new Code object
-    localz = {}
-    six.exec_(new_source, func.__globals__, localz)
-    new_func = localz[func.__name__]
-    if isinstance(new_func, (classmethod, staticmethod)):
-        new_code = new_func.__func__.__code__
-    else:
-        new_code = new_func.__code__
+def _get_flags_mask():
+    import __future__
+    result = 0
+    for name in __future__.all_feature_names:
+        result |= getattr(__future__, name).compiler_flag
+    return result
 
-    # Figure out how to put the new code back
+FEATURE_MASK = _get_flags_mask()
+
+
+def _set_source(func, new_source):
+    # Fetch the actual function we are changing
     if inspect.ismethod(func):
         try:
             # classmethod, staticmethod
             real_func = func.__func__
         except AttributeError:
             real_func = func.im_func
-        real_func.__code__ = new_code
-        real_func._patchy_the_source = new_source
     else:
-        func.__code__ = new_code
-        func._patchy_the_source = new_source
+        real_func = func
+
+    # Figure out any future headers that may be required
+    feature_flags = real_func.__code__.co_flags & FEATURE_MASK
+
+    # Compile and retrieve the new Code object
+    localz = {}
+    new_code = compile(
+        new_source,
+        '<patchy>',
+        'exec',
+        flags=feature_flags,
+        dont_inherit=True
+    )
+
+    six.exec_(new_code, func.__globals__, localz)
+    new_func = localz[func.__name__]
+
+    # Figure out how to get the Code object
+    if isinstance(new_func, (classmethod, staticmethod)):
+        new_code = new_func.__func__.__code__
+    else:
+        new_code = new_func.__code__
+
+    # Put the new Code object in place
+    real_func.__code__ = new_code
+    real_func._patchy_the_source = new_source

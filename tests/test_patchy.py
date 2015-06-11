@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import division, print_function
 
 import six
 import unittest
@@ -279,6 +279,78 @@ class PatchTests(unittest.TestCase):
                 +    multiple = 4
                 """)
         assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
+
+    @unittest.skipUnless(six.PY2, "Python 2")
+    def test_patch_future(self):
+        from python2_future import sample
+
+        assert sample() is unicode
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,3 @@
+             def sample():
+            +    pass
+                 return type('example string')
+            """)
+
+        assert sample() is unicode
+
+    @unittest.skipUnless(six.PY2, "Python 2")
+    def test_patch_future_twice(self):
+        from python2_future import sample2
+
+        assert sample2() is unicode
+
+        patchy.patch(sample2, """\
+            @@ -1,2 +1,3 @@
+             def sample2():
+            +    pass
+                 return type('example string 2')
+            """)
+
+        assert sample2() is unicode
+
+        patchy.patch(sample2, """\
+            @@ -1,3 +1,4 @@
+             def sample2():
+                 pass
+            +    pass
+                 return type('example string 2')
+            """)
+
+        assert sample2() is unicode
+
+    @unittest.skipUnless(six.PY2, "Python 2")
+    def test_patch_future_doesnt_inherit(self):
+        # This test module has 'division' imported, but python2_future doesn't
+        assert division
+        from python2_future import sample3
+
+        assert sample3() == 0
+
+        patchy.patch(sample3, """\
+            @@ -1,2 +1,3 @@
+             def sample3():
+            +    pass
+                 return 1 / 2
+            """)
+
+        assert sample3() == 0
+
+    @unittest.skipUnless(six.PY2, "Python 2")
+    def test_patch_future_instancemethod(self):
+        from python2_future import Sample
+
+        assert Sample().meth() is unicode
+
+        patchy.patch(Sample.meth, """\
+            @@ -1,2 +1,3 @@
+             def meth(self):
+            +    pass
+                 return type('example string')
+            """)
+
+        assert Sample().meth() is unicode
 
 
 class UnpatchTests(unittest.TestCase):
