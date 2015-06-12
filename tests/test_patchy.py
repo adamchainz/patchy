@@ -318,7 +318,7 @@ class PatchTests(unittest.TestCase):
                  return type('example string 2')
             """)
 
-        assert sample() is unicode
+        assert sample2() is unicode
 
 
 class UnpatchTests(unittest.TestCase):
