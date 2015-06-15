@@ -136,7 +136,7 @@ def _set_source(func, new_source):
         func_mod = inspect.getmodule(func)
         # func._patchy_the_module = func_mod
 
-    feature_flags = func.func_code.co_flags & FEATURE_MASK
+    feature_flags = func.__code__.co_flags & FEATURE_MASK
     new_code = compile(
         new_source,
         func_mod.__file__,
