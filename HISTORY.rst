@@ -6,6 +6,8 @@ History
 1.1.0 (pending)
 ---------------
 
+* Fixed code compilation to use the ``__future__`` flags from the function that
+  is being patched
 * Added ``unpatch`` method
 * Added ``temp_patch`` context manager/decorator
 
