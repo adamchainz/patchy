@@ -8,6 +8,11 @@ Patchy
 .. image:: https://img.shields.io/pypi/v/patchy.svg
         :target: https://pypi.python.org/pypi/patchy
 
+.. figure:: https://raw.github.com/adamchainz/patchy/mascot/pirate.png
+   :alt: A patchy pirate.
+
+..
+
 Patch the source of python functions at runtime.
 
 A quick example:
