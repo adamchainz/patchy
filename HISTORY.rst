@@ -3,8 +3,8 @@
 History
 -------
 
-1.1.0 (pending)
----------------
+1.1.0 (2015-06-16)
+------------------
 
 * Fixed code compilation to use the ``__future__`` flags from the function that
   is being patched
