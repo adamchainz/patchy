@@ -13,7 +13,8 @@ Patchy
 
 ..
 
-Patch the source of python functions at runtime.
+Patch the source of python functions at runtime (not monkey-patching - actual
+patch-patching).
 
 A quick example:
 
