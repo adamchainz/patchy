@@ -8,9 +8,15 @@ import unittest
 import pytest
 
 import patchy
+import patchy.api
 
 
-class PatchTests(unittest.TestCase):
+class TestCase(unittest.TestCase):
+    def setUp(self):
+        patchy.api._patching_cache.clear()
+
+
+class PatchTests(TestCase):
 
     def test_patch(self):
         def sample():
@@ -353,7 +359,7 @@ class PatchTests(unittest.TestCase):
         assert Sample().meth() is unicode
 
 
-class UnpatchTests(unittest.TestCase):
+class UnpatchTests(TestCase):
 
     def test_unpatch(self):
         def sample():
@@ -406,7 +412,7 @@ class UnpatchTests(unittest.TestCase):
         assert sample() == 1
 
 
-class BothTests(unittest.TestCase):
+class BothTests(TestCase):
 
     def test_patch_unpatch(self):
         def sample():
@@ -422,11 +428,31 @@ class BothTests(unittest.TestCase):
         patchy.patch(sample, patch_text)
         assert sample() == 9001
 
-        patchy.unpatch(sample, patch_text)
+        # Check that we use the cache
+        orig_mkdtemp = patchy.api.mkdtemp
+
+        def mkdtemp(*args, **kwargs):
+            raise AssertionError(
+                "mkdtemp should not be called, the unpatch should be cached."
+            )
+
+        try:
+            patchy.api.mkdtemp = mkdtemp
+            patchy.unpatch(sample, patch_text)
+        finally:
+            patchy.api.mkdtemp = orig_mkdtemp
         assert sample() == 1
 
+        # Check that we use the cache going forwards again
+        try:
+            patchy.api.mkdtemp = mkdtemp
+            patchy.patch(sample, patch_text)
+        finally:
+            patchy.api.mkdtemp = orig_mkdtemp
+        assert sample() == 9001
 
-class TempPatchTests(unittest.TestCase):
+
+class TempPatchTests(TestCase):
 
     def test_context_manager(self):
         def sample():

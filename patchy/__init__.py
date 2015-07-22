@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .patch import *  # noqa
+from .api import *  # noqa
 
 __author__ = 'Adam Johnson'
 __email__ = 'me@adamj.eu'
