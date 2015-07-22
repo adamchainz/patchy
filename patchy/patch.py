@@ -1,15 +1,16 @@
 # -*- encoding:utf-8 -*-
 import inspect
 import subprocess
-import tempfile
 import os
 import shutil
 from functools import wraps
+from tempfile import mkdtemp
 from textwrap import dedent
 
+import pylru
 import six
 
-__all__ = ('patch', 'unpatch', 'temp_patch')
+__all__ = ('patch', 'unpatch', 'temp_patch', '_patching_cache')
 
 
 # Public API
@@ -48,14 +49,44 @@ def _do_patch(func, patch_text, forwards):
     source = _get_source(func)
     patch_text = dedent(patch_text)
 
-    # Write out files
-    tempdir = tempfile.mkdtemp(prefix='patchy')
+    source = _apply_patch(source, patch_text, forwards, func.__name__)
+
+    # Recompile
+    _set_source(func, source)
+
+
+def _get_source(func):
     try:
-        source_path = os.path.join(tempdir, func.__name__ + '.py')
+        if inspect.ismethod(func):
+            if hasattr(func, '__func__'):
+                # classmethod, staticmethod
+                return func.__func__._patchy_the_source
+            else:
+                return func.im_func._patchy_the_source
+        else:
+            return func._patchy_the_source
+    except AttributeError:
+        source = inspect.getsource(func)
+        source = dedent(source)
+        return source
+
+
+_patching_cache = pylru.lrucache(100)
+
+
+def _apply_patch(source, patch_text, forwards, name):
+    # Cached ?
+    if (source, patch_text, forwards) in _patching_cache:
+        return _patching_cache[(source, patch_text, forwards)]
+
+    # Write out files
+    tempdir = mkdtemp(prefix='patchy')
+    try:
+        source_path = os.path.join(tempdir, name + '.py')
         with open(source_path, 'w') as source_file:
             source_file.write(source)
 
-        patch_path = os.path.join(tempdir, func.__name__ + '.patch')
+        patch_path = os.path.join(tempdir, name + '.patch')
         with open(patch_path, 'w') as patch_file:
             patch_file.write(patch_text)
             if not patch_text.endswith('\n'):
@@ -77,7 +108,7 @@ def _do_patch(func, patch_text, forwards):
             msg = "Could not {action} the patch {prep} '{name}'.".format(
                 action=("apply" if forwards else "unapply"),
                 prep=("to" if forwards else "from"),
-                name=func.__name__
+                name=name
             )
             if stdout or stderr:
                 msg += " The message from `patch` was:\n{}\n{}".format(
@@ -91,28 +122,16 @@ def _do_patch(func, patch_text, forwards):
             raise ValueError(msg)
 
         with open(source_path, 'r') as source_file:
-            source = source_file.read()
+            new_source = source_file.read()
     finally:
         shutil.rmtree(tempdir)
 
-    # Recompile
-    _set_source(func, source)
+    # Cache in both directions - makes reversal faster
+    _patching_cache[(source, patch_text, forwards)] = new_source
+    other_direction = (not forwards)
+    _patching_cache[(new_source, patch_text, other_direction)] = source
 
-
-def _get_source(func):
-    try:
-        if inspect.ismethod(func):
-            if hasattr(func, '__func__'):
-                # classmethod, staticmethod
-                return func.__func__._patchy_the_source
-            else:
-                return func.im_func._patchy_the_source
-        else:
-            return func._patchy_the_source
-    except AttributeError:
-        source = inspect.getsource(func)
-        source = dedent(source)
-        return source
+    return new_source
 
 
 def _get_flags_mask():

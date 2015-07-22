@@ -10,7 +10,12 @@ import pytest
 import patchy
 
 
-class PatchTests(unittest.TestCase):
+class TestCase(unittest.TestCase):
+    def setUp(self):
+        patchy._patching_cache.clear()
+
+
+class PatchTests(TestCase):
 
     def test_patch(self):
         def sample():
@@ -353,7 +358,7 @@ class PatchTests(unittest.TestCase):
         assert Sample().meth() is unicode
 
 
-class UnpatchTests(unittest.TestCase):
+class UnpatchTests(TestCase):
 
     def test_unpatch(self):
         def sample():
@@ -406,7 +411,7 @@ class UnpatchTests(unittest.TestCase):
         assert sample() == 1
 
 
-class BothTests(unittest.TestCase):
+class BothTests(TestCase):
 
     def test_patch_unpatch(self):
         def sample():
@@ -426,7 +431,7 @@ class BothTests(unittest.TestCase):
         assert sample() == 1
 
 
-class TempPatchTests(unittest.TestCase):
+class TempPatchTests(TestCase):
 
     def test_context_manager(self):
         def sample():
