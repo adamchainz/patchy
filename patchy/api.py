@@ -10,7 +10,7 @@ from textwrap import dedent
 import pylru
 import six
 
-__all__ = ('patch', 'unpatch', 'temp_patch', '_patching_cache')
+__all__ = ('patch', 'unpatch', 'temp_patch')
 
 
 # Public API

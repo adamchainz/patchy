@@ -12,7 +12,7 @@ import patchy
 
 class TestCase(unittest.TestCase):
     def setUp(self):
-        patchy._patching_cache.clear()
+        patchy.api._patching_cache.clear()
 
 
 class PatchTests(TestCase):
