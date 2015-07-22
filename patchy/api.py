@@ -6,6 +6,7 @@ import shutil
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
+from weakref import WeakKeyDictionary
 
 import pylru
 import six
@@ -49,26 +50,9 @@ def _do_patch(func, patch_text, forwards):
     source = _get_source(func)
     patch_text = dedent(patch_text)
 
-    source = _apply_patch(source, patch_text, forwards, func.__name__)
+    new_source = _apply_patch(source, patch_text, forwards, func.__name__)
 
-    # Recompile
-    _set_source(func, source)
-
-
-def _get_source(func):
-    try:
-        if inspect.ismethod(func):
-            if hasattr(func, '__func__'):
-                # classmethod, staticmethod
-                return func.__func__._patchy_the_source
-            else:
-                return func.im_func._patchy_the_source
-        else:
-            return func._patchy_the_source
-    except AttributeError:
-        source = inspect.getsource(func)
-        source = dedent(source)
-        return source
+    _set_source(func, new_source)
 
 
 _patching_cache = pylru.lrucache(100)
@@ -144,16 +128,23 @@ def _get_flags_mask():
 FEATURE_MASK = _get_flags_mask()
 
 
+# Stores the source of functions that have had their source changed
+_source_map = WeakKeyDictionary()
+
+
+def _get_source(func):
+    real_func = _get_real_func(func)
+    try:
+        return _source_map[real_func]
+    except KeyError:
+        source = inspect.getsource(func)
+        source = dedent(source)
+        return source
+
+
 def _set_source(func, new_source):
     # Fetch the actual function we are changing
-    if inspect.ismethod(func):
-        try:
-            # classmethod, staticmethod
-            real_func = func.__func__
-        except AttributeError:
-            real_func = func.im_func
-    else:
-        real_func = func
+    real_func = _get_real_func(func)
 
     # Figure out any future headers that may be required
     feature_flags = real_func.__code__.co_flags & FEATURE_MASK
@@ -179,4 +170,24 @@ def _set_source(func, new_source):
 
     # Put the new Code object in place
     real_func.__code__ = new_code
-    real_func._patchy_the_source = new_source
+    # Store the modified source. This used to be attached to the function but
+    # that is a bit naughty
+    _source_map[real_func] = new_source
+
+
+def _get_real_func(func):
+    """
+    Duplicates some of the logic implicit in inspect.getsource(). Basically
+    some function-esque things, such as classmethods, aren't functions but we
+    can peel back the layers to the underlying function very easily.
+    """
+    if inspect.ismethod(func):
+        try:
+            # classmethod, staticmethod
+            real_func = func.__func__
+        except AttributeError:
+            real_func = func.im_func
+    else:
+        real_func = func
+
+    return real_func
