@@ -8,6 +8,7 @@ import unittest
 import pytest
 
 import patchy
+import patchy.api
 
 
 class TestCase(unittest.TestCase):
@@ -427,8 +428,28 @@ class BothTests(TestCase):
         patchy.patch(sample, patch_text)
         assert sample() == 9001
 
-        patchy.unpatch(sample, patch_text)
+        # Check that we use the cache
+        orig_mkdtemp = patchy.api.mkdtemp
+
+        def mkdtemp(*args, **kwargs):
+            raise AssertionError(
+                "mkdtemp should not be called, the unpatch should be cached."
+            )
+
+        try:
+            patchy.api.mkdtemp = mkdtemp
+            patchy.unpatch(sample, patch_text)
+        finally:
+            patchy.api.mkdtemp = orig_mkdtemp
         assert sample() == 1
+
+        # Check that we use the cache going forwards again
+        try:
+            patchy.api.mkdtemp = mkdtemp
+            patchy.patch(sample, patch_text)
+        finally:
+            patchy.api.mkdtemp = orig_mkdtemp
+        assert sample() == 9001
 
 
 class TempPatchTests(TestCase):
