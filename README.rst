@@ -73,6 +73,10 @@ the new one. Because nothing tends to poke around at code objects apart from
 dodgy hacks like this, you don’t need to worry about chasing any references
 that may exist to the function, unlike ``mock.patch``.
 
+A little special treatment is given to ``instancemethod``, ``classmethod``, and
+``staticmethod`` objects to make sure the underlying function is what gets
+patched and that you don't have to worry about the details.
+
 
 API
 ===
