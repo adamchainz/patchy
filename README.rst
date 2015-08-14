@@ -56,8 +56,8 @@ There are of course a lot of reasons against:
 * It’s (relatively) slow (since it writes the source to disk and calls the
   ``patch`` command)
 * If you have a patch file, why not just fork the library and apply it?
-* At least with monkey-patching you know you end up with, rather than having a
-  the changes being done at runtime
+* At least with monkey-patching you know you what end up with, rather than
+  having the changes being done at runtime to source that may have changed.
 
 All are valid arguments. However once in a while this might be the right
 solution.
