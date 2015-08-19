@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function
 
@@ -9,14 +8,10 @@ import pytest
 
 import patchy
 import patchy.api
+from .base import PatchyTestCase
 
 
-class TestCase(unittest.TestCase):
-    def setUp(self):
-        patchy.api._patching_cache.clear()
-
-
-class PatchTests(TestCase):
+class PatchTests(PatchyTestCase):
 
     def test_patch(self):
         def sample():
@@ -275,7 +270,7 @@ class PatchTests(TestCase):
     @unittest.skipUnless(six.PY3, "Python 3")
     def test_patch_nonlocal_fails(self):
         # Kept in separate file since it would SyntaxError on Python 2
-        from py3_nonlocal import sample
+        from .py3_nonlocal import sample
 
         with pytest.raises(SyntaxError) as excinfo:
             patchy.patch(sample, """\
@@ -288,7 +283,7 @@ class PatchTests(TestCase):
 
     @unittest.skipUnless(six.PY2, "Python 2")
     def test_patch_future(self):
-        from python2_future import sample
+        from .python2_future import sample
 
         assert sample() is unicode
 
@@ -303,7 +298,7 @@ class PatchTests(TestCase):
 
     @unittest.skipUnless(six.PY2, "Python 2")
     def test_patch_future_twice(self):
-        from python2_future import sample2
+        from .python2_future import sample2
 
         assert sample2() is unicode
 
@@ -330,7 +325,7 @@ class PatchTests(TestCase):
     def test_patch_future_doesnt_inherit(self):
         # This test module has 'division' imported, but python2_future doesn't
         assert division
-        from python2_future import sample3
+        from .python2_future import sample3
 
         assert sample3() == 0
 
@@ -345,7 +340,7 @@ class PatchTests(TestCase):
 
     @unittest.skipUnless(six.PY2, "Python 2")
     def test_patch_future_instancemethod(self):
-        from python2_future import Sample
+        from .python2_future import Sample
 
         assert Sample().meth() is unicode
 
@@ -359,7 +354,7 @@ class PatchTests(TestCase):
         assert Sample().meth() is unicode
 
 
-class UnpatchTests(TestCase):
+class UnpatchTests(PatchyTestCase):
 
     def test_unpatch(self):
         def sample():
@@ -412,7 +407,7 @@ class UnpatchTests(TestCase):
         assert sample() == 1
 
 
-class BothTests(TestCase):
+class BothTests(PatchyTestCase):
 
     def test_patch_unpatch(self):
         def sample():
@@ -452,7 +447,7 @@ class BothTests(TestCase):
         assert sample() == 9001
 
 
-class TempPatchTests(TestCase):
+class TempPatchTests(PatchyTestCase):
 
     def test_context_manager(self):
         def sample():

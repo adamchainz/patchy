@@ -53,8 +53,7 @@ with open('HISTORY.rst') as history_file:
 
 
 requirements = [
-    'pylru==1.0.9',
-    'six==1.9.0'
+    'six==1.9.0',
 ]
 
 setup(

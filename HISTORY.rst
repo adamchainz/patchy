@@ -3,6 +3,11 @@
 History
 -------
 
+1.3.0 (pending release)
+-----------------------
+
+* Remove dependency on ``pylru`` by using a simpler caching strategy
+
 1.2.0 (2015-07-23)
 ------------------
 

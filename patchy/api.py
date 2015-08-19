@@ -8,8 +8,9 @@ from tempfile import mkdtemp
 from textwrap import dedent
 from weakref import WeakKeyDictionary
 
-import pylru
 import six
+
+from .cache import PatchingCache
 
 __all__ = ('patch', 'unpatch', 'temp_patch')
 
@@ -55,13 +56,15 @@ def _do_patch(func, patch_text, forwards):
     _set_source(func, new_source)
 
 
-_patching_cache = pylru.lrucache(100)
+_patching_cache = PatchingCache(maxsize=100)
 
 
 def _apply_patch(source, patch_text, forwards, name):
     # Cached ?
-    if (source, patch_text, forwards) in _patching_cache:
-        return _patching_cache[(source, patch_text, forwards)]
+    try:
+        return _patching_cache.retrieve(source, patch_text, forwards)
+    except KeyError:
+        pass
 
     # Write out files
     tempdir = mkdtemp(prefix='patchy')
@@ -110,10 +113,7 @@ def _apply_patch(source, patch_text, forwards, name):
     finally:
         shutil.rmtree(tempdir)
 
-    # Cache in both directions - makes reversal faster
-    _patching_cache[(source, patch_text, forwards)] = new_source
-    other_direction = (not forwards)
-    _patching_cache[(new_source, patch_text, other_direction)] = source
+    _patching_cache.store(source, patch_text, forwards, new_source)
 
     return new_source
 
