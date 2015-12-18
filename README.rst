@@ -2,7 +2,7 @@
 Patchy
 ======
 
-.. image:: https://img.shields.io/travis/adamchainz/patchy.svg
+.. image:: https://img.shields.io/travis/adamchainz/patchy/master.svg
         :target: https://travis-ci.org/adamchainz/patchy
 
 .. image:: https://img.shields.io/pypi/v/patchy.svg
