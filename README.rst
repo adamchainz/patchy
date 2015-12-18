@@ -32,6 +32,18 @@ A quick example:
     9001
 
 
+Installation
+============
+
+Use pip:
+
+.. code-block:: bash
+
+    pip install pretty-cron
+
+Tested on Python 2.7, 3.4, and 3.5.
+
+
 Why?
 ====
 
