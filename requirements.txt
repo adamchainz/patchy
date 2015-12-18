@@ -1,3 +1,4 @@
 six==1.10.0
-pytest==2.8.3
+pytest==2.8.5
+twine
 wheel
