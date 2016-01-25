@@ -35,11 +35,11 @@ A quick example:
 Installation
 ============
 
-Use pip:
+Use **pip**:
 
 .. code-block:: bash
 
-    pip install pretty-cron
+    pip install patchy
 
 Tested on Python 2.7, 3.4, and 3.5.
 

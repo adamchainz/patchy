@@ -3,6 +3,13 @@
 History
 -------
 
+Pending Release
+---------------
+
+* Fix ``setup.py`` to not fix the version of ``six`` required.
+* Fixed install instruction in README
+
+
 1.3.0 (2015-12-09)
 ------------------
 
