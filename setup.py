@@ -53,7 +53,7 @@ with open('HISTORY.rst') as history_file:
 
 
 requirements = [
-    'six==1.9.0',
+    'six>=1.9.0',
 ]
 
 setup(
