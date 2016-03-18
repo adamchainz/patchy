@@ -1,4 +1,4 @@
 six==1.10.0
-pytest==2.8.7
+pytest==2.9.0
 twine
 wheel
