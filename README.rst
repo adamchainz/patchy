@@ -197,7 +197,7 @@ How to Create a Patch
 
    Make sure you dedent it so there is no whitespace before the ``def``, i.e.
    ``d`` is the first character in the file. For example if you wanted to patch
-   the ``foo()`` method below:
+   the ``bar()`` method below:
 
    .. code-block:: python
 
