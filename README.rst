@@ -68,8 +68,8 @@ There are of course a lot of reasons against:
 * It’s (relatively) slow (since it writes the source to disk and calls the
   ``patch`` command)
 * If you have a patch file, why not just fork the library and apply it?
-* At least with monkey-patching you know you what end up with, rather than
-  having the changes being done at runtime to source that may have changed.
+* At least with monkey-patching you know what end up with, rather than having
+  the changes being done at runtime to source that may have changed.
 
 All are valid arguments. However once in a while this might be the right
 solution.
@@ -187,17 +187,36 @@ Decorator example, using the same ``sample`` and ``patch_text``:
 How to Create a Patch
 =====================
 
-1. Save the source of the function of interest in a ``.py`` file, e.g.
-   ``before.py``. Make sure you dedent it so there is no whitespace before the
-   ``def``:
+1. Save the source of the function of interest (and nothing else) in a ``.py``
+   file, e.g. ``before.py``:
 
    .. code-block:: python
 
        def foo():
            print("Change me")
 
+   Make sure you dedent it so there is no whitespace before the ``def``, i.e.
+   ``d`` is the first character in the file. For example if you wanted to patch
+   the ``foo()`` method below:
+
+   .. code-block:: python
+
+       class Foo():
+           def bar(self, x):
+               return x * 2
+
+   ...you would put just the method in a file like so:
+
+   .. code-block:: python
+
+       def bar(self, x):
+           return x * 2
+
+   However we'll continue with the first example ``before.py`` since it's
+   simpler.
+
 2. Copy that ``.py`` file, to e.g. ``after.py``, and make the changes you
-   want:
+   want, such as:
 
    .. code-block:: python
 
