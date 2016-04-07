@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function
 
-import six
 import unittest
 
 import pytest
+import six
 
 import patchy
 import patchy.api
+
 from .base import PatchyTestCase
+
+if six.PY3:
+    # For linting purposes only
+    unicode = None
 
 
 class PatchTests(PatchyTestCase):

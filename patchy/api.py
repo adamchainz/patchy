@@ -1,8 +1,8 @@
 # -*- encoding:utf-8 -*-
 import inspect
-import subprocess
 import os
 import shutil
+import subprocess
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
@@ -183,9 +183,11 @@ def _get_real_func(func):
     """
     if inspect.ismethod(func):
         try:
+            # Python 3:
             # classmethod, staticmethod
             real_func = func.__func__
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
+            # Python 2:
             real_func = func.im_func
     else:
         real_func = func

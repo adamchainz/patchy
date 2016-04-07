@@ -1,4 +1,12 @@
-six==1.10.0
+coverage==4.0.3
+docutils==0.12
+flake8==2.5.4
+isort==4.2.5
+mccabe==0.4.0
+pep8==1.7.0
+py==1.4.31
+pyflakes==1.1.0
+Pygments==2.1.3
+pytest-cov==2.2.1
 pytest==2.9.1
-twine
-wheel
+six==1.10.0
