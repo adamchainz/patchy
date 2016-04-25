@@ -182,14 +182,6 @@ def _get_real_func(func):
     can peel back the layers to the underlying function very easily.
     """
     if inspect.ismethod(func):
-        try:
-            # Python 3:
-            # classmethod, staticmethod
-            real_func = func.__func__
-        except AttributeError:  # pragma: no cover
-            # Python 2:
-            real_func = func.im_func
+        return func.__func__
     else:
-        real_func = func
-
-    return real_func
+        return func
