@@ -12,13 +12,15 @@ import six
 
 from .cache import PatchingCache
 
-__all__ = ('patch', 'unpatch', 'temp_patch')
+__all__ = ('patch', 'mc_patchface', 'unpatch', 'temp_patch')
 
 
 # Public API
 
 def patch(func, patch_text):
     return _do_patch(func, patch_text, forwards=True)
+
+mc_patchface = patch
 
 
 def unpatch(func, patch_text):

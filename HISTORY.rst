@@ -8,6 +8,8 @@ Pending Release
 
 * Fix ``setup.py`` to not fix the version of ``six`` required.
 * Fixed install instruction in README
+* Added ``patchy.mc_patchface()`` as an alias for ``patchy.patch()`` because
+  memes.
 
 
 1.3.0 (2015-12-09)

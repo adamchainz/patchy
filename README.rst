@@ -125,6 +125,13 @@ Example:
     print(sample())  # prints 2
 
 
+``mc_patchface(func, patch_text)``
+----------------------------------
+
+An alias for ``patch``, so you can meme it up by calling
+``patchy.mc_patchface()``.
+
+
 ``unpatch(func, patch_text)``
 -----------------------------
 

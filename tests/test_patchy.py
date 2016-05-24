@@ -30,11 +30,11 @@ class PatchTests(PatchyTestCase):
             """)
         assert sample() == 9001
 
-    def test_patch_simple(self):
+    def test_mc_patchface(self):
         def sample():
             return 1
 
-        patchy.patch(sample, """\
+        patchy.mc_patchface(sample, """\
             @@ -2,2 +2,2 @@
             -    return 1
             +    return 2
