@@ -6,8 +6,12 @@ History
 Pending Release
 ---------------
 
-* Fix ``setup.py`` to not fix the version of ``six`` required.
-* Fixed install instruction in README
+
+1.3.1 (2016-05-24)
+------------------
+
+* Fixed ``setup.py`` to not fix the version of ``six`` required.
+* Fixed install instruction in README.
 * Added ``patchy.mc_patchface()`` as an alias for ``patchy.patch()`` because
   memes.
 
