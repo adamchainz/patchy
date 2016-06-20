@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- encoding:utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import codecs
 import os
 import re
 import sys
@@ -29,10 +32,10 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 
-with open('README.rst') as readme_file:
+with codecs.open('README.rst', 'r', 'utf-8') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
+with codecs.open('HISTORY.rst', 'r', 'utf-8') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 

@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import division, print_function
+# -*- encoding:utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import sys
 import unittest
+from textwrap import dedent
 
 import pytest
 import six
@@ -10,10 +12,6 @@ import patchy
 import patchy.api
 
 from .base import PatchyTestCase
-
-if six.PY3:
-    # For linting purposes only
-    unicode = None
 
 
 class PatchTests(PatchyTestCase):
@@ -111,7 +109,6 @@ class PatchTests(PatchyTestCase):
         with pytest.raises(ValueError) as excinfo:
             patchy.patch(sample, bad_patch)
 
-        print(excinfo.value)
         assert "Hunk #2 FAILED" in str(excinfo.value)
         assert sample() == 1
 
@@ -272,25 +269,11 @@ class PatchTests(PatchyTestCase):
 
         assert Doge.bark() == "Wowowow"
 
-    @unittest.skipUnless(six.PY3, "Python 3")
-    def test_patch_nonlocal_fails(self):
-        # Kept in separate file since it would SyntaxError on Python 2
-        from .py3_nonlocal import sample
-
-        with pytest.raises(SyntaxError) as excinfo:
-            patchy.patch(sample, """\
-                @@ -2,3 +2,3 @@
-                     nonlocal variab
-                -    multiple = 3
-                +    multiple = 4
-                """)
-        assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
-
     @unittest.skipUnless(six.PY2, "Python 2")
     def test_patch_future(self):
         from .python2_future import sample
 
-        assert sample() is unicode
+        assert sample() is six.text_type
 
         patchy.patch(sample, """\
             @@ -1,2 +1,3 @@
@@ -299,13 +282,13 @@ class PatchTests(PatchyTestCase):
                  return type('example string')
             """)
 
-        assert sample() is unicode
+        assert sample() is six.text_type
 
     @unittest.skipUnless(six.PY2, "Python 2")
     def test_patch_future_twice(self):
         from .python2_future import sample2
 
-        assert sample2() is unicode
+        assert sample2() is six.text_type
 
         patchy.patch(sample2, """\
             @@ -1,2 +1,3 @@
@@ -314,7 +297,7 @@ class PatchTests(PatchyTestCase):
                  return type('example string 2')
             """)
 
-        assert sample2() is unicode
+        assert sample2() is six.text_type
 
         patchy.patch(sample2, """\
             @@ -1,3 +1,4 @@
@@ -324,7 +307,7 @@ class PatchTests(PatchyTestCase):
                  return type('example string 2')
             """)
 
-        assert sample2() is unicode
+        assert sample2() is six.text_type
 
     @unittest.skipUnless(six.PY2, "Python 2")
     def test_patch_future_doesnt_inherit(self):
@@ -347,7 +330,7 @@ class PatchTests(PatchyTestCase):
     def test_patch_future_instancemethod(self):
         from .python2_future import Sample
 
-        assert Sample().meth() is unicode
+        assert Sample().meth() is six.text_type
 
         patchy.patch(Sample.meth, """\
             @@ -1,2 +1,3 @@
@@ -356,7 +339,42 @@ class PatchTests(PatchyTestCase):
                  return type('example string')
             """)
 
-        assert Sample().meth() is unicode
+        assert Sample().meth() is six.text_type
+
+
+@pytest.mark.skipif(not six.PY3, reason="Python 3 only")
+def test_patch_nonlocal_fails(tmpdir):
+    # Put in separate file since it would SyntaxError on Python 2
+    tmpdir.join('py3_nonlocal.py').write(dedent("""\
+        variab = 20
+
+
+        def get_function():
+            variab = 15
+
+            def sample():
+                nonlocal variab
+                multiple = 3
+                return variab * multiple
+
+            return sample
+
+        sample = get_function()
+    """))
+    sys.path.insert(0, six.text_type(tmpdir))
+    try:
+        from py3_nonlocal import sample
+
+        with pytest.raises(SyntaxError) as excinfo:
+            patchy.patch(sample, """\
+                @@ -2,3 +2,3 @@
+                     nonlocal variab
+                -    multiple = 3
+                +    multiple = 4
+                """)
+        assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
+    finally:
+        sys.path.pop()
 
 
 class UnpatchTests(PatchyTestCase):
