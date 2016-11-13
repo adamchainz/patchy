@@ -46,7 +46,7 @@ requirements = [
 setup(
     name='patchy',
     version=version,
-    description="Patch the source of python functions at runtime.",
+    description="Patch the inner source of python functions at runtime.",
     long_description=readme + '\n\n' + history,
     author="Adam Johnson",
     author_email='me@adamj.eu',

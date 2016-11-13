@@ -13,10 +13,9 @@ Patchy
 
 ..
 
-Patch the source of python functions at runtime (not monkey-patching - actual
-patch-patching).
+Patch the inner source of python functions at runtime.
 
-A quick example:
+A quick example, making a function that returns 1 instead return 9001:
 
 .. code-block:: python
 
@@ -30,6 +29,11 @@ A quick example:
     ...     """)
     >>> sample()
     9001
+
+Patchy works by replacing the code attribute of the function, leaving the
+function object itself the same. It's thus more versatile than monkey patching,
+since if the function has been imported in multiple places they'll also call
+the new behaviour.
 
 
 Installation
