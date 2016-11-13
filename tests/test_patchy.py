@@ -185,6 +185,35 @@ class PatchTests(PatchyTestCase):
 
         assert Artist().method() == "Crackers"
 
+    def test_patch_init(self):
+        class Artist(object):
+            def __init__(self):
+                self.prop = 'old'
+
+        patchy.patch(Artist.__init__, """\
+            @@ -1,2 +1,2 @@
+             def __init__(self):
+            -    self.prop = 'old'
+            +    self.prop = 'new'""")
+
+        a = Artist()
+        assert a.prop == 'new'
+
+    def test_patch_init_change_arg(self):
+        class Artist(object):
+            def __init__(self):
+                self.prop = 'old'
+
+        patchy.patch(Artist.__init__, """\
+            @@ -1,2 +1,2 @@
+            -def __init__(self):
+            -    self.prop = 'old'
+            +def __init__(self, arg):
+            +    self.prop = arg""")
+
+        a = Artist('new')
+        assert a.prop == 'new'
+
     def test_patch_classmethod(self):
         class Emotion(object):
             def __init__(self, name):
