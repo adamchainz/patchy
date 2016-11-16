@@ -22,6 +22,7 @@ __all__ = ('patch', 'mc_patchface', 'unpatch', 'temp_patch')
 def patch(func, patch_text):
     return _do_patch(func, patch_text, forwards=True)
 
+
 mc_patchface = patch
 
 
@@ -128,6 +129,7 @@ def _get_flags_mask():
     for name in __future__.all_feature_names:
         result |= getattr(__future__, name).compiler_flag
     return result
+
 
 FEATURE_MASK = _get_flags_mask()
 
