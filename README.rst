@@ -45,7 +45,7 @@ Use **pip**:
 
     pip install patchy
 
-Tested on Python 2.7, 3.4, and 3.5.
+Tested on Python 2.7 and 3.6.
 
 
 Why?
