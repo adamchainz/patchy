@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import ast
 import inspect
 import os
 import shutil
@@ -148,25 +149,121 @@ def _get_source(func):
         return source
 
 
-def _set_source(func, new_source):
+def _class_name(func):
+    qualname = getattr(func, '__qualname__', None)
+    if qualname is not None:
+        split_name = qualname.split('.')
+        try:
+            class_name = split_name[-2]
+        except IndexError:
+            return None
+        else:
+            if class_name == '<locals>':
+                return None
+            return class_name
+    im_class = getattr(func, 'im_class', None)
+    if im_class is not None:
+        return im_class.__name__
+
+
+def _set_source(func, func_source):
     # Fetch the actual function we are changing
     real_func = _get_real_func(func)
-
     # Figure out any future headers that may be required
     feature_flags = real_func.__code__.co_flags & FEATURE_MASK
 
+    class_name = _class_name(func)
+
+    def _compile(code, flags=0):
+        return compile(
+            code,
+            '<patchy>',
+            'exec',
+            flags=feature_flags | flags,
+            dont_inherit=True,
+        )
+
+    def _parse(code):
+        return _compile(code, flags=ast.PyCF_ONLY_AST)
+
+    def _process_freevars():
+        """
+        Wrap the new function in a __patchy_freevars__ method that provides all
+        freevars of the original function.
+
+        Because the new function must use exectaly the same freevars as the
+        original, also append to the new function with a body of code to force
+        use of those freevars (in the case the the patch drops use of any
+        freevars):
+
+        def __patchy_freevars__():
+            eg_free_var_spam = object()  <- added in wrapper
+            eg_free_var_ham = object()   <- added in wrapper
+
+            def patched_func():
+                return some_global(eg_free_var_ham)
+                eg_free_var_spam         <- appended to new func body
+                eg_free_var_ham          <- appended to new func body
+
+            return patched_func
+        """
+        _def = 'def __patchy_freevars__():'
+        fvs = func.__code__.co_freevars
+        fv_body = ['    {0} = object()'.format(fv) for fv in fvs]
+        fv_force_use_body = ['    {0}'.format(fv) for fv in fvs]
+        if fv_force_use_body:
+            fv_force_use_ast = _parse('\n'.join([_def] + fv_force_use_body))
+            fv_force_use = fv_force_use_ast.body[0].body
+        else:
+            fv_force_use = []
+        _ast = _parse(func_source).body[0]
+        _ast.body = _ast.body + fv_force_use
+        return _def, _ast, fv_body
+
+    def _process_method():
+        """
+        Wrap the new method in a class to ensure the same mangling as would
+        have been performed on the original method:
+
+        def __patchy_freevars__():
+
+            class SomeClass(object):
+                def patched_func(self):
+                    return some_globals(self.__some_mangled_prop)
+
+            return SomeClass.patched_func
+        """
+
+        _def, _ast, fv_body = _process_freevars()
+        class_src = '    class {name}(object):\n        pass'.format(name=class_name)
+        ret = '    return {class_name}.{name}'.format(
+            class_name=class_name,
+            name=func.__name__,
+        )
+        to_parse = '\n'.join([_def] + fv_body + [class_src, ret])
+        new_source = _parse(to_parse)
+        new_source.body[0].body[-2].body[0] = _ast
+        return new_source
+
+    def _process_function():
+        _def, _ast, fv_body = _process_freevars()
+        ret = '    return {name}'.format(name=func.__name__)
+        to_parse = '\n'.join([_def] + fv_body + ['    pass', ret])
+        new_source = _parse(to_parse)
+        new_source.body[0].body[-2] = _ast
+        return new_source
+
+    if class_name:
+        new_source = _process_method()
+    else:
+        new_source = _process_function()
+
     # Compile and retrieve the new Code object
     localz = {}
-    new_code = compile(
-        new_source,
-        '<patchy>',
-        'exec',
-        flags=feature_flags,
-        dont_inherit=True
-    )
+    new_code = _compile(new_source)
 
     six.exec_(new_code, func.__globals__, localz)
-    new_func = localz[func.__name__]
+    new_func = localz['__patchy_freevars__']()
 
     # Figure out how to get the Code object
     if isinstance(new_func, (classmethod, staticmethod)):
@@ -178,7 +275,7 @@ def _set_source(func, new_source):
     real_func.__code__ = new_code
     # Store the modified source. This used to be attached to the function but
     # that is a bit naughty
-    _source_map[real_func] = new_source
+    _source_map[real_func] = func_source
 
 
 def _get_real_func(func):

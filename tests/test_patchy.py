@@ -166,6 +166,160 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Cheese"
 
+    def test_patch_instancemethod_freevars(self):
+        def free_func(v):
+            return v + ' on toast'
+
+        class Artist:
+            def method(self):
+                filling = 'Chalk'
+                return free_func(filling)
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return free_func(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
+    @unittest.skipUnless(six.PY3, "Python 3 required for PEP 3135 New Super")
+    def test_patch_init_super(self):
+        class Person(object):
+            def __init__(self):
+                self.base_prop = 'yo'
+
+        class Artist(Person):
+            def __init__(self):
+                super().__init__()
+                self.prop = 'old'
+
+        patchy.patch(Artist.__init__, """\
+            @@ -1,3 +1,3 @@
+             def __init__(self):
+                 super().__init__()
+            -    self.prop = 'old'
+            +    self.prop = 'new'""")
+
+        a = Artist()
+        assert a.base_prop == 'yo'
+        assert a.prop == 'new'
+
+    def test_patch_freevars(self):
+        def free_func(v):
+            return v + ' on toast'
+
+        def sample():
+            filling = 'Chalk'
+            return free_func(filling)
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,2 @@
+             def method():
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return free_func(filling)
+            """)
+
+        assert sample() == "Cheese on toast"
+
+    def test_patch_freevars_order(self):
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            return ', '.join([
+                tastes_good('Cheese'),
+                tastes_bad('Chalk'),
+            ])
+
+        patchy.patch(sample, """\
+            @@ -1,4 +1,4 @@
+             def sample():
+                 return ', '.join([
+            -        tastes_good('Cheese'),
+            -        tastes_bad('Chalk'),
+            +        tastes_bad('Chalk'),
+            +        tastes_good('Cheese'),
+                 )]
+            """)
+
+        assert sample() == 'Chalk tastes bad, Cheese tastes good'
+
+    def test_patch_freevars_remove(self):
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            return ', '.join([
+                tastes_bad('Chalk'),
+                tastes_good('Cheese'),
+            ])
+
+        patchy.patch(sample, """\
+            @@ -1,5 +1,4 @@
+             def sample():
+                 return ', '.join([
+            -        tastes_bad('Chalk'),
+                     tastes_good('Cheese'),
+                 ])
+            """)
+
+        assert sample() == 'Cheese tastes good'
+
+    def test_patch_freevars_nested(self):
+        def free_func(v):
+            return v + ' on toast'
+
+        def sample():
+            filling = 'Chalk'
+
+            def _inner_func():
+                return free_func(filling)
+
+            return _inner_func
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+
+                 def _inner_func():
+            """)
+
+        assert sample()() == "Cheese on toast"
+
+    @pytest.mark.xfail(raises=NameError)
+    def test_patch_freevars_re_close(self):
+        def nasty_filling(v):
+            return 'Chalk'
+
+        def nice_filling(v):
+            return 'Cheese'
+
+        def sample():
+            filling = nasty_filling()
+            return filling + ' on toast'
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    filling = nasty_filling()
+            +    filling = nice_filling()
+                 return filling + ' on toast'
+            """)
+
+        assert sample() == "Cheese on toast"
+
     def test_patch_instancemethod_twice(self):
         class Artist(object):
             def method(self):
@@ -184,6 +338,93 @@ class TestPatch(PatchyTestCase):
             +    return 'Crackers'""")
 
         assert Artist().method() == "Crackers"
+
+    def test_patch_instancemethod_mangled(self):
+        class Artist(object):
+            def __mangled_name(self, v):
+                return v + ' on toast'
+
+            def method(self):
+                filling = 'Chalk'
+                return self.__mangled_name(filling)
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return self.__mangled_name(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
+    def test_patch_old_class_instancemethod_mangled(self):
+        class Artist:
+            def __mangled_name(self, v):
+                return v + ' on toast'
+
+            def method(self):
+                filling = 'Chalk'
+                return self.__mangled_name(filling)
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return self.__mangled_name(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
+    def test_patch_instancemethod_mangled_freevars(self):
+        def _Artist__mangled_name(v):
+            return v + ' on '
+
+        def plain_name(v):
+            return v + 'toast'
+
+        class Artist:
+            def method(self):
+                filling = 'Chalk'
+                return plain_name(__mangled_name(filling))  # noqa: F821
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return plain_name(__mangled_name(filling))  # noqa: F821
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
+    def test_patch_instancemethod_mangled_tabs(self, tmpdir):
+        tmpdir.join('tabs_mangled.py').write(dedent("""\
+            class Artist:
+            \tdef __mangled_name(self, v):
+            \t\treturn v + ' on toast'
+
+            \tdef method(self):
+            \t\tfilling = 'Chalk'
+            \t\treturn self.__mangled_name(filling)
+        """))
+        sys.path.insert(0, six.text_type(tmpdir))
+
+        try:
+            from tabs_mangled import Artist
+        finally:
+            sys.path.pop()
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -\tfilling = 'Chalk'
+            +\tfilling = 'Cheese'
+            \treturn __mangled_name(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
 
     def test_patch_init(self):
         class Artist(object):
@@ -395,14 +636,16 @@ class TestPatch(PatchyTestCase):
         finally:
             sys.path.pop()
 
-        with pytest.raises(SyntaxError) as excinfo:
-            patchy.patch(sample, """\
-                @@ -2,3 +2,3 @@
-                     nonlocal variab
-                -    multiple = 3
-                +    multiple = 4
-                """)
-        assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
+        assert sample() == 15 * 3
+
+        patchy.patch(sample, """\
+            @@ -2,3 +2,3 @@
+                 nonlocal variab
+            -    multiple = 3
+            +    multiple = 4
+            """)
+
+        assert sample() == 15 * 4
 
 
 class UnpatchTests(PatchyTestCase):
