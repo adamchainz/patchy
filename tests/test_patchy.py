@@ -185,6 +185,25 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Crackers"
 
+    def test_patch_instancemethod_mangled(self):
+        class Artist(object):
+            def __mangled_name(self, v):
+                return v + ' on toast'
+
+            def method(self):
+                filling = 'Chalk'
+                return self.__mangled_name(filling)
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return self.__mangled_name(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
     def test_patch_init(self):
         class Artist(object):
             def __init__(self):

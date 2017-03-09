@@ -148,8 +148,38 @@ def _get_source(func):
         return source
 
 
-def _set_source(func, new_source):
+def _class_name(func):
+    qualname = getattr(func, '__qualname__', None)
+    if qualname is not None:
+        split_name = qualname.split('.')
+        try:
+            class_name = split_name[-2]
+        except IndexError:
+            return None
+        else:
+            if class_name == '<locals>':
+                return None
+            return class_name
+    im_class = getattr(func, 'im_class', None)
+    if im_class is not None:
+        return im_class.__name__
+
+
+def _indent(new_source):
+    return '\n'.join(['    ' + x for x in new_source.split('\n')])
+
+
+def _set_source(func, func_source):
     # Fetch the actual function we are changing
+    class_name = _class_name(func)
+    if class_name:
+        new_source = 'class {name}(object):\n{code}'.format(
+            name=class_name,
+            code=_indent(func_source),
+        )
+    else:
+        new_source = func_source
+
     real_func = _get_real_func(func)
 
     # Figure out any future headers that may be required
@@ -166,7 +196,10 @@ def _set_source(func, new_source):
     )
 
     six.exec_(new_code, func.__globals__, localz)
-    new_func = localz[func.__name__]
+    if class_name is not None:
+        new_func = getattr(localz[class_name], func.__name__)
+    else:
+        new_func = localz[func.__name__]
 
     # Figure out how to get the Code object
     if isinstance(new_func, (classmethod, staticmethod)):
@@ -178,7 +211,7 @@ def _set_source(func, new_source):
     real_func.__code__ = new_code
     # Store the modified source. This used to be attached to the function but
     # that is a bit naughty
-    _source_map[real_func] = new_source
+    _source_map[real_func] = func_source
 
 
 def _get_real_func(func):
