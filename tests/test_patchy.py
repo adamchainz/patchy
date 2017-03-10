@@ -185,6 +185,28 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Cheese on toast"
 
+    @unittest.skipUnless(six.PY3, "Python 3 required for PEP 3135 New Super")
+    def test_patch_init_super(self):
+        class Person(object):
+            def __init__(self):
+                self.base_prop = 'yo'
+
+        class Artist(Person):
+            def __init__(self):
+                super().__init__()
+                self.prop = 'old'
+
+        patchy.patch(Artist.__init__, """\
+            @@ -1,3 +1,3 @@
+             def __init__(self):
+                 super().__init__()
+            -    self.prop = 'old'
+            +    self.prop = 'new'""")
+
+        a = Artist()
+        assert a.base_prop == 'yo'
+        assert a.prop == 'new'
+
     def test_patch_freevars(self):
         def free_func(v):
             return v + ' on toast'
