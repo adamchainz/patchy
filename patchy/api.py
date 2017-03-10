@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import ast
 import inspect
 import os
 import shutil
@@ -165,35 +166,33 @@ def _class_name(func):
         return im_class.__name__
 
 
-def _indent(new_source):
-    return '\n'.join(['    ' + x for x in new_source.split('\n')])
-
-
 def _set_source(func, func_source):
     # Fetch the actual function we are changing
-    class_name = _class_name(func)
-    if class_name:
-        new_source = 'class {name}(object):\n{code}'.format(
-            name=class_name,
-            code=_indent(func_source),
-        )
-    else:
-        new_source = func_source
-
     real_func = _get_real_func(func)
-
     # Figure out any future headers that may be required
     feature_flags = real_func.__code__.co_flags & FEATURE_MASK
 
+    def _compile(code, flags=0):
+        return compile(
+            code,
+            '<patchy>',
+            'exec',
+            flags=feature_flags | flags,
+            dont_inherit=True,
+        )
+
+    class_name = _class_name(func)
+    if class_name:
+        class_src = 'class {name}(object):\n    pass'.format(name=class_name)
+        new_source = _compile(class_src, ast.PyCF_ONLY_AST)
+        _ast = _compile(func_source, ast.PyCF_ONLY_AST)
+        new_source.body[0].body[0] = _ast.body[0]
+    else:
+        new_source = func_source
+
     # Compile and retrieve the new Code object
     localz = {}
-    new_code = compile(
-        new_source,
-        '<patchy>',
-        'exec',
-        flags=feature_flags,
-        dont_inherit=True
-    )
+    new_code = _compile(new_source)
 
     six.exec_(new_code, func.__globals__, localz)
     if class_name is not None:

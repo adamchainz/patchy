@@ -166,6 +166,26 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Cheese"
 
+    @pytest.mark.xfail(raises=ValueError)
+    def test_patch_instancemethod_freevars(self):
+        def free_func(v):
+            return v + ' on toast'
+
+        class Artist:
+            def method(self):
+                filling = 'Chalk'
+                return free_func(filling)
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return free_func(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
     def test_patch_instancemethod_twice(self):
         class Artist(object):
             def method(self):
@@ -200,6 +220,72 @@ class TestPatch(PatchyTestCase):
             -    filling = 'Chalk'
             +    filling = 'Cheese'
                  return self.__mangled_name(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
+    def test_patch_old_class_instancemethod_mangled(self):
+        class Artist:
+            def __mangled_name(self, v):
+                return v + ' on toast'
+
+            def method(self):
+                filling = 'Chalk'
+                return self.__mangled_name(filling)
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return self.__mangled_name(filling)
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
+    @pytest.mark.xfail
+    def test_patch_instancemethod_mangled_freevars(self):
+        def _Artist__mangled_name(v):
+            return v + ' on toast'
+
+        class Artist:
+            def method(self):
+                filling = 'Chalk'
+                return __mangled_name(filling)  # noqa: F821
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return __mangled_name(filling)  # noqa: F821
+            """)
+
+        assert Artist().method() == "Cheese on toast"
+
+    def test_patch_instancemethod_mangled_tabs(self, tmpdir):
+        tmpdir.join('tabs_mangled.py').write(dedent("""\
+            class Artist:
+            \tdef __mangled_name(self, v):
+            \t\treturn v + ' on toast'
+
+            \tdef method(self):
+            \t\tfilling = 'Chalk'
+            \t\treturn self.__mangled_name(filling)
+        """))
+        sys.path.insert(0, six.text_type(tmpdir))
+
+        try:
+            from tabs_mangled import Artist
+        finally:
+            sys.path.pop()
+
+        patchy.patch(Artist.method, """\
+            @@ -1,2 +1,2 @@
+             def method(self):
+            -\tfilling = 'Chalk'
+            +\tfilling = 'Cheese'
+            \treturn __mangled_name(filling)
             """)
 
         assert Artist().method() == "Cheese on toast"
