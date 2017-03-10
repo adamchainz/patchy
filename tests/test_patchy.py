@@ -299,6 +299,28 @@ class TestPatch(PatchyTestCase):
 
         assert sample()() == "Cheese on toast"
 
+    @pytest.mark.xfail(raises=ValueError)
+    def test_patch_freevars_re_close(self):
+        def nasty_filling(v):
+            return 'Chalk'
+
+        def nice_filling(v):
+            return 'Cheese'
+
+        def sample():
+            filling = nasty_filling()
+            return filling + ' on toast'
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    filling = nasty_filling()
+            +    filling = nice_filling()
+                 return filling + ' on toast'
+            """)
+
+        assert sample() == "Cheese on toast"
+
     def test_patch_instancemethod_twice(self):
         class Artist(object):
             def method(self):
