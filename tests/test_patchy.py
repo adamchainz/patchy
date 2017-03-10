@@ -185,6 +185,25 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Cheese on toast"
 
+    @pytest.mark.xfail
+    def test_patch_freevars(self):
+        def free_func(v):
+            return v + ' on toast'
+
+        def sample():
+            filling = 'Chalk'
+            return free_func(filling)
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,2 @@
+             def method():
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+                 return free_func(filling)
+            """)
+
+        assert sample() == "Cheese on toast"
+
     def test_patch_instancemethod_twice(self):
         class Artist(object):
             def method(self):
