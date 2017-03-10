@@ -225,6 +225,55 @@ class TestPatch(PatchyTestCase):
 
         assert sample() == "Cheese on toast"
 
+    def test_patch_freevars_order(self):
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            return ', '.join([
+                tastes_good('Cheese'),
+                tastes_bad('Chalk'),
+            ])
+
+        patchy.patch(sample, """\
+            @@ -1,4 +1,4 @@
+             def sample():
+                 return ', '.join([
+            -        tastes_good('Cheese'),
+            -        tastes_bad('Chalk'),
+            +        tastes_bad('Chalk'),
+            +        tastes_good('Cheese'),
+                 )]
+            """)
+
+        assert sample() == 'Chalk tastes bad, Cheese tastes good'
+
+    def test_patch_freevars_nested(self):
+        def free_func(v):
+            return v + ' on toast'
+
+        def sample():
+            filling = 'Chalk'
+
+            def _inner_func():
+                return free_func(filling)
+
+            return _inner_func
+
+        patchy.patch(sample, """\
+            @@ -1,2 +1,2 @@
+             def sample():
+            -    filling = 'Chalk'
+            +    filling = 'Cheese'
+
+                 def _inner_func():
+            """)
+
+        assert sample()() == "Cheese on toast"
+
     def test_patch_instancemethod_twice(self):
         class Artist(object):
             def method(self):
