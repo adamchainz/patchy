@@ -166,7 +166,6 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Cheese"
 
-    @pytest.mark.xfail(raises=ValueError)
     def test_patch_instancemethod_freevars(self):
         def free_func(v):
             return v + ' on toast'
@@ -243,22 +242,24 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Cheese on toast"
 
-    @pytest.mark.xfail
     def test_patch_instancemethod_mangled_freevars(self):
         def _Artist__mangled_name(v):
-            return v + ' on toast'
+            return v + ' on '
+
+        def plain_name(v):
+            return v + 'toast'
 
         class Artist:
             def method(self):
                 filling = 'Chalk'
-                return __mangled_name(filling)  # noqa: F821
+                return plain_name(__mangled_name(filling))  # noqa: F821
 
         patchy.patch(Artist.method, """\
             @@ -1,2 +1,2 @@
              def method(self):
             -    filling = 'Chalk'
             +    filling = 'Cheese'
-                 return __mangled_name(filling)  # noqa: F821
+                 return plain_name(__mangled_name(filling))  # noqa: F821
             """)
 
         assert Artist().method() == "Cheese on toast"

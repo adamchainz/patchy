@@ -183,10 +183,15 @@ def _set_source(func, func_source):
 
     class_name = _class_name(func)
     if class_name:
-        class_src = 'class {name}(object):\n    pass'.format(name=class_name)
-        new_source = _compile(class_src, ast.PyCF_ONLY_AST)
+        _def = 'def __patchy_freevars__():'
+        fvs = func.__code__.co_freevars
+        fv_body = ['    {0} = object()'.format(fv) for fv in fvs]
+        class_src = '    class {name}(object):\n        pass'.format(name=class_name)
+        ret = '    return {name}'.format(name=class_name)
+        to_parse = '\n'.join([_def] + fv_body + [class_src, ret])
+        new_source = _compile(to_parse, ast.PyCF_ONLY_AST)
         _ast = _compile(func_source, ast.PyCF_ONLY_AST)
-        new_source.body[0].body[0] = _ast.body[0]
+        new_source.body[0].body[-2].body[0] = _ast.body[0]
     else:
         new_source = func_source
 
@@ -196,7 +201,7 @@ def _set_source(func, func_source):
 
     six.exec_(new_code, func.__globals__, localz)
     if class_name is not None:
-        new_func = getattr(localz[class_name], func.__name__)
+        new_func = getattr(localz['__patchy_freevars__'](), func.__name__)
     else:
         new_func = localz[func.__name__]
 
