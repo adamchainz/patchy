@@ -185,7 +185,6 @@ class TestPatch(PatchyTestCase):
 
         assert Artist().method() == "Cheese on toast"
 
-    @pytest.mark.xfail
     def test_patch_freevars(self):
         def free_func(v):
             return v + ' on toast'
@@ -520,14 +519,16 @@ class TestPatch(PatchyTestCase):
         finally:
             sys.path.pop()
 
-        with pytest.raises(SyntaxError) as excinfo:
-            patchy.patch(sample, """\
-                @@ -2,3 +2,3 @@
-                     nonlocal variab
-                -    multiple = 3
-                +    multiple = 4
-                """)
-        assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
+        assert sample() == 15 * 3
+
+        patchy.patch(sample, """\
+            @@ -2,3 +2,3 @@
+                 nonlocal variab
+            -    multiple = 3
+            +    multiple = 4
+            """)
+
+        assert sample() == 15 * 4
 
 
 class UnpatchTests(PatchyTestCase):
