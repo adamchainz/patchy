@@ -251,6 +251,31 @@ class TestPatch(PatchyTestCase):
 
         assert sample() == 'Chalk tastes bad, Cheese tastes good'
 
+    @pytest.mark.xfail(raises=ValueError)
+    def test_patch_freevars_remove(self):
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            return ', '.join([
+                tastes_good('Cheese'),
+                tastes_bad('Chalk'),
+            ])
+
+        patchy.patch(sample, """\
+            @@ -1,5 +1,4 @@
+             def sample():
+                 return ', '.join([
+            -        tastes_bad('Chalk'),
+                     tastes_good('Cheese'),
+                 ])
+            """)
+
+        assert sample() == 'Python is the best'
+
     def test_patch_freevars_nested(self):
         def free_func(v):
             return v + ' on toast'
