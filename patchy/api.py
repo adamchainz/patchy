@@ -198,7 +198,10 @@ def _set_source(func, func_source):
     _ast.body = _ast.body + fv_force_use
     if class_name:
         class_src = '    class {name}(object):\n        pass'.format(name=class_name)
-        ret = '    return {name}'.format(name=class_name)
+        ret = '    return {class_name}.{name}'.format(
+            class_name=class_name,
+            name=func.__name__,
+        )
         to_parse = '\n'.join([_def] + fv_body + [class_src, ret])
         new_source = _parse(to_parse)
         new_source.body[0].body[-2].body[0] = _ast
@@ -213,10 +216,7 @@ def _set_source(func, func_source):
     new_code = _compile(new_source)
 
     six.exec_(new_code, func.__globals__, localz)
-    if class_name is not None:
-        new_func = getattr(localz['__patchy_freevars__'](), func.__name__)
-    else:
-        new_func = localz['__patchy_freevars__']()
+    new_func = localz['__patchy_freevars__']()
 
     # Figure out how to get the Code object
     if isinstance(new_func, (classmethod, staticmethod)):
