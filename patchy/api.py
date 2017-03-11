@@ -181,22 +181,32 @@ def _set_source(func, func_source):
             dont_inherit=True,
         )
 
+    def _parse(code):
+        return _compile(code, flags=ast.PyCF_ONLY_AST)
+
     class_name = _class_name(func)
     _def = 'def __patchy_freevars__():'
     fvs = func.__code__.co_freevars
     fv_body = ['    {0} = object()'.format(fv) for fv in fvs]
-    _ast = _compile(func_source, ast.PyCF_ONLY_AST)
+    fv_force_use_body = ['    {0}'.format(fv) for fv in fvs]
+    if fv_force_use_body:
+        fv_force_use_ast = _parse('\n'.join([_def] + fv_force_use_body))
+        fv_force_use = fv_force_use_ast.body[0].body
+    else:
+        fv_force_use = []
+    _ast = _parse(func_source).body[0]
+    _ast.body = _ast.body + fv_force_use
     if class_name:
         class_src = '    class {name}(object):\n        pass'.format(name=class_name)
         ret = '    return {name}'.format(name=class_name)
         to_parse = '\n'.join([_def] + fv_body + [class_src, ret])
-        new_source = _compile(to_parse, ast.PyCF_ONLY_AST)
-        new_source.body[0].body[-2].body[0] = _ast.body[0]
+        new_source = _parse(to_parse)
+        new_source.body[0].body[-2].body[0] = _ast
     else:
         ret = '    return {name}'.format(name=func.__name__)
         to_parse = '\n'.join([_def] + fv_body + ['    pass', ret])
-        new_source = _compile(to_parse, ast.PyCF_ONLY_AST)
-        new_source.body[0].body[-2] = _ast.body[0]
+        new_source = _parse(to_parse)
+        new_source.body[0].body[-2] = _ast
 
     # Compile and retrieve the new Code object
     localz = {}

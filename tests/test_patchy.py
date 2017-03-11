@@ -251,7 +251,6 @@ class TestPatch(PatchyTestCase):
 
         assert sample() == 'Chalk tastes bad, Cheese tastes good'
 
-    @pytest.mark.xfail(raises=ValueError)
     def test_patch_freevars_remove(self):
         def tastes_good(v):
             return v + ' tastes good'
@@ -261,8 +260,8 @@ class TestPatch(PatchyTestCase):
 
         def sample():
             return ', '.join([
-                tastes_good('Cheese'),
                 tastes_bad('Chalk'),
+                tastes_good('Cheese'),
             ])
 
         patchy.patch(sample, """\
@@ -274,7 +273,7 @@ class TestPatch(PatchyTestCase):
                  ])
             """)
 
-        assert sample() == 'Python is the best'
+        assert sample() == 'Cheese tastes good'
 
     def test_patch_freevars_nested(self):
         def free_func(v):
@@ -299,7 +298,7 @@ class TestPatch(PatchyTestCase):
 
         assert sample()() == "Cheese on toast"
 
-    @pytest.mark.xfail(raises=ValueError)
+    @pytest.mark.xfail(raises=NameError)
     def test_patch_freevars_re_close(self):
         def nasty_filling(v):
             return 'Chalk'
