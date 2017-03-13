@@ -6,6 +6,11 @@ History
 Pending Release
 ---------------
 
+* (Insert new release notes below this line)
+
+1.3.2 (2017-03-13)
+------------------
+
 * Support freevars and methods that call mangled methods.
 
 1.3.1 (2016-05-24)
