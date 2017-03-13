@@ -14,7 +14,7 @@ import patchy.api
 from .base import PatchyTestCase
 
 
-class PatchTests(PatchyTestCase):
+class TestPatch(PatchyTestCase):
 
     def test_patch(self):
         def sample():
@@ -370,29 +370,30 @@ class PatchTests(PatchyTestCase):
 
         assert Sample().meth() is six.text_type
 
+    @pytest.mark.skipif(not six.PY3, reason="Python 3 only")
+    def test_patch_nonlocal_fails(self, tmpdir):
+        # Put in separate file since it would SyntaxError on Python 2
+        tmpdir.join('py3_nonlocal.py').write(dedent("""\
+            variab = 20
 
-@pytest.mark.skipif(not six.PY3, reason="Python 3 only")
-def test_patch_nonlocal_fails(tmpdir):
-    # Put in separate file since it would SyntaxError on Python 2
-    tmpdir.join('py3_nonlocal.py').write(dedent("""\
-        variab = 20
 
+            def get_function():
+                variab = 15
 
-        def get_function():
-            variab = 15
+                def sample():
+                    nonlocal variab
+                    multiple = 3
+                    return variab * multiple
 
-            def sample():
-                nonlocal variab
-                multiple = 3
-                return variab * multiple
+                return sample
 
-            return sample
-
-        sample = get_function()
-    """))
-    sys.path.insert(0, six.text_type(tmpdir))
-    try:
-        from py3_nonlocal import sample
+            sample = get_function()
+        """))
+        sys.path.insert(0, six.text_type(tmpdir))
+        try:
+            from py3_nonlocal import sample
+        finally:
+            sys.path.pop()
 
         with pytest.raises(SyntaxError) as excinfo:
             patchy.patch(sample, """\
@@ -402,8 +403,6 @@ def test_patch_nonlocal_fails(tmpdir):
                 +    multiple = 4
                 """)
         assert "no binding for nonlocal 'variab' found" in str(excinfo.value)
-    finally:
-        sys.path.pop()
 
 
 class UnpatchTests(PatchyTestCase):
