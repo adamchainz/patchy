@@ -21,7 +21,7 @@ pyflakes==1.5.0           # via flake8
 Pygments==2.2.0
 pyparsing==2.2.0          # via packaging
 pytest-cov==2.4.0
-pytest==3.0.6
+pytest==3.0.7
 six==1.10.0
 
 # The following packages are considered to be unsafe in a requirements file:
