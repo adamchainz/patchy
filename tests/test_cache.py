@@ -8,7 +8,7 @@ from patchy.cache import PatchingCache
 from .base import PatchyTestCase
 
 
-class PatchingCacheTests(PatchyTestCase):
+class TestPatchingCache(PatchyTestCase):
     def test_store_retrieve(self):
         cache = PatchingCache(maxsize=100)
         cache.store("a", "b", True, "c")
@@ -17,7 +17,7 @@ class PatchingCacheTests(PatchyTestCase):
 
     def test_missing_key_error(self):
         cache = PatchingCache(maxsize=100)
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             cache.retrieve("a", "b", True)
 
     def test_clear(self):
