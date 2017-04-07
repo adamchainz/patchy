@@ -648,7 +648,7 @@ class TestPatch(PatchyTestCase):
         assert sample() == 15 * 4
 
 
-class UnpatchTests(PatchyTestCase):
+class TestUnpatch(PatchyTestCase):
 
     def test_unpatch(self):
         def sample():
@@ -701,7 +701,7 @@ class UnpatchTests(PatchyTestCase):
         assert sample() == 1
 
 
-class BothTests(PatchyTestCase):
+class TestBoth(PatchyTestCase):
 
     def test_patch_unpatch(self):
         def sample():
@@ -741,7 +741,7 @@ class BothTests(PatchyTestCase):
         assert sample() == 9001
 
 
-class TempPatchTests(PatchyTestCase):
+class TestTempPatch(PatchyTestCase):
 
     def test_context_manager(self):
         def sample():
