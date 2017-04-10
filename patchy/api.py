@@ -166,6 +166,23 @@ def _class_name(func):
         return im_class.__name__
 
 
+def _partition(items, condition):
+    length = len(items)
+    for i, item in enumerate(reversed(items)):
+        if condition(item):
+            break
+    else:
+        return (items, [])
+
+    point = (length-i-1)
+
+    return (items[:point], items[point:])
+
+
+def _is_op_return(node):
+    return isinstance(node, ast.Return)
+
+
 def _set_source(func, func_source):
     # Fetch the actual function we are changing
     real_func = _get_real_func(func)
@@ -201,9 +218,9 @@ def _set_source(func, func_source):
             eg_free_var_ham = object()   <- added in wrapper
 
             def patched_func():
+                eg_free_var_spam         <- inserted before last return
+                eg_free_var_ham          <- inserted before last return
                 return some_global(eg_free_var_ham)
-                eg_free_var_spam         <- appended to new func body
-                eg_free_var_ham          <- appended to new func body
 
             return patched_func
         """
@@ -217,7 +234,8 @@ def _set_source(func, func_source):
         else:
             fv_force_use = []
         _ast = _parse(func_source).body[0]
-        _ast.body = _ast.body + fv_force_use
+        before, after = _partition(_ast.body, _is_op_return)
+        _ast.body = before + fv_force_use + after
         return _def, _ast, fv_body
 
     def _process_method():

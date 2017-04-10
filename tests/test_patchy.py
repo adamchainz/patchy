@@ -612,7 +612,7 @@ class TestPatch(PatchyTestCase):
         assert Sample().meth() is six.text_type
 
     @pytest.mark.skipif(not six.PY3, reason="Python 3 only")
-    def test_patch_nonlocal_fails(self, tmpdir):
+    def test_patch_nonlocal(self, tmpdir):
         # Put in separate file since it would SyntaxError on Python 2
         tmpdir.join('py3_nonlocal.py').write(dedent("""\
             variab = 20

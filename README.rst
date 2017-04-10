@@ -45,7 +45,7 @@ Use **pip**:
 
     pip install patchy
 
-Tested on Python 2.7 and 3.6.
+Tested on CPython 2.7, 3.3, 3.4 and 3.6; and PyPy 2.7.8[pypy-2.5.0-final]
 
 
 Why?
