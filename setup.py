@@ -42,7 +42,7 @@ with codecs.open('HISTORY.rst', 'r', 'utf-8') as history_file:
 
 requirements = [
     'six>=1.9.0',
-    'whatthepatch==0.0.5',
+    'whatthepatch-graingert==0.0.6',
 ]
 
 setup(
