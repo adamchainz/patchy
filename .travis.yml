@@ -18,10 +18,9 @@ matrix:
     - python: pypy3
       env: TOX_ENV=pypy3
     - env: TOX_ENV=jython
-      addons:
-        apt:
-          packages:
-            - jython
+      before_install:
+        - pyenv install jython-2.7.0
+        - pyenv global jython-2.7.0
 install: pip install tox
 script: tox -e $TOX_ENV
 cache: pip
