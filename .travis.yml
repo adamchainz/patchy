@@ -17,12 +17,21 @@ matrix:
       env: TOX_ENV=pypy
     - python: pypy3
       env: TOX_ENV=pypy3
-    - env: TOX_ENV=jython
-      before_install:
-        - pyenv install jython-2.7.0
-        - pyenv global jython-2.7.0
+    - env:
+        - TOX_ENV=jython
+        - PYENV_VERSION=jython-2.7.0
+before_install:
+  - |
+      if [[ -n "$PYENV_VERSION" ]]; then
+        wget https://github.com/praekeltfoundation/travis-pyenv/releases/download/0.3.0/setup-pyenv.sh
+        source setup-pyenv.sh
+      fi
 install: pip install tox
 script: tox -e $TOX_ENV
-cache: pip
+cache:
+  - pip
+  - directories:
+      $HOME/.pyenv_cache
+
 notifications:
   email: false
