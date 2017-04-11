@@ -275,6 +275,128 @@ class TestPatch(PatchyTestCase):
 
         assert sample() == 'Cheese tastes good'
 
+    def test_patch_freevars_remove_unreachable(self):
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            return ', '.join([
+                tastes_bad('Chalk'),
+                tastes_good('Cheese'),
+            ])
+            if False:
+                return 3
+
+        patchy.patch(sample, """\
+            @@ -1,5 +1,4 @@
+             def sample():
+                 return ', '.join([
+            -        tastes_bad('Chalk'),
+                     tastes_good('Cheese'),
+                 ])
+            """)
+
+        assert sample() == 'Cheese tastes good'
+
+    def test_patch_freevars_remove_unreachable_if_false(self):
+        def unreachable(v):
+            return 'Nothing of use here...'
+
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            if False:
+                return 3
+            return ', '.join([
+                tastes_bad('Chalk'),
+                tastes_good('Cheese'),
+            ])
+            return unreachable()
+
+        patchy.patch(sample, """\
+            @@ -1,5 +1,4 @@
+             def sample():
+                 return ', '.join([
+            -        tastes_bad('Chalk'),
+                     tastes_good('Cheese'),
+                 ])
+            """)
+
+        assert sample() == 'Cheese tastes good'
+
+    def test_patch_freevars_remove_unreachable_if_1(self):
+        def unreachable(v):
+            return 'Nothing of use here...'
+
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            if 1:
+                return ', '.join([
+                    tastes_bad('Chalk'),
+                    tastes_good('Cheese'),
+                ])
+            return unreachable()
+
+        patchy.patch(sample, """\
+            @@ -1,6 +1,5 @@
+             def sample():
+                 if 1:
+                     return ', '.join([
+            -            tastes_bad('Chalk'),
+                         tastes_good('Cheese'),
+                 ])
+            """)
+
+        assert sample() == 'Cheese tastes good'
+
+    def test_patch_freevars_remove_unreachable_except(self):
+        def reachable():
+            return "But can't be called"
+
+        def unreachable():
+            return 'Nothing of use here...'
+
+        def tastes_good(v):
+            return v + ' tastes good'
+
+        def tastes_bad(v):
+            return v + ' tastes bad'
+
+        def sample():
+            try:
+                return ', '.join([
+                    tastes_bad('Chalk'),
+                    tastes_good('Cheese'),
+                ])
+            except:
+                return reachable()
+
+            return unreachable()
+
+        patchy.patch(sample, """\
+            @@ -1,6 +1,5 @@
+             def sample():
+                 try:
+                     return ', '.join([
+            -            tastes_bad('Chalk'),
+                         tastes_good('Cheese'),
+                 ])
+            """)
+
+        assert sample() == 'Cheese tastes good'
+
     def test_patch_freevars_nested(self):
         def free_func(v):
             return v + ' on toast'

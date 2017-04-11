@@ -167,16 +167,13 @@ def _class_name(func):
 
 
 def _partition(items, condition):
-    length = len(items)
-    for i, item in enumerate(reversed(items)):
+    for i, item in enumerate(items):
         if condition(item):
             break
     else:
         return (items, [])
 
-    point = (length-i-1)
-
-    return (items[:point], items[point:])
+    return (items[:i], items[i:])
 
 
 def _is_op_return(node):
