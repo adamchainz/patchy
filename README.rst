@@ -69,8 +69,6 @@ Why not?
 
 There are of course a lot of reasons against:
 
-* It’s (relatively) slow (since it writes the source to disk and calls the
-  ``patch`` command)
 * If you have a patch file, why not just fork the library and apply it?
 * At least with monkey-patching you know what end up with, rather than having
   the changes being done at runtime to source that may have changed.

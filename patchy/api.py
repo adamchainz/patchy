@@ -3,15 +3,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import ast
 import inspect
-import os
-import shutil
-import subprocess
 from functools import wraps
-from tempfile import mkdtemp
 from textwrap import dedent
 from weakref import WeakKeyDictionary
 
 import six
+import whatthepatch
 
 from .cache import PatchingCache
 
@@ -72,52 +69,16 @@ def _apply_patch(source, patch_text, forwards, name):
     except KeyError:
         pass
 
-    # Write out files
-    tempdir = mkdtemp(prefix='patchy')
-    try:
-        source_path = os.path.join(tempdir, name + '.py')
-        with open(source_path, 'w') as source_file:
-            source_file.write(source)
+    diff = list(whatthepatch.parse_patch(patch_text))
 
-        patch_path = os.path.join(tempdir, name + '.patch')
-        with open(patch_path, 'w') as patch_file:
-            patch_file.write(patch_text)
-            if not patch_text.endswith('\n'):
-                patch_file.write('\n')
+    if len(diff) != 1:
+        raise ValueError('Invalid patch')
 
-        # Call `patch` command
-        command = ['patch']
-        if not forwards:
-            command.append('--reverse')
-        command.extend([source_path, patch_path])
-        proc = subprocess.Popen(
-            command,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE
-        )
-        stdout, stderr = proc.communicate()
-
-        if proc.returncode != 0:
-            msg = "Could not {action} the patch {prep} '{name}'.".format(
-                action=("apply" if forwards else "unapply"),
-                prep=("to" if forwards else "from"),
-                name=name
-            )
-            if stdout or stderr:
-                msg += " The message from `patch` was:\n{}\n{}".format(
-                    stdout.decode('utf-8'),
-                    stderr.decode('utf-8')
-                )
-            msg += (
-                "\nThe code to patch was:\n{}\nThe patch was:\n{}"
-                .format(source, patch_text)
-            )
-            raise ValueError(msg)
-
-        with open(source_path, 'r') as source_file:
-            new_source = source_file.read()
-    finally:
-        shutil.rmtree(tempdir)
+    new_source = '\n'.join(whatthepatch.apply_diff(
+        diff[0],
+        source,
+        reverse=not forwards,
+    ))
 
     _patching_cache.store(source, patch_text, forwards, new_source)
 
