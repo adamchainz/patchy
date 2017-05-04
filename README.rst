@@ -195,6 +195,27 @@ Decorator example, using the same ``sample`` and ``patch_text``:
     print(my_func())  # prints True
 
 
+``replace(func, new_source)``
+-----------------------------
+
+Replace the source code of function ``func`` with ``new_source``.
+This is highly unrecommended as it means if the original function changes,
+the call to replace() will continue to silently succeed.
+
+Example:
+
+.. code-block:: python
+
+    import patchy
+
+    def sample():
+        return 1
+
+    patchy.replace(sample, "def sample():\n return 42\n")
+
+    print(sample())  # prints 42
+
+
 How to Create a Patch
 =====================
 
