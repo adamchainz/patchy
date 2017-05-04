@@ -15,7 +15,7 @@ import six
 
 from .cache import PatchingCache
 
-__all__ = ('patch', 'mc_patchface', 'unpatch', 'temp_patch')
+__all__ = ('patch', 'mc_patchface', 'unpatch', 'replace', 'temp_patch')
 
 
 # Public API
@@ -29,6 +29,10 @@ mc_patchface = patch
 
 def unpatch(func, patch_text):
     return _do_patch(func, patch_text, forwards=False)
+
+
+def replace(func, new_source):
+    _set_source(func, new_source)
 
 
 class temp_patch(object):
