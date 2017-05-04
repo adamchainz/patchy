@@ -7,6 +7,8 @@ Pending Release
 ---------------
 
 * (Insert new release notes below this line)
+* Added new function ``patchy.replace()``, that can be used to directly assign
+  new source code to a function, without having to make a patch.
 
 1.3.2 (2017-03-13)
 ------------------
