@@ -200,7 +200,7 @@ Decorator example, using the same ``sample`` and ``patch_text``:
 
 Replace the source code of function ``func`` with ``new_source``.
 This is highly unrecommended as it means if the original function changes,
-the call to replace() will continue to silently succeed.
+the call to ``replace()`` will continue to silently succeed.
 
 Example:
 
