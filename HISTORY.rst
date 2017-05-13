@@ -6,7 +6,11 @@ History
 Pending Release
 ---------------
 
-* (Insert new release notes below this line)
+.. Insert new release notes below this line
+
+1.4.0 (2017-05-13)
+------------------
+
 * Added new function ``patchy.replace()``, that can be used to directly assign
   new source code to a function, without having to make a patch.
 
