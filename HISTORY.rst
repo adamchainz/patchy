@@ -23,7 +23,6 @@ Pending Release
 * Added ``patchy.mc_patchface()`` as an alias for ``patchy.patch()`` because
   memes.
 
-
 1.3.0 (2015-12-09)
 ------------------
 
@@ -44,7 +43,6 @@ Pending Release
   is being patched
 * Added ``unpatch`` method
 * Added ``temp_patch`` context manager/decorator
-
 
 1.0.0 (2015-06-09)
 ---------------------
