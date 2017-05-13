@@ -31,7 +31,13 @@ def unpatch(func, patch_text):
     return _do_patch(func, patch_text, forwards=False)
 
 
-def replace(func, new_source):
+def replace(func, expected_source, new_source):
+    if expected_source is not None:
+        expected_source = dedent(expected_source)
+        current_source = _get_source(func)
+        _assert_ast_equal(current_source, expected_source, func.__name__)
+
+    new_source = dedent(new_source)
     _set_source(func, new_source)
 
 
@@ -292,3 +298,19 @@ def _get_real_func(func):
         return func.__func__
     else:
         return func
+
+
+def _assert_ast_equal(current_source, expected_source, name):
+    current_ast = ast.parse(current_source)
+    expected_ast = ast.parse(expected_source)
+    if not ast.dump(current_ast) == ast.dump(expected_ast):
+        msg = (
+            "The code of '{name}' has changed from expected.\n"
+            "The current code is:\n{current_source}\n"
+            "The expected code is:\n{expected_source}"
+        ).format(
+            name=name,
+            current_source=current_source,
+            expected_source=expected_source,
+        )
+        raise ValueError(msg)

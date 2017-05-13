@@ -195,12 +195,26 @@ Decorator example, using the same ``sample`` and ``patch_text``:
     print(my_func())  # prints True
 
 
-``replace(func, new_source)``
------------------------------
+``replace(func, expected_source, new_source)``
+----------------------------------------------
 
-Replace the source code of function ``func`` with ``new_source``.
-This is highly unrecommended as it means if the original function changes,
-the call to ``replace()`` will continue to silently succeed.
+Check that ``func`` has an AST matching ``expected_source``, then replace its
+inner code object with source compiled from ``new_source``. If the AST check
+fails, ``ValueError`` will be raised with current/expected source code in the
+message. In the author's opinion it's preferable to call ``patch()`` so your
+call makes it clear to see what is being changed about ``func``, but using
+``replace()`` is simpler as you don't have to make a patch and there is no
+subprocess call to the ``patch`` utility.
+
+Note both ``expected_source`` and ``new_source`` will be
+``textwrap.dedent()``’ed, so the best way to include their source is with a
+triple quoted string with a backslash escape on the first line, as per the
+example below.
+
+If you want, you can pass ``expected_source=None`` to avoid the guard against
+your target changing, but this is highly unrecommended as it means if the
+original function changes, the call to ``replace()`` will continue to silently
+succeed.
 
 Example:
 
@@ -211,7 +225,17 @@ Example:
     def sample():
         return 1
 
-    patchy.replace(sample, "def sample():\n return 42\n")
+    patchy.replace(
+        sample,
+        """\
+        def sample():
+            return 1
+        """,
+        """\
+        def sample():
+            return 42
+        """
+    )
 
     print(sample())  # prints 42
 
