@@ -10,6 +10,8 @@ import six
 import patchy
 import patchy.api
 
+from .conftest import skip_unless_python_2, skip_unless_python_3
+
 
 def test_patch():
     def sample():
@@ -190,7 +192,7 @@ def test_patch_instancemethod_freevars():
     assert Artist().method() == "Cheese on toast"
 
 
-@pytest.mark.skipif(not six.PY3, reason="Python 3 required for PEP 3135 New Super")
+@skip_unless_python_3  # PEP 3135 New Super
 def test_patch_init_super():
     class Person(object):
         def __init__(self):
@@ -429,7 +431,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
     try:
         from tabs_mangled import Artist
     finally:
-        sys.path.pop()
+        sys.path.pop(0)
 
     patchy.patch(Artist.method, """\
         @@ -1,2 +1,2 @@
@@ -561,9 +563,20 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
-@pytest.mark.skipif(not six.PY2, reason="Python 2")
-def test_patch_future():
-    from .python2_future import sample
+@skip_unless_python_2
+def test_patch_future(tmpdir):
+    tmpdir.join('future_user.py').write(dedent("""\
+        from __future__ import unicode_literals
+
+        def sample():
+            return type('example string')
+    """))
+    sys.path.insert(0, six.text_type(tmpdir))
+
+    try:
+        from future_user import sample
+    finally:
+        sys.path.pop(0)
 
     assert sample() is six.text_type
 
@@ -577,53 +590,85 @@ def test_patch_future():
     assert sample() is six.text_type
 
 
-@pytest.mark.skipif(not six.PY2, reason="Python 2")
-def test_patch_future_twice():
-    from .python2_future import sample2
+@skip_unless_python_2
+def test_patch_future_twice(tmpdir):
+    tmpdir.join('future_twice.py').write(dedent("""\
+        from __future__ import unicode_literals
 
-    assert sample2() is six.text_type
+        def sample():
+            return type('example string')
+    """))
+    sys.path.insert(0, six.text_type(tmpdir))
 
-    patchy.patch(sample2, """\
+    try:
+        from future_twice import sample
+    finally:
+        sys.path.pop(0)
+
+    assert sample() is six.text_type
+
+    patchy.patch(sample, """\
         @@ -1,2 +1,3 @@
-         def sample2():
+         def sample():
         +    pass
              return type('example string 2')
         """)
 
-    assert sample2() is six.text_type
+    assert sample() is six.text_type
 
-    patchy.patch(sample2, """\
+    patchy.patch(sample, """\
         @@ -1,3 +1,4 @@
-         def sample2():
+         def sample():
              pass
         +    pass
              return type('example string 2')
         """)
 
-    assert sample2() is six.text_type
+    assert sample() is six.text_type
 
 
-@pytest.mark.skipif(not six.PY2, reason="Python 2")
-def test_patch_future_doesnt_inherit():
-    # This test module has 'division' imported, but python2_future doesn't
+@skip_unless_python_2
+def test_patch_future_doesnt_inherit(tmpdir):
+    # This test module has 'division' imported, test file doesn't
     assert division
-    from .python2_future import sample3
+    tmpdir.join('no_future_division.py').write(dedent("""\
+        def sample():
+            return 1 / 2
+    """))
+    sys.path.insert(0, six.text_type(tmpdir))
 
-    assert sample3() == 0
+    try:
+        from no_future_division import sample
+    finally:
+        sys.path.pop(0)
 
-    patchy.patch(sample3, """\
+    assert sample() == 0
+
+    patchy.patch(sample, """\
         @@ -1,2 +1,3 @@
-         def sample3():
+         def sample():
         +    pass
              return 1 / 2
         """)
 
-    assert sample3() == 0
+    assert sample() == 0
 
 
-@pytest.mark.skipif(not six.PY2, reason="Python 2")
-def test_patch_future_instancemethod():
-    from .python2_future import Sample
+@skip_unless_python_2
+def test_patch_future_instancemethod(tmpdir):
+    tmpdir.join('future_instancemethod.py').write(dedent("""\
+        from __future__ import unicode_literals
+
+        class Sample(object):
+            def meth(self):
+                return type('example string')
+    """))
+    sys.path.insert(0, six.text_type(tmpdir))
+
+    try:
+        from future_instancemethod import Sample
+    finally:
+        sys.path.pop(0)
 
     assert Sample().meth() is six.text_type
 
@@ -637,7 +682,7 @@ def test_patch_future_instancemethod():
     assert Sample().meth() is six.text_type
 
 
-@pytest.mark.skipif(not six.PY3, reason="Python 3 only")
+@skip_unless_python_3
 def test_patch_nonlocal_fails(tmpdir):
     # Put in separate file since it would SyntaxError on Python 2
     tmpdir.join('py3_nonlocal.py').write(dedent("""\
@@ -660,7 +705,7 @@ def test_patch_nonlocal_fails(tmpdir):
     try:
         from py3_nonlocal import sample
     finally:
-        sys.path.pop()
+        sys.path.pop(0)
 
     assert sample() == 15 * 3
 
