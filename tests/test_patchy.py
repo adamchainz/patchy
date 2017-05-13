@@ -39,6 +39,13 @@ class TestPatch(PatchyTestCase):
             """)
         assert sample() == 2
 
+    def test_replace(self):
+        def sample():
+            return 1
+
+        patchy.replace(sample, 'def sample():\n return 42\n')
+        assert sample() == 42
+
     def test_patch_simple_no_newline(self):
         def sample():
             return 1
