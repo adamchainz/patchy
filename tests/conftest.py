@@ -6,7 +6,6 @@ import pytest
 import patchy.api
 
 
-class PatchyTestCase(object):
-    @pytest.fixture(autouse=True)
-    def clear_cache(self):
-        patchy.api._patching_cache.clear()
+@pytest.fixture(autouse=True)
+def clear_cache():
+    patchy.api._patching_cache.clear()
