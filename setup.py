@@ -13,7 +13,8 @@ def get_version(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
-    init_py = open(os.path.join(package, '__init__.py')).read()
+    with codecs.open(os.path.join(package, '__init__.py'), 'r', 'utf-8') as fp:
+        init_py = fp.read()
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
 
