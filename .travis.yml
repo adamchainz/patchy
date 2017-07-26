@@ -1,5 +1,5 @@
-# Config file for automatic testing at travis-ci.org
 sudo: false
+dist: trusty
 
 language: python
 python: 3.6
@@ -7,8 +7,6 @@ cache: pip
 
 notifications:
   email: false
-
-language: python
 
 install:
   - pip install tox
