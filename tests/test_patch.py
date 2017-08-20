@@ -192,8 +192,42 @@ def test_patch_instancemethod_freevars():
     assert Artist().method() == "Cheese on toast"
 
 
+@pytest.mark.xfail(raises=ValueError)
+def test_patch_init_module_level(tmpdir):
+    """
+    Module level classes do not have a freevar for their class name, whilst
+    classes defined in a scope do...
+    """
+    example_py = tmpdir.join('example.py')
+    example_py.write(dedent('''\
+        class Person(object):
+            def __init__(self):
+                self.base_prop = 'yo'
+
+
+        class Artist(Person):
+            def __init__(self):
+                super(Artist, self).__init__()
+                self.prop = 'old'
+    '''))
+    mod = example_py.pyimport()
+    Artist = mod.Artist
+
+    patchy.patch(Artist.__init__, """\
+        @@ -1,3 +1,3 @@
+         def __init__(self):
+             super(Artist, self).__init__()
+        -    self.prop = 'old'
+        +    self.prop = 'new'
+    """)
+
+    a = Artist()
+    assert a.base_prop == 'yo'
+    assert a.prop == 'new'
+
+
 @skip_unless_python_3  # PEP 3135 New Super
-def test_patch_init_super():
+def test_patch_init_super_new():
     class Person(object):
         def __init__(self):
             self.base_prop = 'yo'
