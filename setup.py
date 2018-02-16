@@ -23,10 +23,6 @@ with codecs.open('HISTORY.rst', 'r', 'utf-8') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 
-requirements = [
-    'six>=1.9.0',
-]
-
 setup(
     name='patchy',
     version=version,
@@ -37,7 +33,10 @@ setup(
     url='https://github.com/adamchainz/patchy',
     packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=[
+        'six>=1.9.0',
+    ],
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     license="BSD",
     zip_safe=False,
     keywords='patchy',
