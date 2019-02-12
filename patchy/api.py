@@ -245,7 +245,14 @@ def _set_source(func, func_source):
         """
 
         _def, _ast, fv_body = _process_freevars()
-        class_src = '    class {name}(object):\n        pass'.format(name=class_name)
+        _global = (
+            '' if class_name in func.__code__.co_freevars
+            else '    global {name}\n'.format(name=class_name)
+        )
+        class_src = '{_global}    class {name}(object):\n        pass'.format(
+            _global=_global,
+            name=class_name,
+        )
         ret = '    return {class_name}.{name}'.format(
             class_name=class_name,
             name=func.__name__,
@@ -272,7 +279,7 @@ def _set_source(func, func_source):
     localz = {}
     new_code = _compile(new_source)
 
-    six.exec_(new_code, func.__globals__, localz)
+    six.exec_(new_code, dict(func.__globals__), localz)
     new_func = localz['__patchy_freevars__']()
 
     # Figure out how to get the Code object

@@ -203,7 +203,6 @@ def test_patch_instancemethod_freevars():
     assert Artist().method() == "Cheese on toast"
 
 
-@pytest.mark.xfail(raises=ValueError)
 def test_patch_init_module_level(tmpdir):
     """
     Module level classes do not have a freevar for their class name, whilst
@@ -233,6 +232,7 @@ def test_patch_init_module_level(tmpdir):
     """)
 
     a = Artist()
+    assert mod.Artist == Artist
     assert a.base_prop == 'yo'
     assert a.prop == 'new'
 
