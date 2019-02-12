@@ -264,8 +264,13 @@ def _set_source(func, func_source):
 
     def _process_function():
         _def, _ast, fv_body = _process_freevars()
-        ret = '    return {name}'.format(name=func.__name__)
-        to_parse = '\n'.join([_def] + fv_body + ['    pass', ret])
+        name = func.__name__
+        ret = '    return {name}'.format(name=name)
+        _global = (
+            [] if name in func.__code__.co_freevars
+            else ['    global {name}'.format(name=name)]
+        )
+        to_parse = '\n'.join([_def] + _global + fv_body + ['    pass', ret])
         new_source = _parse(to_parse)
         new_source.body[0].body[-2] = _ast
         return new_source
