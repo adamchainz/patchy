@@ -208,7 +208,7 @@ def test_patch_init_module_level(tmpdir):
     Module level classes do not have a freevar for their class name, whilst
     classes defined in a scope do...
     """
-    example_py = tmpdir.join('example.py')
+    example_py = tmpdir.join('patch_init_module_level.py')
     example_py.write(dedent('''\
         class Person(object):
             def __init__(self):
@@ -235,6 +235,40 @@ def test_patch_init_module_level(tmpdir):
     assert mod.Artist == Artist
     assert a.base_prop == 'yo'
     assert a.prop == 'new'
+
+
+def test_patch_recursive_module_level(tmpdir):
+    """
+    Module level recursive functions do not have a freevar for their name,
+    whilst functions defined in a scope do...
+    """
+    example_py = tmpdir.join('patch_recursive_module_level.py')
+    example_py.write(dedent("""\
+        def factorial(n):
+            if n == 1:
+                return 1
+            else:
+                return n * factorial(n-1)
+    """))
+    mod = example_py.pyimport()
+    factorial = mod.factorial
+
+    assert factorial(10) == 3628800
+
+    patchy.patch(factorial, """\
+        @@ -2,4 +2,4 @@
+        -    if n == 1:
+        -        return 1
+        -    else:
+        -        return n * factorial(n-1)
+        +   if n <= 1:
+        +       return n
+        +   else:
+        +       return factorial(n-1) + factorial(n-2)
+    """)
+
+    assert factorial(10) == 55
+    assert factorial == mod.factorial
 
 
 @skip_unless_python_3  # PEP 3135 New Super
