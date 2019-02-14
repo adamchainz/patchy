@@ -8,6 +8,9 @@ Pending Release
 
 .. Insert new release notes below this line
 
+* Support cases where the function or class name is not in the freevars. This
+  allows patching ``__init__`` of a class, or patching a recursive module-level function.
+
 1.4.0 (2017-05-13)
 ------------------
 
