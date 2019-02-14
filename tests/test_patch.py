@@ -56,14 +56,25 @@ def test_patch_invalid():
     def sample():
         return 1
 
-    bad_patch = """
+    bad_patch = """garbage
         """
     with pytest.raises(ValueError) as excinfo:
         patchy.patch(sample, bad_patch)
 
     msg = str(excinfo.value)
-    assert msg.startswith("Could not apply the patch to 'sample'.")
-    assert "Only garbage was found in the patch input."
+    expected = dedent("""\
+        Could not apply the patch to 'sample'. The message from `patch` was:
+
+        patch: **** Only garbage was found in the patch input.
+
+        The code to patch was:
+        def sample():
+            return 1
+
+        The patch was:
+        garbage
+    """)
+    assert msg == expected
     assert sample() == 1
 
 
@@ -597,7 +608,6 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
-@skip_unless_python_2
 def test_patch_future(tmpdir):
     tmpdir.join('future_user.py').write(dedent("""\
         from __future__ import unicode_literals
@@ -624,7 +634,6 @@ def test_patch_future(tmpdir):
     assert sample() is six.text_type
 
 
-@skip_unless_python_2
 def test_patch_future_twice(tmpdir):
     tmpdir.join('future_twice.py').write(dedent("""\
         from __future__ import unicode_literals
@@ -688,7 +697,6 @@ def test_patch_future_doesnt_inherit(tmpdir):
     assert sample() == 0
 
 
-@skip_unless_python_2
 def test_patch_future_instancemethod(tmpdir):
     tmpdir.join('future_instancemethod.py').write(dedent("""\
         from __future__ import unicode_literals

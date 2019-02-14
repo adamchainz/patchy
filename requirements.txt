@@ -25,6 +25,7 @@ pycodestyle==2.4.0        # via flake8
 pyflakes==2.0.0           # via flake8
 pygments==2.3.1
 pytest-cov==2.6.1
+pytest-env-info==0.3.0
 pytest==4.1.1
 scandir==1.9.0            # via pathlib2
 six==1.12.0
