@@ -113,11 +113,10 @@ def _apply_patch(source, patch_text, forwards, name):
                 prep=("to" if forwards else "from"),
                 name=name
             )
-            if stdout or stderr:
-                msg += " The message from `patch` was:\n{}\n{}".format(
-                    stdout.decode('utf-8'),
-                    stderr.decode('utf-8')
-                )
+            msg += " The message from `patch` was:\n{}\n{}".format(
+                stdout.decode('utf-8'),
+                stderr.decode('utf-8')
+            )
             msg += (
                 "\nThe code to patch was:\n{}\nThe patch was:\n{}"
                 .format(source, patch_text)
@@ -161,7 +160,7 @@ def _get_source(func):
 
 def _class_name(func):
     qualname = getattr(func, '__qualname__', None)
-    if qualname is not None:
+    if qualname is not None:  # pragma: no py2 cover
         split_name = qualname.split('.')
         try:
             class_name = split_name[-2]
@@ -171,9 +170,10 @@ def _class_name(func):
             if class_name == '<locals>':
                 return None
             return class_name
-    im_class = getattr(func, 'im_class', None)
-    if im_class is not None:
-        return im_class.__name__
+    else:  # pragma: no py3 cover
+        im_class = getattr(func, 'im_class', None)
+        if im_class is not None:
+            return im_class.__name__
 
 
 def _set_source(func, func_source):
@@ -276,7 +276,7 @@ def _set_source(func, func_source):
     new_func = localz['__patchy_freevars__']()
 
     # Figure out how to get the Code object
-    if isinstance(new_func, (classmethod, staticmethod)):
+    if isinstance(new_func, (classmethod, staticmethod)):  # pragma: no py3 cover
         new_code = new_func.__func__.__code__
     else:
         new_code = new_func.__code__

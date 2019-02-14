@@ -6,5 +6,6 @@ modernize
 multilint
 pytest
 pytest-cov
+pytest-env-info
 Pygments
 six
