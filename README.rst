@@ -100,7 +100,9 @@ API
 ``patch(func, patch_text)``
 ---------------------------
 
-Apply the patch ``patch_text`` to the source of function ``func``.
+Apply the patch ``patch_text`` to the source of function ``func``. ``func`` may
+be either a function, or a string providing the dotted path to import a
+function.
 
 If the patch is invalid, for example the context lines don’t match,
 ``ValueError`` will be raised, with a message that includes all the output from
@@ -164,8 +166,8 @@ Example:
 ``temp_patch(func, patch_text)``
 --------------------------------
 
-Usable as a context manager or function decorator to wrap code with a call to
-``patch`` before and ``unpatch`` after.
+Takes the same arguments as ``patch``. Usable as a context manager or function
+decorator to wrap code with a call to ``patch`` before and ``unpatch`` after.
 
 Context manager example:
 
@@ -198,13 +200,13 @@ Decorator example, using the same ``sample`` and ``patch_text``:
 ``replace(func, expected_source, new_source)``
 ----------------------------------------------
 
-Check that ``func`` has an AST matching ``expected_source``, then replace its
-inner code object with source compiled from ``new_source``. If the AST check
-fails, ``ValueError`` will be raised with current/expected source code in the
-message. In the author's opinion it's preferable to call ``patch()`` so your
-call makes it clear to see what is being changed about ``func``, but using
-``replace()`` is simpler as you don't have to make a patch and there is no
-subprocess call to the ``patch`` utility.
+Check that function or dotted path to function ``func`` has an AST matching
+`expected_source``, then replace its inner code object with source compiled
+from ``new_source``. If the AST check fails, ``ValueError`` will be raised with
+current/expected source code in the message. In the author's opinion it's
+preferable to call ``patch()`` so your call makes it clear to see what is being
+changed about ``func``, but using ``replace()`` is simpler as you don't have to
+make a patch and there is no subprocess call to the ``patch`` utility.
 
 Note both ``expected_source`` and ``new_source`` will be
 ``textwrap.dedent()``’ed, so the best way to include their source is with a

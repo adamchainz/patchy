@@ -61,9 +61,32 @@ class temp_patch(object):
         return wrapper
 
 
+def _dot_lookup(thing, comp, import_path):
+    try:
+        return getattr(thing, comp)
+    except AttributeError:
+        __import__(import_path)
+        return getattr(thing, comp)
+
+
+def _importer(target):
+    if not isinstance(target, six.string_types):
+        return target
+
+    components = target.split('.')
+    import_path = components.pop(0)
+    thing = __import__(import_path)
+
+    for comp in components:
+        import_path += ".%s" % comp
+        thing = _dot_lookup(thing, comp, import_path)
+    return thing
+
+
 # Gritty internals
 
 def _do_patch(func, patch_text, forwards):
+    func = _importer(func)
     source = _get_source(func)
     patch_text = dedent(patch_text)
 
