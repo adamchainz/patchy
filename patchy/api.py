@@ -113,10 +113,10 @@ def _apply_patch(source, patch_text, forwards, name):
             source_file.write(source)
 
         patch_path = os.path.join(tempdir, name + '.patch')
-        with open(patch_path, 'w') as patch_file:
-            patch_file.write(patch_text)
+        with open(patch_path, 'wb') as patch_file:
+            patch_file.write(patch_text.encode('utf-8'))
             if not patch_text.endswith('\n'):
-                patch_file.write('\n')
+                patch_file.write(b'\n')
 
         # Call `patch` command
         command = ['patch']

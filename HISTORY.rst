@@ -11,6 +11,8 @@ Pending Release
 * Support cases where the function or class name is not in the freevars. This
   allows patching ``__init__`` of a class, or patching a recursive module-level function.
 * Support patching objects provided by dotted path string.
+* Force unix line endings on Windows. This fixes an error on Windows in the
+  Mingw environment.
 
 1.4.0 (2017-05-13)
 ------------------
