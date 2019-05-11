@@ -1,5 +1,4 @@
-# -*- encoding:utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+import __future__
 
 import ast
 import inspect
@@ -10,8 +9,6 @@ from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
 from weakref import WeakKeyDictionary
-
-import six
 
 from .cache import PatchingCache
 
@@ -70,7 +67,7 @@ def _dot_lookup(thing, comp, import_path):
 
 
 def _importer(target):
-    if not isinstance(target, six.string_types):
+    if not isinstance(target, str):
         return target
 
     components = target.split('.')
@@ -157,7 +154,6 @@ def _apply_patch(source, patch_text, forwards, name):
 
 
 def _get_flags_mask():
-    import __future__
     result = 0
     for name in __future__.all_feature_names:
         result |= getattr(__future__, name).compiler_flag
@@ -307,7 +303,7 @@ def _set_source(func, func_source):
     localz = {}
     new_code = _compile(new_source)
 
-    six.exec_(new_code, dict(func.__globals__), localz)
+    exec(new_code, dict(func.__globals__), localz)
     new_func = localz['__patchy_freevars__']()
 
     # Figure out how to get the Code object

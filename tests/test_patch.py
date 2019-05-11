@@ -1,5 +1,4 @@
-# -*- encoding:utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+import __future__
 
 import sys
 from textwrap import dedent
@@ -9,8 +8,6 @@ import six
 
 import patchy
 import patchy.api
-
-from .conftest import skip_unless_python_2, skip_unless_python_3
 
 
 def test_patch():
@@ -271,7 +268,6 @@ def test_patch_recursive_module_level(tmpdir):
     assert factorial == mod.factorial
 
 
-@skip_unless_python_3  # PEP 3135 New Super
 def test_patch_init_super_new():
     class Person(object):
         def __init__(self):
@@ -642,12 +638,18 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
-def test_patch_future(tmpdir):
+@pytest.mark.skipif(sys.version_info < (3, 5), reason="generator_stop introduced in Python 3.5")
+@pytest.mark.skipif(sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7")
+def test_patch_future_python_3_5_to_3_7(tmpdir):
     tmpdir.join('future_user.py').write(dedent("""\
-        from __future__ import unicode_literals
+        from __future__ import generator_stop
+
+        def f(x):
+            raise StopIteration()
+
 
         def sample():
-            return type('example string')
+            return list(f(x) for x in range(10))
     """))
     sys.path.insert(0, six.text_type(tmpdir))
 
@@ -656,88 +658,60 @@ def test_patch_future(tmpdir):
     finally:
         sys.path.pop(0)
 
-    assert sample() is six.text_type
+    with pytest.raises(RuntimeError):
+        sample()
 
     patchy.patch(sample, """\
         @@ -1,2 +1,3 @@
          def sample():
         +    pass
-             return type('example string')
+             return list(f(x) for x in range(10))
         """)
 
-    assert sample() is six.text_type
+    with pytest.raises(RuntimeError):
+        sample()
 
 
-def test_patch_future_twice(tmpdir):
-    tmpdir.join('future_twice.py').write(dedent("""\
-        from __future__ import unicode_literals
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="__future__.annotations introduced in Python 3.7")
+def test_patch_future_python_3_7_plus(tmpdir):
+    tmpdir.join('future_user.py').write(dedent("""\
+        from __future__ import annotations
+
 
         def sample():
-            return type('example string')
+            pass
     """))
     sys.path.insert(0, six.text_type(tmpdir))
 
     try:
-        from future_twice import sample
+        from future_user import sample
     finally:
         sys.path.pop(0)
 
-    assert sample() is six.text_type
+    assert sample.__code__.co_flags & __future__.annotations.compiler_flag
 
     patchy.patch(sample, """\
         @@ -1,2 +1,3 @@
          def sample():
         +    pass
-             return type('example string 2')
-        """)
-
-    assert sample() is six.text_type
-
-    patchy.patch(sample, """\
-        @@ -1,3 +1,4 @@
-         def sample():
              pass
-        +    pass
-             return type('example string 2')
         """)
 
-    assert sample() is six.text_type
+    assert sample.__code__.co_flags & __future__.annotations.compiler_flag
 
 
-@skip_unless_python_2
-def test_patch_future_doesnt_inherit(tmpdir):
-    # This test module has 'division' imported, test file doesn't
-    assert division
-    tmpdir.join('no_future_division.py').write(dedent("""\
-        def sample():
-            return 1 / 2
-    """))
-    sys.path.insert(0, six.text_type(tmpdir))
-
-    try:
-        from no_future_division import sample
-    finally:
-        sys.path.pop(0)
-
-    assert sample() == 0
-
-    patchy.patch(sample, """\
-        @@ -1,2 +1,3 @@
-         def sample():
-        +    pass
-             return 1 / 2
-        """)
-
-    assert sample() == 0
-
-
-def test_patch_future_instancemethod(tmpdir):
+@pytest.mark.skipif(sys.version_info < (3, 5), reason="generator_stop introduced in Python 3.5")
+@pytest.mark.skipif(sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7")
+def test_patch_future_instancemethod_python_3_5_to_3_7(tmpdir):
     tmpdir.join('future_instancemethod.py').write(dedent("""\
-        from __future__ import unicode_literals
+        from __future__ import generator_stop
+
+        def f(x):
+            raise StopIteration()
 
         class Sample(object):
             def meth(self):
-                return type('example string')
+                return list(f(x) for x in range(10))
     """))
     sys.path.insert(0, six.text_type(tmpdir))
 
@@ -746,19 +720,48 @@ def test_patch_future_instancemethod(tmpdir):
     finally:
         sys.path.pop(0)
 
-    assert Sample().meth() is six.text_type
+    with pytest.raises(RuntimeError):
+        Sample().meth()
 
     patchy.patch(Sample.meth, """\
         @@ -1,2 +1,3 @@
          def meth(self):
         +    pass
-             return type('example string')
+             return list(f(x) for x in range(10))
         """)
 
-    assert Sample().meth() is six.text_type
+    with pytest.raises(RuntimeError):
+        Sample().meth()
 
 
-@skip_unless_python_3
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="__future__.annotations introduced in Python 3.7")
+def test_patch_future_instancemethod_python_3_7_plus(tmpdir):
+    tmpdir.join('future_instancemethod.py').write(dedent("""\
+        from __future__ import annotations
+
+        class Sample(object):
+            def meth(self):
+                pass
+    """))
+    sys.path.insert(0, six.text_type(tmpdir))
+
+    try:
+        from future_instancemethod import Sample
+    finally:
+        sys.path.pop(0)
+
+    assert Sample.meth.__code__.co_flags & __future__.annotations.compiler_flag
+
+    patchy.patch(Sample.meth, """\
+        @@ -1,2 +1,3 @@
+         def meth(self):
+        +    pass
+             pass
+        """)
+
+    assert Sample.meth.__code__.co_flags & __future__.annotations.compiler_flag
+
+
 def test_patch_nonlocal_fails(tmpdir):
     # Put in separate file since it would SyntaxError on Python 2
     tmpdir.join('py3_nonlocal.py').write(dedent("""\
