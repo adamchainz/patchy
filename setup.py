@@ -30,7 +30,7 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     install_requires=[],
-    python_requires='>=3.4.*',
+    python_requires='>=3.5.*',
     license="BSD",
     zip_safe=False,
     keywords='patchy',
@@ -41,8 +41,8 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )
