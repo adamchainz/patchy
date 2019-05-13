@@ -638,7 +638,6 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 5), reason="generator_stop introduced in Python 3.5")
 @pytest.mark.skipif(sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7")
 def test_patch_future_python_3_5_to_3_7(tmpdir):
     tmpdir.join('future_user.py').write(dedent("""\
@@ -700,7 +699,6 @@ def test_patch_future_python_3_7_plus(tmpdir):
     assert sample.__code__.co_flags & __future__.annotations.compiler_flag
 
 
-@pytest.mark.skipif(sys.version_info < (3, 5), reason="generator_stop introduced in Python 3.5")
 @pytest.mark.skipif(sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7")
 def test_patch_future_instancemethod_python_3_5_to_3_7(tmpdir):
     tmpdir.join('future_instancemethod.py').write(dedent("""\
