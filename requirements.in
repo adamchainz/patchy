@@ -6,3 +6,4 @@ pytest
 pytest-cov
 pytest-env-info
 Pygments
+twine
