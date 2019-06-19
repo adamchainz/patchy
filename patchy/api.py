@@ -12,10 +12,11 @@ from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache
 
-__all__ = ('patch', 'mc_patchface', 'unpatch', 'replace', 'temp_patch')
+__all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch")
 
 
 # Public API
+
 
 def patch(func, patch_text):
     return _do_patch(func, patch_text, forwards=True)
@@ -70,7 +71,7 @@ def _importer(target):
     if not isinstance(target, str):
         return target
 
-    components = target.split('.')
+    components = target.split(".")
     import_path = components.pop(0)
     thing = __import__(import_path)
 
@@ -81,6 +82,7 @@ def _importer(target):
 
 
 # Gritty internals
+
 
 def _do_patch(func, patch_text, forwards):
     func = _importer(func)
@@ -103,47 +105,41 @@ def _apply_patch(source, patch_text, forwards, name):
         pass
 
     # Write out files
-    tempdir = mkdtemp(prefix='patchy')
+    tempdir = mkdtemp(prefix="patchy")
     try:
-        source_path = os.path.join(tempdir, name + '.py')
-        with open(source_path, 'w') as source_file:
+        source_path = os.path.join(tempdir, name + ".py")
+        with open(source_path, "w") as source_file:
             source_file.write(source)
 
-        patch_path = os.path.join(tempdir, name + '.patch')
-        with open(patch_path, 'w') as patch_file:
+        patch_path = os.path.join(tempdir, name + ".patch")
+        with open(patch_path, "w") as patch_file:
             patch_file.write(patch_text)
-            if not patch_text.endswith('\n'):
-                patch_file.write('\n')
+            if not patch_text.endswith("\n"):
+                patch_file.write("\n")
 
         # Call `patch` command
-        command = ['patch']
+        command = ["patch"]
         if not forwards:
-            command.append('--reverse')
+            command.append("--reverse")
         command.extend([source_path, patch_path])
-        proc = subprocess.Popen(
-            command,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE
-        )
+        proc = subprocess.Popen(command, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, stderr = proc.communicate()
 
         if proc.returncode != 0:
             msg = "Could not {action} the patch {prep} '{name}'.".format(
                 action=("apply" if forwards else "unapply"),
                 prep=("to" if forwards else "from"),
-                name=name
+                name=name,
             )
             msg += " The message from `patch` was:\n{}\n{}".format(
-                stdout.decode('utf-8'),
-                stderr.decode('utf-8')
+                stdout.decode("utf-8"), stderr.decode("utf-8")
             )
-            msg += (
-                "\nThe code to patch was:\n{}\nThe patch was:\n{}"
-                .format(source, patch_text)
+            msg += "\nThe code to patch was:\n{}\nThe patch was:\n{}".format(
+                source, patch_text
             )
             raise ValueError(msg)
 
-        with open(source_path, 'r') as source_file:
+        with open(source_path, "r") as source_file:
             new_source = source_file.read()
     finally:
         shutil.rmtree(tempdir)
@@ -178,19 +174,19 @@ def _get_source(func):
 
 
 def _class_name(func):
-    qualname = getattr(func, '__qualname__', None)
+    qualname = getattr(func, "__qualname__", None)
     if qualname is not None:  # pragma: no py2 cover
-        split_name = qualname.split('.')
+        split_name = qualname.split(".")
         try:
             class_name = split_name[-2]
         except IndexError:
             return None
         else:
-            if class_name == '<locals>':
+            if class_name == "<locals>":
                 return None
             return class_name
     else:  # pragma: no py3 cover
-        im_class = getattr(func, 'im_class', None)
+        im_class = getattr(func, "im_class", None)
         if im_class is not None:
             return im_class.__name__
 
@@ -205,11 +201,7 @@ def _set_source(func, func_source):
 
     def _compile(code, flags=0):
         return compile(
-            code,
-            '<patchy>',
-            'exec',
-            flags=feature_flags | flags,
-            dont_inherit=True,
+            code, "<patchy>", "exec", flags=feature_flags | flags, dont_inherit=True
         )
 
     def _parse(code):
@@ -236,12 +228,12 @@ def _set_source(func, func_source):
 
             return patched_func
         """
-        _def = 'def __patchy_freevars__():'
+        _def = "def __patchy_freevars__():"
         fvs = func.__code__.co_freevars
-        fv_body = ['    {0} = object()'.format(fv) for fv in fvs]
-        fv_force_use_body = ['    {0}'.format(fv) for fv in fvs]
+        fv_body = ["    {0} = object()".format(fv) for fv in fvs]
+        fv_force_use_body = ["    {0}".format(fv) for fv in fvs]
         if fv_force_use_body:
-            fv_force_use_ast = _parse('\n'.join([_def] + fv_force_use_body))
+            fv_force_use_ast = _parse("\n".join([_def] + fv_force_use_body))
             fv_force_use = fv_force_use_ast.body[0].body
         else:
             fv_force_use = []
@@ -265,18 +257,17 @@ def _set_source(func, func_source):
 
         _def, _ast, fv_body = _process_freevars()
         _global = (
-            '' if class_name in func.__code__.co_freevars
-            else '    global {name}\n'.format(name=class_name)
+            ""
+            if class_name in func.__code__.co_freevars
+            else "    global {name}\n".format(name=class_name)
         )
-        class_src = '{_global}    class {name}(object):\n        pass'.format(
-            _global=_global,
-            name=class_name,
+        class_src = "{_global}    class {name}(object):\n        pass".format(
+            _global=_global, name=class_name
         )
-        ret = '    return {class_name}.{name}'.format(
-            class_name=class_name,
-            name=func.__name__,
+        ret = "    return {class_name}.{name}".format(
+            class_name=class_name, name=func.__name__
         )
-        to_parse = '\n'.join([_def] + fv_body + [class_src, ret])
+        to_parse = "\n".join([_def] + fv_body + [class_src, ret])
         new_source = _parse(to_parse)
         new_source.body[0].body[-2].body[0] = _ast
         return new_source
@@ -284,12 +275,13 @@ def _set_source(func, func_source):
     def _process_function():
         _def, _ast, fv_body = _process_freevars()
         name = func.__name__
-        ret = '    return {name}'.format(name=name)
+        ret = "    return {name}".format(name=name)
         _global = (
-            [] if name in func.__code__.co_freevars
-            else ['    global {name}'.format(name=name)]
+            []
+            if name in func.__code__.co_freevars
+            else ["    global {name}".format(name=name)]
         )
-        to_parse = '\n'.join([_def] + _global + fv_body + ['    pass', ret])
+        to_parse = "\n".join([_def] + _global + fv_body + ["    pass", ret])
         new_source = _parse(to_parse)
         new_source.body[0].body[-2] = _ast
         return new_source
@@ -304,7 +296,7 @@ def _set_source(func, func_source):
     new_code = _compile(new_source)
 
     exec(new_code, dict(func.__globals__), localz)
-    new_func = localz['__patchy_freevars__']()
+    new_func = localz["__patchy_freevars__"]()
 
     # Figure out how to get the Code object
     if isinstance(new_func, (classmethod, staticmethod)):  # pragma: no py3 cover
@@ -340,8 +332,6 @@ def _assert_ast_equal(current_source, expected_source, name):
             "The current code is:\n{current_source}\n"
             "The expected code is:\n{expected_source}"
         ).format(
-            name=name,
-            current_source=current_source,
-            expected_source=expected_source,
+            name=name, current_source=current_source, expected_source=expected_source
         )
         raise ValueError(msg)

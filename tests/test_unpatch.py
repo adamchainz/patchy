@@ -8,12 +8,15 @@ def test_unpatch():
     def sample():
         return 9001
 
-    patchy.unpatch(sample, """\
+    patchy.unpatch(
+        sample,
+        """\
         @@ -1,2 +1,2 @@
          def sample():
         -    return 1
         +    return 9001
-        """)
+        """,
+    )
     assert sample() == 1
 
 
@@ -21,6 +24,7 @@ def test_unpatch_invalid_unreversed():
     """
     We need to balk on patches that fail on application
     """
+
     def sample():
         return 1
 
@@ -41,6 +45,7 @@ def test_unpatch_invalid_hunk():
     """
     We need to balk on patches that fail on application
     """
+
     def sample():
         return 1
 

@@ -22,5 +22,5 @@ class PatchingCache(object):
 
         # Cache in both directions - makes reversal faster
         self._cache[(source, patch_text, forwards)] = new_source
-        other_direction = (not forwards)
+        other_direction = not forwards
         self._cache[(new_source, patch_text, other_direction)] = source
