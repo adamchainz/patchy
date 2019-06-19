@@ -8,6 +8,9 @@ Patchy
 .. image:: https://img.shields.io/pypi/v/patchy.svg
         :target: https://pypi.python.org/pypi/patchy
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/python/black
+
 .. figure:: https://raw.github.com/adamchainz/patchy/master/pirate.png
    :alt: A patchy pirate.
 

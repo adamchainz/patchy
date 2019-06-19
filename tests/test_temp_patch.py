@@ -45,13 +45,17 @@ def test_decorator():
 
 
 def test_patch_by_path(tmpdir):
-    package = tmpdir.mkdir('tmp_by_path_pkg')
-    package.join('__init__.py').ensure(file=True)
-    package.join('mod.py').write(dedent("""\
+    package = tmpdir.mkdir("tmp_by_path_pkg")
+    package.join("__init__.py").ensure(file=True)
+    package.join("mod.py").write(
+        dedent(
+            """\
         class Foo(object):
             def sample(self):
                 return 1
-        """))
+        """
+        )
+    )
     sys.path.insert(0, six.text_type(tmpdir))
     patch_text = """\
         @@ -2,2 +2,2 @@
@@ -60,8 +64,9 @@ def test_patch_by_path(tmpdir):
         """
 
     try:
-        with patchy.temp_patch('tmp_by_path_pkg.mod.Foo.sample', patch_text):
+        with patchy.temp_patch("tmp_by_path_pkg.mod.Foo.sample", patch_text):
             from tmp_by_path_pkg.mod import Foo
+
             assert Foo().sample() == 2
     finally:
         sys.path.pop(0)
