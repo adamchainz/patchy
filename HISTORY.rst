@@ -8,9 +8,8 @@ Pending Release
 
 .. Insert new release notes below this line
 
-* Drop Python 2 support, only Python 3.5+ is supported now. Python 3.4 was
+* Drop Python 2 support, only Python 3.5-3.8 is supported now. Python 3.4 was
   dropped as it has reached its end of life.
-
 * Converted setuptools metadata to configuration file. This meant removing the
   ``__version__`` attribute from the package. If you want to inspect the
   installed version, use
