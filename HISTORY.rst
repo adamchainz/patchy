@@ -3,10 +3,8 @@
 History
 -------
 
-Pending Release
----------------
-
-.. Insert new release notes below this line
+2.0.0 (2019-11-15)
+------------------
 
 * Drop Python 2 support, only Python 3.5-3.8 is supported now. Python 3.4 was
   dropped as it has reached its end of life.
