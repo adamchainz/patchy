@@ -48,7 +48,7 @@ Use **pip**:
 
     pip install patchy
 
-Python 3.5-3.8 supported.
+Python 3.5 to 3.8 supported.
 
 Why?
 ====
