@@ -11,4 +11,5 @@ pytest
 pytest-cov
 pytest-env-info
 pytest-randomly
+secretstorage # required for twine on linux
 twine
