@@ -283,7 +283,7 @@ How to Create a Patch
        def foo():
            print("Changed")
 
-3. Run ``diff``, e.g. ``diff before.py after.py``. You will get output like:
+3. Run ``diff``, e.g. ``diff -u before.py after.py``. You will get output like:
 
    .. code-block:: diff
 
