@@ -1,3 +1,4 @@
+pkgutil-resolve-name ; python_version < '3.9'
 Pygments
 black ; python_version == '3.8.*'
 check-manifest ; python_version == '3.8.*'

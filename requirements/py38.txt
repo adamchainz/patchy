@@ -149,7 +149,7 @@ isort==4.3.21 \
 jeepney==0.4.2 \
     --hash=sha256:0ba6d8c597e9bef1ebd18aaec595f942a264e25c1a48f164d46120eacaa2e9bb \
     --hash=sha256:6f45dce1125cf6c58a1c88123d3831f36a789f9204fbad3172eac15f8ccd08d0 \
-    # via secretstorage
+    # via keyring, secretstorage
 keyring==21.1.0 \
     --hash=sha256:1f393f7466314068961c7e1d508120c092bd71fa54e3d93b76180b526d4abc56 \
     --hash=sha256:24ae23ab2d6adc59138339e56843e33ec7b0a6b2f06302662477085c6c0aca00 \
@@ -177,6 +177,9 @@ pkginfo==1.5.0.1 \
     --hash=sha256:7424f2c8511c186cd5424bbf31045b77435b37a8d604990b79d4e70d741148bb \
     --hash=sha256:a6d9e40ca61ad3ebd0b72fbadd4fba16e4c0e4df0428c041e01e06eb6ee71f32 \
     # via twine
+pkgutil-resolve-name==0.0.0 ; python_version < "3.9" \
+    --hash=sha256:3fc9d1d87875efef9dacf1d6a52b158e5b9e947d939ec5478b08fa7b3691a06f \
+    --hash=sha256:f4b2ba86dab527c0fd1099174d9c5f06aaf182a4fb15098cc7cab69a905ce0aa
 pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d \
