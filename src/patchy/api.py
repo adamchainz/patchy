@@ -5,6 +5,7 @@ import inspect
 import os
 import shutil
 import subprocess
+import sys
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
@@ -12,9 +13,9 @@ from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache
 
-try:
+if sys.version_info >= (3, 9):
     from pkgutil import resolve_name as pkgutil_resolve_name
-except ImportError:
+else:
     from pkgutil_resolve_name import resolve_name as pkgutil_resolve_name
 
 __all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch")
