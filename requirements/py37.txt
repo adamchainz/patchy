@@ -139,7 +139,7 @@ isort==4.3.21 \
 jeepney==0.4.2 \
     --hash=sha256:0ba6d8c597e9bef1ebd18aaec595f942a264e25c1a48f164d46120eacaa2e9bb \
     --hash=sha256:6f45dce1125cf6c58a1c88123d3831f36a789f9204fbad3172eac15f8ccd08d0 \
-    # via keyring, secretstorage
+    # via secretstorage
 keyring==21.1.0 \
     --hash=sha256:1f393f7466314068961c7e1d508120c092bd71fa54e3d93b76180b526d4abc56 \
     --hash=sha256:24ae23ab2d6adc59138339e56843e33ec7b0a6b2f06302662477085c6c0aca00 \
