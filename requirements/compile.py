@@ -1,18 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.8
+import functools
 import os
+import pathlib
+import shlex
 import subprocess
 import sys
-import functools
-from pathlib import Path
-
 
 if __name__ == "__main__":
     common_args = ["-m", "piptools", "compile", "--generate-hashes"] + sys.argv[1:]
     run = functools.partial(
         subprocess.run,
         check=True,
-        cwd=Path(__file__).parent,
-        env={**os.environ, "CUSTOM_COMPILE_COMMAND": "requirements/compile.py"},
+        cwd=pathlib.Path(__file__).parent,
+        env={**os.environ, "CUSTOM_COMPILE_COMMAND": shlex.join(sys.argv)},
     )
     run(["python3.5", *common_args, "-o", "py35.txt"])
     run(["python3.6", *common_args, "-o", "py36.txt"])
