@@ -5,12 +5,18 @@ import inspect
 import os
 import shutil
 import subprocess
+import sys
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
 from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache
+
+if sys.version_info >= (3, 9):
+    from pkgutil import resolve_name as pkgutil_resolve_name  # pragma: no cover
+else:
+    from pkgutil_resolve_name import resolve_name as pkgutil_resolve_name
 
 __all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch")
 
@@ -59,33 +65,12 @@ class temp_patch(object):
         return wrapper
 
 
-def _dot_lookup(thing, comp, import_path):
-    try:
-        return getattr(thing, comp)
-    except AttributeError:
-        __import__(import_path)
-        return getattr(thing, comp)
-
-
-def _importer(target):
-    if not isinstance(target, str):
-        return target
-
-    components = target.split(".")
-    import_path = components.pop(0)
-    thing = __import__(import_path)
-
-    for comp in components:
-        import_path += ".%s" % comp
-        thing = _dot_lookup(thing, comp, import_path)
-    return thing
-
-
 # Gritty internals
 
 
 def _do_patch(func, patch_text, forwards):
-    func = _importer(func)
+    if isinstance(func, str):
+        func = pkgutil_resolve_name(func)
     source = _get_source(func)
     patch_text = dedent(patch_text)
 
