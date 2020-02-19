@@ -69,7 +69,8 @@ class temp_patch(object):
 
 
 def _do_patch(func, patch_text, forwards):
-    func = pkgutil_resolve_name(func) if isinstance(func, str) else func
+    if isinstance(func, str):
+        func = pkgutil_resolve_name(func)
     source = _get_source(func)
     patch_text = dedent(patch_text)
 
