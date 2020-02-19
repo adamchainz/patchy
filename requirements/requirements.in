@@ -1,4 +1,3 @@
-pkgutil-resolve-name ; python_version < '3.9'
 Pygments
 black ; python_version == '3.8.*'
 check-manifest ; python_version == '3.8.*'
@@ -9,6 +8,7 @@ flake8-comprehensions
 flake8-tidy-imports
 isort
 multilint
+pkgutil-resolve-name ; python_version < '3.9'
 pytest
 pytest-cov
 pytest-env-info
