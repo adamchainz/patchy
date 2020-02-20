@@ -3,6 +3,16 @@
 History
 -------
 
+2.1.0 (2020-02-20)
+------------------
+
+* Support Python 3.9.
+* Use Python 3.9's ``pkgutil.resolve_name()``
+  (`docs <https://docs.python.org/3.9/library/pkgutil.html#pkgutil.resolve_name>`__)
+  to import names by strings, and depend on the
+  `backport package <https://pypi.org/project/pkgutil_resolve_name/>`__ on
+  older Python versions.
+
 2.0.0 (2019-11-15)
 ------------------
 
