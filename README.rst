@@ -46,7 +46,7 @@ Use **pip**:
 
 .. code-block:: bash
 
-    pip install patchy
+    python -m pip install patchy
 
 Python 3.5 to 3.8 supported.
 
