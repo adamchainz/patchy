@@ -56,7 +56,7 @@ def test_patch_by_path(tmpdir):
         """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
     patch_text = """\
         @@ -2,2 +2,2 @@
         -    return 1

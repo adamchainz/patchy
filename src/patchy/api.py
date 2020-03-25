@@ -45,7 +45,7 @@ def replace(func, expected_source, new_source):
     _set_source(func, new_source)
 
 
-class temp_patch(object):
+class temp_patch:
     def __init__(self, func, patch_text):
         self.func = func
         self.patch_text = patch_text
@@ -124,7 +124,7 @@ def _apply_patch(source, patch_text, forwards, name):
             )
             raise ValueError(msg)
 
-        with open(source_path, "r") as source_file:
+        with open(source_path) as source_file:
             new_source = source_file.read()
     finally:
         shutil.rmtree(tempdir)
@@ -215,8 +215,8 @@ def _set_source(func, func_source):
         """
         _def = "def __patchy_freevars__():"
         fvs = func.__code__.co_freevars
-        fv_body = ["    {0} = object()".format(fv) for fv in fvs]
-        fv_force_use_body = ["    {0}".format(fv) for fv in fvs]
+        fv_body = ["    {} = object()".format(fv) for fv in fvs]
+        fv_force_use_body = ["    {}".format(fv) for fv in fvs]
         if fv_force_use_body:
             fv_force_use_ast = _parse("\n".join([_def] + fv_force_use_body))
             fv_force_use = fv_force_use_ast.body[0].body
