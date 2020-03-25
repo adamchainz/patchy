@@ -1,7 +1,7 @@
 import random
 
 
-class PatchingCache(object):
+class PatchingCache:
     def __init__(self, maxsize):
         self.maxsize = maxsize
         self._cache = {}

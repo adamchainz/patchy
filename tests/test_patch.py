@@ -189,7 +189,7 @@ def test_patch_mutable_default_arg():
 
 
 def test_patch_instancemethod():
-    class Artist(object):
+    class Artist:
         def method(self):
             return "Chalk"
 
@@ -312,7 +312,7 @@ def test_patch_recursive_module_level(tmpdir):
 
 
 def test_patch_init_super_new():
-    class Person(object):
+    class Person:
         def __init__(self):
             self.base_prop = "yo"
 
@@ -459,7 +459,7 @@ def test_patch_freevars_re_close():
 
 
 def test_patch_instancemethod_twice():
-    class Artist(object):
+    class Artist:
         def method(self):
             return "Chalk"
 
@@ -487,7 +487,7 @@ def test_patch_instancemethod_twice():
 
 
 def test_patch_instancemethod_mangled():
-    class Artist(object):
+    class Artist:
         def __mangled_name(self, v):
             return v + " on toast"
 
@@ -572,7 +572,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
     """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
 
     try:
         from tabs_mangled import Artist
@@ -594,7 +594,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
 
 
 def test_patch_init():
-    class Artist(object):
+    class Artist:
         def __init__(self):
             self.prop = "old"
 
@@ -613,7 +613,7 @@ def test_patch_init():
 
 
 def test_patch_init_change_arg():
-    class Artist(object):
+    class Artist:
         def __init__(self):
             self.prop = "old"
 
@@ -633,7 +633,7 @@ def test_patch_init_change_arg():
 
 
 def test_patch_classmethod():
-    class Emotion(object):
+    class Emotion:
         def __init__(self, name):
             self.name = name
 
@@ -656,7 +656,7 @@ def test_patch_classmethod():
 
 
 def test_patch_classmethod_twice():
-    class Emotion(object):
+    class Emotion:
         def __init__(self, name):
             self.name = name
 
@@ -691,7 +691,7 @@ def test_patch_classmethod_twice():
 
 
 def test_patch_staticmethod():
-    class Doge(object):
+    class Doge:
         @staticmethod
         def bark():
             return "Woof"
@@ -710,7 +710,7 @@ def test_patch_staticmethod():
 
 
 def test_patch_staticmethod_twice():
-    class Doge(object):
+    class Doge:
         @staticmethod
         def bark():
             return "Woof"
@@ -756,7 +756,7 @@ def test_patch_future_python_3_5_to_3_7(tmpdir):
     """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
 
     try:
         from future_user import sample
@@ -795,7 +795,7 @@ def test_patch_future_python_3_7_plus(tmpdir):
     """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
 
     try:
         from future_user import sample
@@ -835,7 +835,7 @@ def test_patch_future_instancemethod_python_3_5_to_3_7(tmpdir):
     """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
 
     try:
         from future_instancemethod import Sample
@@ -874,7 +874,7 @@ def test_patch_future_instancemethod_python_3_7_plus(tmpdir):
     """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
 
     try:
         from future_instancemethod import Sample
@@ -918,7 +918,7 @@ def test_patch_nonlocal_fails(tmpdir):
     """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
     try:
         from py3_nonlocal import sample
     finally:
@@ -951,7 +951,7 @@ def test_patch_by_path(tmpdir):
         """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
     try:
         patchy.patch(
             "patch_by_path_pkg.mod.Foo.sample",
@@ -980,7 +980,7 @@ def test_patch_by_path_already_imported(tmpdir):
         """
         )
     )
-    sys.path.insert(0, six.text_type(tmpdir))
+    sys.path.insert(0, str(tmpdir))
     try:
         from patch_by_path_pkg2.mod import Foo
 

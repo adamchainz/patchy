@@ -76,7 +76,7 @@ def test_replace_mutable_default_arg():
 
 
 def test_replace_instancemethod():
-    class Artist(object):
+    class Artist:
         def method(self):
             return "Chalk"
 
