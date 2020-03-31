@@ -1,8 +1,6 @@
 import sys
 from textwrap import dedent
 
-import six
-
 import patchy
 import patchy.api
 
