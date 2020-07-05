@@ -11,7 +11,6 @@ pkgutil-resolve-name ; python_version < '3.9'
 pygments ; python_version == '3.8.*'
 pytest
 pytest-cov
-pytest-env-info
 pytest-randomly
 secretstorage ; python_version == '3.8.*' # required for twine on linux
 twine ; python_version == '3.8.*'
