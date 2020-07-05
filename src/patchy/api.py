@@ -159,21 +159,15 @@ def _get_source(func):
 
 
 def _class_name(func):
-    qualname = getattr(func, "__qualname__", None)
-    if qualname is not None:  # pragma: no py2 cover
-        split_name = qualname.split(".")
-        try:
-            class_name = split_name[-2]
-        except IndexError:
+    split_name = func.__qualname__.split(".")
+    try:
+        class_name = split_name[-2]
+    except IndexError:
+        return None
+    else:
+        if class_name == "<locals>":
             return None
-        else:
-            if class_name == "<locals>":
-                return None
-            return class_name
-    else:  # pragma: no py3 cover
-        im_class = getattr(func, "im_class", None)
-        if im_class is not None:
-            return im_class.__name__
+        return class_name
 
 
 def _set_source(func, func_source):
@@ -283,14 +277,8 @@ def _set_source(func, func_source):
     exec(new_code, dict(func.__globals__), localz)
     new_func = localz["__patchy_freevars__"]()
 
-    # Figure out how to get the Code object
-    if isinstance(new_func, (classmethod, staticmethod)):  # pragma: no py3 cover
-        new_code = new_func.__func__.__code__
-    else:
-        new_code = new_func.__code__
-
     # Put the new Code object in place
-    real_func.__code__ = new_code
+    real_func.__code__ = new_func.__code__
     # Store the modified source. This used to be attached to the function but
     # that is a bit naughty
     _source_map[real_func] = func_source
