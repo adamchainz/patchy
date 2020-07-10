@@ -73,10 +73,6 @@ pytest-cov==2.10.0 \
     --hash=sha256:1a629dc9f48e53512fcbfda6b07de490c374b0c83c55ff7a1720b3fccff0ac87 \
     --hash=sha256:6e6d18092dce6fad667cd7020deed816f858ad3b49d5b5e2b1cc1c97a4dba65c \
     # via -r requirements.in
-pytest-env-info==0.3.0 \
-    --hash=sha256:31e32cb950658517efae6991bd6ce4cfc3ee9b2adcb6b9ae930f5593a692fb1a \
-    --hash=sha256:4317ee9983219cbeb212caa6a6c83ff461411a0d58c28b0b6d3335c7f4eb0f42 \
-    # via -r requirements.in
 pytest-randomly==3.4.0 \
     --hash=sha256:4e02887ba52f021cc8d5429e91e93be2b5df4adf38bf1715c7c153968b260b59 \
     --hash=sha256:e44a69623237e47cc4ee77da9c04c6b505ed1a7b00656dc1409f8344c707b87b \
@@ -84,7 +80,7 @@ pytest-randomly==3.4.0 \
 pytest==5.4.3 \
     --hash=sha256:5c0db86b698e8f170ba4582a492248919255fcd4c79b1ee64ace34301fb589a1 \
     --hash=sha256:7979331bfcba207414f5e1263b5a0f8f521d0f457318836a7355531ed1a4c7d8 \
-    # via -r requirements.in, pytest-cov, pytest-env-info, pytest-randomly
+    # via -r requirements.in, pytest-cov, pytest-randomly
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
