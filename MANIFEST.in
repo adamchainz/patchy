@@ -8,6 +8,7 @@ include pirate.png
 include README.rst
 exclude .coveragerc
 exclude .editorconfig
+exclude .pre-commit-config.yaml
 include pyproject.toml
 exclude pytest.ini
 exclude tox.ini
