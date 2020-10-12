@@ -2,6 +2,7 @@
 History
 =======
 
+* Support Python 3.9.
 * Move license from BSD to MIT License.
 
 2.1.0 (2020-02-20)
