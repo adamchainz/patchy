@@ -10,7 +10,17 @@ import patchy.api
 
 
 def test_patch():
+    """
+    Patch test test test test.
+
+    Args:
+    """
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     patchy.patch(
@@ -26,7 +36,17 @@ def test_patch():
 
 
 def test_mc_patchface():
+    """
+    Test if test test test test test test test test test test test test test test.
+
+    Args:
+    """
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     patchy.mc_patchface(
@@ -41,7 +61,17 @@ def test_mc_patchface():
 
 
 def test_patch_simple_no_newline():
+    """
+    Return a simple test test test test test.
+
+    Args:
+    """
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     patchy.patch(
@@ -60,6 +90,11 @@ def test_patch_invalid():
     """
 
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     bad_patch = """garbage
@@ -92,6 +127,11 @@ def test_patch_invalid_hunk():
     """
 
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     bad_patch = """\
@@ -112,6 +152,11 @@ def test_patch_invalid_hunk_2():
     """
 
     def sample():
+        """
+        Prints a sample
+
+        Args:
+        """
         if True:
             print("yes")
         if False:
@@ -137,7 +182,17 @@ def test_patch_invalid_hunk_2():
 
 
 def test_patch_twice():
+    """
+    Return the test test for the test.
+
+    Args:
+    """
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     patchy.patch(
@@ -162,7 +217,19 @@ def test_patch_twice():
 
 
 def test_patch_mutable_default_arg():
+    """
+    Test whether the default test_mutable_patch.
+
+    Args:
+    """
     def foo(append=None, mutable=[]):  # noqa: B006
+        """
+        Adds a list of strings.
+
+        Args:
+            append: (todo): write your description
+            mutable: (todo): write your description
+        """
         if append is not None:
             mutable.append(append)
         return len(mutable)
@@ -188,8 +255,19 @@ def test_patch_mutable_default_arg():
 
 
 def test_patch_instancemethod():
+    """
+    Decorator to dispatch test methods.
+
+    Args:
+    """
     class Artist:
         def method(self):
+            """
+            Return a string representation of the method
+
+            Args:
+                self: (todo): write your description
+            """
             return "Chalk"
 
     patchy.patch(
@@ -206,11 +284,28 @@ def test_patch_instancemethod():
 
 
 def test_patch_instancemethod_freevars():
+    """
+    Patch free free free freevarsed vars.
+
+    Args:
+    """
     def free_func(v):
+        """
+        Returns a free function that returns value of a v
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " on toast"
 
     class Artist:
         def method(self):
+            """
+            Return a new method for the given method.
+
+            Args:
+                self: (todo): write your description
+            """
             filling = "Chalk"
             return free_func(filling)
 
@@ -311,12 +406,29 @@ def test_patch_recursive_module_level(tmpdir):
 
 
 def test_patch_init_super_new():
+    """
+    Dynamically builtin
+
+    Args:
+    """
     class Person:
         def __init__(self):
+            """
+            Initialize the properties
+
+            Args:
+                self: (todo): write your description
+            """
             self.base_prop = "yo"
 
     class Artist(Person):
         def __init__(self):
+            """
+            Initialize the property
+
+            Args:
+                self: (todo): write your description
+            """
             super().__init__()
             self.prop = "old"
 
@@ -337,10 +449,26 @@ def test_patch_init_super_new():
 
 
 def test_patch_freevars():
+    """
+    Return a free free free variables. py
+
+    Args:
+    """
     def free_func(v):
+        """
+        Returns a free function that returns value of a v
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " on toast"
 
     def sample():
+        """
+        Return a function that returns a generator.
+
+        Args:
+        """
         filling = "Chalk"
         return free_func(filling)
 
@@ -359,13 +487,35 @@ def test_patch_freevars():
 
 
 def test_patch_freevars_order():
+    """
+    Patch a free freevars to use in placeholders.
+
+    Args:
+    """
     def tastes_good(v):
+        """
+        R returns the number of the number of a b.
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " tastes good"
 
     def tastes_bad(v):
+        """
+        Returns true if v is a bad bad
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " tastes bad"
 
     def sample():
+        """
+        Return a sample.
+
+        Args:
+        """
         return ", ".join([tastes_good("Cheese"), tastes_bad("Chalk")])
 
     patchy.patch(
@@ -382,13 +532,35 @@ def test_patch_freevars_order():
 
 
 def test_patch_freevars_remove():
+    """
+    Remove free free free freevars.
+
+    Args:
+    """
     def tastes_good(v):
+        """
+        R returns the number of the number of a b.
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " tastes good"
 
     def tastes_bad(v):
+        """
+        Returns true if v is a bad bad
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " tastes bad"
 
     def sample():
+        """
+        Return sample sample.
+
+        Args:
+        """
         return ", ".join([tastes_bad("Chalk"), tastes_good("Cheese")])
 
     patchy.patch(
@@ -405,13 +577,34 @@ def test_patch_freevars_remove():
 
 
 def test_patch_freevars_nested():
+    """
+    Return free free free free free freevars.
+
+    Args:
+    """
     def free_func(v):
+        """
+        Returns a free function that returns value of a v
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " on toast"
 
     def sample():
+        """
+        Return a function that returns the given sample.
+
+        Args:
+        """
         filling = "Chalk"
 
         def _inner_func():
+            """
+            Decorator that will be used function.
+
+            Args:
+            """
             return free_func(filling)
 
         return _inner_func
@@ -433,13 +626,35 @@ def test_patch_freevars_nested():
 
 @pytest.mark.xfail(raises=NameError)
 def test_patch_freevars_re_close():
+    """
+    Patch a free free free free free free vars.
+
+    Args:
+    """
     def nasty_filling(v):
+        """
+        Returns the number of the number of a given number.
+
+        Args:
+            v: (todo): write your description
+        """
         return "Chalk"
 
     def nice_filling(v):
+        """
+        Return a human - readable version of the given number.
+
+        Args:
+            v: (todo): write your description
+        """
         return "Cheese"
 
     def sample():
+        """
+        Returns : class :.
+
+        Args:
+        """
         filling = nasty_filling()
         return filling + " on toast"
 
@@ -458,8 +673,19 @@ def test_patch_freevars_re_close():
 
 
 def test_patch_instancemethod_twice():
+    """
+    Decorator to define a test method.
+
+    Args:
+    """
     class Artist:
         def method(self):
+            """
+            Return a string representation of the method
+
+            Args:
+                self: (todo): write your description
+            """
             return "Chalk"
 
     patchy.patch(
@@ -486,11 +712,29 @@ def test_patch_instancemethod_twice():
 
 
 def test_patch_instancemethod_mangled():
+    """
+    This decorator wraps a test methods.
+
+    Args:
+    """
     class Artist:
         def __mangled_name(self, v):
+            """
+            Mangled name of the given name.
+
+            Args:
+                self: (todo): write your description
+                v: (todo): write your description
+            """
             return v + " on toast"
 
         def method(self):
+            """
+            Returns the method method.
+
+            Args:
+                self: (todo): write your description
+            """
             filling = "Chalk"
             return self.__mangled_name(filling)
 
@@ -509,11 +753,29 @@ def test_patch_instancemethod_mangled():
 
 
 def test_patch_old_class_instancemethod_mangled():
+    """
+    This decorator wraps __init class decorators.
+
+    Args:
+    """
     class Artist:
         def __mangled_name(self, v):
+            """
+            Mangled name of the given name.
+
+            Args:
+                self: (todo): write your description
+                v: (todo): write your description
+            """
             return v + " on toast"
 
         def method(self):
+            """
+            Returns the method method.
+
+            Args:
+                self: (todo): write your description
+            """
             filling = "Chalk"
             return self.__mangled_name(filling)
 
@@ -532,14 +794,37 @@ def test_patch_old_class_instancemethod_mangled():
 
 
 def test_patch_instancemethod_mangled_freevars():
+    """
+    A decorator that wraps a free_patch_patch.
+
+    Args:
+    """
     def _Artist__mangled_name(v):
+        """
+        Returns the name of a variable name.
+
+        Args:
+            v: (todo): write your description
+        """
         return v + " on "
 
     def plain_name(v):
+        """
+        Return the name of a v
+
+        Args:
+            v: (todo): write your description
+        """
         return v + "toast"
 
     class Artist:
         def method(self):
+            """
+            Decorator that returns the method.
+
+            Args:
+                self: (todo): write your description
+            """
             filling = "Chalk"
             return plain_name(__mangled_name(filling))  # noqa: F821
 
@@ -558,6 +843,12 @@ def test_patch_instancemethod_mangled_freevars():
 
 
 def test_patch_instancemethod_mangled_tabs(tmpdir):
+    """
+    Test for tabs to update to update_patchs.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     tmpdir.join("tabs_mangled.py").write(
         dedent(
             """\
@@ -593,8 +884,19 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
 
 
 def test_patch_init():
+    """
+    Initialize the __init classArtist by __init__.
+
+    Args:
+    """
     class Artist:
         def __init__(self):
+            """
+            Initialize the property
+
+            Args:
+                self: (todo): write your description
+            """
             self.prop = "old"
 
     patchy.patch(
@@ -612,8 +914,19 @@ def test_patch_init():
 
 
 def test_patch_init_change_arg():
+    """
+    Dynamically set __init___argArtist__.
+
+    Args:
+    """
     class Artist:
         def __init__(self):
+            """
+            Initialize the property
+
+            Args:
+                self: (todo): write your description
+            """
             self.prop = "old"
 
     patchy.patch(
@@ -632,12 +945,31 @@ def test_patch_init_change_arg():
 
 
 def test_patch_classmethod():
+    """
+    Class decorator for creating a class.
+
+    Args:
+    """
     class Emotion:
         def __init__(self, name):
+            """
+            Sets the name.
+
+            Args:
+                self: (todo): write your description
+                name: (str): write your description
+            """
             self.name = name
 
         @classmethod
         def create(cls, name):
+            """
+            Create a new : parameter object with the given name.
+
+            Args:
+                cls: (callable): write your description
+                name: (str): write your description
+            """
             return cls(name)
 
     patchy.patch(
@@ -655,12 +987,31 @@ def test_patch_classmethod():
 
 
 def test_patch_classmethod_twice():
+    """
+    Create a new classmethod is_patch.
+
+    Args:
+    """
     class Emotion:
         def __init__(self, name):
+            """
+            Sets the name.
+
+            Args:
+                self: (todo): write your description
+                name: (str): write your description
+            """
             self.name = name
 
         @classmethod
         def create(cls, name):
+            """
+            Create a new : parameter object with the given name.
+
+            Args:
+                cls: (callable): write your description
+                name: (str): write your description
+            """
             return cls(name)
 
     patchy.patch(
@@ -690,9 +1041,19 @@ def test_patch_classmethod_twice():
 
 
 def test_patch_staticmethod():
+    """
+    Decorator for static methods for static methods.
+
+    Args:
+    """
     class Doge:
         @staticmethod
         def bark():
+            """
+            Bark bark
+
+            Args:
+            """
             return "Woof"
 
     patchy.patch(
@@ -709,9 +1070,19 @@ def test_patch_staticmethod():
 
 
 def test_patch_staticmethod_twice():
+    """
+    Decorator to define a static test methods.
+
+    Args:
+    """
     class Doge:
         @staticmethod
         def bark():
+            """
+            Bark bark
+
+            Args:
+            """
             return "Woof"
 
     patchy.patch(
@@ -741,6 +1112,12 @@ def test_patch_staticmethod_twice():
     sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7"
 )
 def test_patch_future_python_3_5_to_3_7(tmpdir):
+    """
+    Test if the python 3. 5. 0.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     tmpdir.join("future_user.py").write(
         dedent(
             """\
@@ -783,6 +1160,12 @@ def test_patch_future_python_3_5_to_3_7(tmpdir):
     sys.version_info < (3, 7), reason="__future__.annotations introduced in Python 3.7"
 )
 def test_patch_future_python_3_7_plus(tmpdir):
+    """
+    Test if the python 3. 6. 0 patch python 3. 3
+
+    Args:
+        tmpdir: (str): write your description
+    """
     tmpdir.join("future_user.py").write(
         dedent(
             """\
@@ -820,6 +1203,12 @@ def test_patch_future_python_3_7_plus(tmpdir):
     sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7"
 )
 def test_patch_future_instancemethod_python_3_5_to_3_7(tmpdir):
+    """
+    This function for python 3. 3. 3.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     tmpdir.join("future_instancemethod.py").write(
         dedent(
             """\
@@ -862,6 +1251,12 @@ def test_patch_future_instancemethod_python_3_5_to_3_7(tmpdir):
     sys.version_info < (3, 7), reason="__future__.annotations introduced in Python 3.7"
 )
 def test_patch_future_instancemethod_python_3_7_plus(tmpdir):
+    """
+    Patch python 3. 3. 6. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     tmpdir.join("future_instancemethod.py").write(
         dedent(
             """\
@@ -896,6 +1291,12 @@ def test_patch_future_instancemethod_python_3_7_plus(tmpdir):
 
 
 def test_patch_nonlocal_fails(tmpdir):
+    """
+    Patch localdir to localdir.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     # Put in separate file since it would SyntaxError on Python 2
     tmpdir.join("py3_nonlocal.py").write(
         dedent(
@@ -939,6 +1340,12 @@ def test_patch_nonlocal_fails(tmpdir):
 
 
 def test_patch_by_path(tmpdir):
+    """
+    Patch a testdir.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     package = tmpdir.mkdir("patch_by_path_pkg")
     package.join("__init__.py").ensure(file=True)
     package.join("mod.py").write(
@@ -968,6 +1375,12 @@ def test_patch_by_path(tmpdir):
 
 
 def test_patch_by_path_already_imported(tmpdir):
+    """
+    Test if a test to test for a given package.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     package = tmpdir.mkdir("patch_by_path_pkg2")
     package.join("__init__.py").ensure(file=True)
     package.join("mod.py").write(

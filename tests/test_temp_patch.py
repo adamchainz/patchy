@@ -6,7 +6,17 @@ import patchy.api
 
 
 def test_context_manager():
+    """
+    Returns the test context manager.
+
+    Args:
+    """
     def sample():
+        """
+        Return a sample of the current sample.
+
+        Args:
+        """
         return 1234
 
     patch_text = """\
@@ -23,7 +33,17 @@ def test_context_manager():
 
 
 def test_decorator():
+    """
+    Decorator for test test test.
+
+    Args:
+    """
     def sample():
+        """
+        Sample a new sample
+
+        Args:
+        """
         return 3456
 
     patch_text = """\
@@ -35,6 +55,11 @@ def test_decorator():
 
     @patchy.temp_patch(sample, patch_text)
     def decorated():
+        """
+        Decorator to ensure the given the input.
+
+        Args:
+        """
         assert sample() == 7890
 
     assert sample() == 3456
@@ -43,6 +68,12 @@ def test_decorator():
 
 
 def test_patch_by_path(tmpdir):
+    """
+    Patch a testdir exists.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     package = tmpdir.mkdir("tmp_by_path_pkg")
     package.join("__init__.py").ensure(file=True)
     package.join("mod.py").write(

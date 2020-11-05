@@ -25,6 +25,13 @@ __all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch")
 
 
 def patch(func, patch_text):
+    """
+    Decorator to a function.
+
+    Args:
+        func: (todo): write your description
+        patch_text: (str): write your description
+    """
     return _do_patch(func, patch_text, forwards=True)
 
 
@@ -32,10 +39,25 @@ mc_patchface = patch
 
 
 def unpatch(func, patch_text):
+    """
+    Unpatch a function on_text from a function.
+
+    Args:
+        func: (todo): write your description
+        patch_text: (str): write your description
+    """
     return _do_patch(func, patch_text, forwards=False)
 
 
 def replace(func, expected_source, new_source):
+    """
+    Replace two ast.
+
+    Args:
+        func: (todo): write your description
+        expected_source: (str): write your description
+        new_source: (str): write your description
+    """
     if expected_source is not None:
         expected_source = dedent(expected_source)
         current_source = _get_source(func)
@@ -47,18 +69,53 @@ def replace(func, expected_source, new_source):
 
 class temp_patch:
     def __init__(self, func, patch_text):
+        """
+        Initialize a function.
+
+        Args:
+            self: (todo): write your description
+            func: (callable): write your description
+            patch_text: (str): write your description
+        """
         self.func = func
         self.patch_text = patch_text
 
     def __enter__(self):
+        """
+        Decor function
+
+        Args:
+            self: (todo): write your description
+        """
         patch(self.func, self.patch_text)
 
     def __exit__(self, _, __, ___):
+        """
+        Exit the given function.
+
+        Args:
+            self: (todo): write your description
+            _: (todo): write your description
+            __: (todo): write your description
+            ___: (todo): write your description
+        """
         unpatch(self.func, self.patch_text)
 
     def __call__(self, decorable):
+        """
+        Decorator for the given callable.
+
+        Args:
+            self: (todo): write your description
+            decorable: (todo): write your description
+        """
         @wraps(decorable)
         def wrapper(*args, **kwargs):
+            """
+            Decorator to callable.
+
+            Args:
+            """
             with self:
                 decorable(*args, **kwargs)
 
@@ -69,6 +126,14 @@ class temp_patch:
 
 
 def _do_patch(func, patch_text, forwards):
+    """
+    Patch the pkgutil.
+
+    Args:
+        func: (callable): write your description
+        patch_text: (str): write your description
+        forwards: (todo): write your description
+    """
     if isinstance(func, str):
         func = pkgutil_resolve_name(func)
     source = _get_source(func)
@@ -83,6 +148,15 @@ _patching_cache = PatchingCache(maxsize=100)
 
 
 def _apply_patch(source, patch_text, forwards, name):
+    """
+    Apply a patch to a patch.
+
+    Args:
+        source: (str): write your description
+        patch_text: (str): write your description
+        forwards: (todo): write your description
+        name: (str): write your description
+    """
     # Cached ?
     try:
         return _patching_cache.retrieve(source, patch_text, forwards)
@@ -135,6 +209,11 @@ def _apply_patch(source, patch_text, forwards, name):
 
 
 def _get_flags_mask():
+    """
+    Get mask mask of all flag mask.
+
+    Args:
+    """
     result = 0
     for name in __future__.all_feature_names:
         result |= getattr(__future__, name).compiler_flag
@@ -149,6 +228,12 @@ _source_map = WeakKeyDictionary()
 
 
 def _get_source(func):
+    """
+    Return the source of a function.
+
+    Args:
+        func: (todo): write your description
+    """
     real_func = _get_real_func(func)
     try:
         return _source_map[real_func]
@@ -159,6 +244,12 @@ def _get_source(func):
 
 
 def _class_name(func):
+    """
+    Return the class name from a class name.
+
+    Args:
+        func: (callable): write your description
+    """
     split_name = func.__qualname__.split(".")
     try:
         class_name = split_name[-2]
@@ -171,6 +262,13 @@ def _class_name(func):
 
 
 def _set_source(func, func_source):
+    """
+    Set the source object for a function.
+
+    Args:
+        func: (todo): write your description
+        func_source: (todo): write your description
+    """
     # Fetch the actual function we are changing
     real_func = _get_real_func(func)
     # Figure out any future headers that may be required
@@ -179,11 +277,24 @@ def _set_source(func, func_source):
     class_name = _class_name(func)
 
     def _compile(code, flags=0):
+        """
+        Compile code.
+
+        Args:
+            code: (str): write your description
+            flags: (str): write your description
+        """
         return compile(
             code, "<patchy>", "exec", flags=feature_flags | flags, dont_inherit=True
         )
 
     def _parse(code):
+        """
+        Parse the given code.
+
+        Args:
+            code: (str): write your description
+        """
         return _compile(code, flags=ast.PyCF_ONLY_AST)
 
     def _process_freevars():
@@ -252,6 +363,11 @@ def _set_source(func, func_source):
         return new_source
 
     def _process_function():
+        """
+        Process a function call.
+
+        Args:
+        """
         _def, _ast, fv_body = _process_freevars()
         name = func.__name__
         ret = "    return {name}".format(name=name)
@@ -297,6 +413,14 @@ def _get_real_func(func):
 
 
 def _assert_ast_equal(current_source, expected_source, name):
+    """
+    Assert that two ast is equal.
+
+    Args:
+        current_source: (str): write your description
+        expected_source: (str): write your description
+        name: (str): write your description
+    """
     current_ast = ast.parse(current_source)
     expected_ast = ast.parse(expected_source)
     if not ast.dump(current_ast) == ast.dump(expected_ast):

@@ -5,7 +5,17 @@ import patchy.api
 
 
 def test_unpatch():
+    """
+    Unpatch of the test case.
+
+    Args:
+    """
     def sample():
+        """
+        Return a sample.
+
+        Args:
+        """
         return 9001
 
     patchy.unpatch(
@@ -26,6 +36,11 @@ def test_unpatch_invalid_unreversed():
     """
 
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     # This patch would make sense forwards but doesn't backwards
@@ -47,6 +62,11 @@ def test_unpatch_invalid_hunk():
     """
 
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     # This patch would make sense forwards but doesn't backwards

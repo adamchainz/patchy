@@ -3,16 +3,48 @@ import random
 
 class PatchingCache:
     def __init__(self, maxsize):
+        """
+        Initialize the cache.
+
+        Args:
+            self: (todo): write your description
+            maxsize: (int): write your description
+        """
         self.maxsize = maxsize
         self._cache = {}
 
     def clear(self):
+        """
+        Clears the data.
+
+        Args:
+            self: (todo): write your description
+        """
         self._cache = {}
 
     def retrieve(self, source, patch_text, forwards):
+        """
+        Retrieve a list of the specified source.
+
+        Args:
+            self: (todo): write your description
+            source: (str): write your description
+            patch_text: (str): write your description
+            forwards: (todo): write your description
+        """
         return self._cache[(source, patch_text, forwards)]
 
     def store(self, source, patch_text, forwards, new_source):
+        """
+        Store a new cache.
+
+        Args:
+            self: (todo): write your description
+            source: (str): write your description
+            patch_text: (str): write your description
+            forwards: (todo): write your description
+            new_source: (str): write your description
+        """
         if len(self._cache) + 2 > self.maxsize:
             # Delete a random 25%, at least 2
             delete_count = max(2, len(self._cache) // 4)

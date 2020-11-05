@@ -3,7 +3,17 @@ import patchy.api
 
 
 def test_patch_unpatch():
+    """
+    Test if the test test is_text.
+
+    Args:
+    """
     def sample():
+        """
+        Return the current sample.
+
+        Args:
+        """
         return 1
 
     patch_text = """\
@@ -20,6 +30,11 @@ def test_patch_unpatch():
     orig_mkdtemp = patchy.api.mkdtemp
 
     def mkdtemp(*args, **kwargs):
+        """
+        Create a temporary directory.
+
+        Args:
+        """
         raise AssertionError(
             "mkdtemp should not be called, the unpatch should be cached."
         )
