@@ -740,7 +740,7 @@ def test_patch_staticmethod_twice():
 @pytest.mark.skipif(
     sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7"
 )
-def test_patch_future_python_3_5_to_3_7(tmpdir):
+def test_patch_future_python_3_6(tmpdir):
     tmpdir.join("future_user.py").write(
         dedent(
             """\
@@ -819,7 +819,7 @@ def test_patch_future_python_3_7_plus(tmpdir):
 @pytest.mark.skipif(
     sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7"
 )
-def test_patch_future_instancemethod_python_3_5_to_3_7(tmpdir):
+def test_patch_future_instancemethod_python_3_6(tmpdir):
     tmpdir.join("future_instancemethod.py").write(
         dedent(
             """\
