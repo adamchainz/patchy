@@ -5,7 +5,7 @@ import patchy.api
 
 
 def test_replace():
-    def sample():  # pragma: no cover
+    def sample():
         return 1
 
     patchy.replace(
@@ -24,7 +24,7 @@ def test_replace():
 
 
 def test_replace_only_cares_about_ast():
-    def sample():  # pragma: no cover
+    def sample():
         return 1
 
     patchy.replace(sample, "def sample(): return 1", "def sample(): return 42")
@@ -33,7 +33,7 @@ def test_replace_only_cares_about_ast():
 
 
 def test_replace_twice():
-    def sample():  # pragma: no cover
+    def sample():
         return 1
 
     patchy.replace(sample, "def sample(): return 1", "def sample(): return 2")
@@ -77,7 +77,7 @@ def test_replace_mutable_default_arg():
 
 def test_replace_instancemethod():
     class Artist:
-        def method(self):  # pragma: no cover
+        def method(self):
             return "Chalk"
 
     patchy.replace(
@@ -96,7 +96,7 @@ def test_replace_instancemethod():
 
 
 def test_replace_unexpected_source():
-    def sample():  # pragma: no cover
+    def sample():
         return 2
 
     with pytest.raises(ValueError) as excinfo:
@@ -119,7 +119,7 @@ def test_replace_unexpected_source():
 
 
 def test_replace_no_expected_source():
-    def sample():  # pragma: no cover
+    def sample():
         return 2
 
     patchy.replace(
