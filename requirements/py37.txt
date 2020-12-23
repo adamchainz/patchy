@@ -43,7 +43,7 @@ coverage==5.3 \
     --hash=sha256:cb7df71de0af56000115eafd000b867d1261f786b5eebd88a0ca6360cccfaca7 \
     --hash=sha256:cedb2f9e1f990918ea061f28a0f0077a07702e3819602d3507e2ff98c8d20636 \
     --hash=sha256:e8caf961e1b1a945db76f1b5fa9c91498d15f545ac0ababbe575cfab185d3bd8 \
-    # via pytest-cov
+    # via -r requirements.in
 importlib-metadata==3.3.0 \
     --hash=sha256:5c5a2720817414a6c41f0a49993908068243ae02c1635a228126519b509c8aed \
     --hash=sha256:bf792d480abbd5eda85794e4afb09dd538393f7d6e6ffef6e9f03d2014cf9450 \
@@ -72,10 +72,6 @@ pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
     --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b \
     # via packaging
-pytest-cov==2.10.1 \
-    --hash=sha256:45ec2d5182f89a81fc3eb29e3d1ed3113b9e9a873bcddb2a71faaab066110191 \
-    --hash=sha256:47bd0ce14056fdd79f93e1713f88fad7bdcc583dcd7783da86ef2f085a0bb88e \
-    # via -r requirements.in
 pytest-randomly==3.5.0 \
     --hash=sha256:440cec143fd9b0adeb072006c71e0294402a2bc2ccd08079c2341087ba4cf2d1 \
     --hash=sha256:9db10d160237f3f8ee60cef72e4cb9ea88d2893c9dd5c8aa334b060cdeb67c3a \
@@ -83,7 +79,7 @@ pytest-randomly==3.5.0 \
 pytest==6.2.1 \
     --hash=sha256:1969f797a1a0dbd8ccf0fecc80262312729afea9c17f1d70ebf85c5e76c6f7c8 \
     --hash=sha256:66e419b1899bc27346cb2c993e12c5e5e8daba9073c1fbce33b9807abc95c306 \
-    # via -r requirements.in, pytest-cov, pytest-randomly
+    # via -r requirements.in, pytest-randomly
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f \
