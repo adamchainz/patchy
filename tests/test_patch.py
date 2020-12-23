@@ -10,7 +10,7 @@ import patchy.api
 
 
 def test_patch():
-    def sample():
+    def sample():  # pragma: no cover
         return 1
 
     patchy.patch(
@@ -26,7 +26,7 @@ def test_patch():
 
 
 def test_mc_patchface():
-    def sample():
+    def sample():  # pragma: no cover
         return 1
 
     patchy.mc_patchface(
@@ -41,7 +41,7 @@ def test_mc_patchface():
 
 
 def test_patch_simple_no_newline():
-    def sample():
+    def sample():  # pragma: no cover
         return 1
 
     patchy.patch(
@@ -137,7 +137,7 @@ def test_patch_invalid_hunk_2():
 
 
 def test_patch_twice():
-    def sample():
+    def sample():  # pragma: no cover
         return 1
 
     patchy.patch(
@@ -189,7 +189,7 @@ def test_patch_mutable_default_arg():
 
 def test_patch_instancemethod():
     class Artist:
-        def method(self):
+        def method(self):  # pragma: no cover
             return "Chalk"
 
     patchy.patch(
@@ -210,7 +210,7 @@ def test_patch_instancemethod_freevars():
         return v + " on toast"
 
     class Artist:
-        def method(self):
+        def method(self):  # pragma: no cover
             filling = "Chalk"
             return free_func(filling)
 
@@ -316,7 +316,7 @@ def test_patch_init_super_new():
             self.base_prop = "yo"
 
     class Artist(Person):
-        def __init__(self):
+        def __init__(self):  # pragma: no cover
             super().__init__()
             self.prop = "old"
 
@@ -340,7 +340,7 @@ def test_patch_freevars():
     def free_func(v):
         return v + " on toast"
 
-    def sample():
+    def sample():  # pragma: no cover
         filling = "Chalk"
         return free_func(filling)
 
@@ -365,7 +365,7 @@ def test_patch_freevars_order():
     def tastes_bad(v):
         return v + " tastes bad"
 
-    def sample():
+    def sample():  # pragma: no cover
         return ", ".join([tastes_good("Cheese"), tastes_bad("Chalk")])
 
     patchy.patch(
@@ -385,10 +385,10 @@ def test_patch_freevars_remove():
     def tastes_good(v):
         return v + " tastes good"
 
-    def tastes_bad(v):
+    def tastes_bad(v):  # pragma: no cover
         return v + " tastes bad"
 
-    def sample():
+    def sample():  # pragma: no cover
         return ", ".join([tastes_bad("Chalk"), tastes_good("Cheese")])
 
     patchy.patch(
@@ -408,7 +408,7 @@ def test_patch_freevars_nested():
     def free_func(v):
         return v + " on toast"
 
-    def sample():
+    def sample():  # pragma: no cover
         filling = "Chalk"
 
         def _inner_func():
@@ -433,13 +433,13 @@ def test_patch_freevars_nested():
 
 @pytest.mark.xfail(raises=NameError)
 def test_patch_freevars_re_close():
-    def nasty_filling(v):
+    def nasty_filling(v):  # pragma: no cover
         return "Chalk"
 
-    def nice_filling(v):
+    def nice_filling(v):  # pragma: no cover
         return "Cheese"
 
-    def sample():
+    def sample():  # pragma: no cover
         filling = nasty_filling()
         return filling + " on toast"
 
@@ -459,7 +459,7 @@ def test_patch_freevars_re_close():
 
 def test_patch_instancemethod_twice():
     class Artist:
-        def method(self):
+        def method(self):  # pragma: no cover
             return "Chalk"
 
     patchy.patch(
@@ -490,7 +490,7 @@ def test_patch_instancemethod_mangled():
         def __mangled_name(self, v):
             return v + " on toast"
 
-        def method(self):
+        def method(self):  # pragma: no cover
             filling = "Chalk"
             return self.__mangled_name(filling)
 
@@ -513,7 +513,7 @@ def test_patch_old_class_instancemethod_mangled():
         def __mangled_name(self, v):
             return v + " on toast"
 
-        def method(self):
+        def method(self):  # pragma: no cover
             filling = "Chalk"
             return self.__mangled_name(filling)
 
@@ -539,7 +539,7 @@ def test_patch_instancemethod_mangled_freevars():
         return v + "toast"
 
     class Artist:
-        def method(self):
+        def method(self):  # pragma: no cover
             filling = "Chalk"
             return plain_name(__mangled_name(filling))  # noqa: F821
 
@@ -594,7 +594,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
 
 def test_patch_init():
     class Artist:
-        def __init__(self):
+        def __init__(self):  # pragma: no cover
             self.prop = "old"
 
     patchy.patch(
@@ -613,7 +613,7 @@ def test_patch_init():
 
 def test_patch_init_change_arg():
     class Artist:
-        def __init__(self):
+        def __init__(self):  # pragma: no cover
             self.prop = "old"
 
     patchy.patch(
@@ -637,7 +637,7 @@ def test_patch_classmethod():
             self.name = name
 
         @classmethod
-        def create(cls, name):
+        def create(cls, name):  # pragma: no cover
             return cls(name)
 
     patchy.patch(
@@ -660,7 +660,7 @@ def test_patch_classmethod_twice():
             self.name = name
 
         @classmethod
-        def create(cls, name):
+        def create(cls, name):  # pragma: no cover
             return cls(name)
 
     patchy.patch(
@@ -692,7 +692,7 @@ def test_patch_classmethod_twice():
 def test_patch_staticmethod():
     class Doge:
         @staticmethod
-        def bark():
+        def bark():  # pragma: no cover
             return "Woof"
 
     patchy.patch(
@@ -711,7 +711,7 @@ def test_patch_staticmethod():
 def test_patch_staticmethod_twice():
     class Doge:
         @staticmethod
-        def bark():
+        def bark():  # pragma: no cover
             return "Woof"
 
     patchy.patch(
