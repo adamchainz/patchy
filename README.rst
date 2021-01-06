@@ -6,7 +6,7 @@ Patchy
    :target: https://github.com/adamchainz/patchy/actions?workflow=CI
 
 .. image:: https://img.shields.io/coveralls/github/adamchainz/patchy/master?style=for-the-badge
-  :target: https://coveralls.io/r/adamchainz/patchy
+  :target: https://app.codecov.io/gh/adamchainz/patchy
 
 .. image:: https://img.shields.io/pypi/v/patchy.svg?style=for-the-badge
    :target: https://pypi.org/project/patchy/
