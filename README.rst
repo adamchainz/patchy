@@ -2,10 +2,10 @@
 Patchy
 ======
 
-.. image:: https://img.shields.io/github/workflow/status/adamchainz/patchy/CI/master?style=for-the-badge
+.. image:: https://img.shields.io/github/workflow/status/adamchainz/patchy/CI/main?style=for-the-badge
    :target: https://github.com/adamchainz/patchy/actions?workflow=CI
 
-.. image:: https://img.shields.io/coveralls/github/adamchainz/patchy/master?style=for-the-badge
+.. image:: https://img.shields.io/coveralls/github/adamchainz/patchy/main?style=for-the-badge
   :target: https://app.codecov.io/gh/adamchainz/patchy
 
 .. image:: https://img.shields.io/pypi/v/patchy.svg?style=for-the-badge
@@ -18,7 +18,7 @@ Patchy
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
 
-.. figure:: https://raw.github.com/adamchainz/patchy/master/pirate.png
+.. figure:: https://raw.github.com/adamchainz/patchy/main/pirate.png
    :alt: A patchy pirate.
 
 ..
