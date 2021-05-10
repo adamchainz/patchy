@@ -55,7 +55,7 @@ Use **pip**:
 
     python -m pip install patchy
 
-Python 3.6 to 3.9 supported.
+Python 3.6 to 3.10 supported.
 
 ----
 
