@@ -27,16 +27,20 @@ Patch the inner source of python functions at runtime.
 
 A quick example, making a function that returns 1 instead return 9001:
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> def sample():
-    ...    return 1
-    >>> patchy.patch(sample, """\
+    ...     return 1
+    ...
+    >>> patchy.patch(
+    ...     sample,
+    ...     """\
     ...     @@ -1,2 +1,2 @@
     ...      def sample():
     ...     -    return 1
     ...     +    return 9001
-    ...     """)
+    ...     """,
+    ... )
     >>> sample()
     9001
 
@@ -136,13 +140,18 @@ Example:
 
     import patchy
 
+
     def sample():
         return 1
 
-    patchy.patch(sample, """\
+
+    patchy.patch(
+        sample,
+        """\
         @@ -2,2 +2,2 @@
         -    return 1
-        +    return 2""")
+        +    return 2""",
+    )
 
     print(sample())  # prints 2
 
@@ -168,13 +177,18 @@ Example:
 
     import patchy
 
+
     def sample():
         return 2
 
-    patchy.unpatch(sample, """\
+
+    patchy.unpatch(
+        sample,
+        """\
         @@ -2,2 +2,2 @@
         -    return 1
-        +    return 2""")
+        +    return 2""",
+    )
 
     print(sample())  # prints 1
 
@@ -191,6 +205,7 @@ Context manager example:
 
     def sample():
         return 1234
+
 
     patch_text = """\
         @@ -1,2 +1,2 @@
@@ -209,6 +224,7 @@ Decorator example, using the same ``sample`` and ``patch_text``:
     @patchy.temp_patch(sample, patch_text)
     def my_func():
         return sample() == 5678
+
 
     print(my_func())  # prints True
 
@@ -240,8 +256,10 @@ Example:
 
     import patchy
 
+
     def sample():
         return 1
+
 
     patchy.replace(
         sample,
@@ -252,7 +270,7 @@ Example:
         """\
         def sample():
             return 42
-        """
+        """,
     )
 
     print(sample())  # prints 42
@@ -275,7 +293,7 @@ How to Create a Patch
 
    .. code-block:: python
 
-       class Foo():
+       class Foo:
            def bar(self, x):
                return x * 2
 
@@ -316,9 +334,12 @@ How to Create a Patch
 
    .. code-block:: python
 
-      patchy.patch(foo, """\
+      patchy.patch(
+          foo,
+          """\
           @@ -1,2 +1,2 @@
            def foo():
           -    print("Change me")
           +    print("Changed")
-          """)
+          """,
+      )
