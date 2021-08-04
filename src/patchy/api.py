@@ -209,8 +209,8 @@ def _set_source(func, func_source):
         """
         _def = "def __patchy_freevars__():"
         fvs = func.__code__.co_freevars
-        fv_body = ["    {} = object()".format(fv) for fv in fvs]
-        fv_force_use_body = ["    {}".format(fv) for fv in fvs]
+        fv_body = [f"    {fv} = object()" for fv in fvs]
+        fv_force_use_body = [f"    {fv}" for fv in fvs]
         if fv_force_use_body:
             fv_force_use_ast = _parse("\n".join([_def] + fv_force_use_body))
             fv_force_use = fv_force_use_ast.body[0].body
@@ -238,7 +238,7 @@ def _set_source(func, func_source):
         _global = (
             ""
             if class_name in func.__code__.co_freevars
-            else "    global {name}\n".format(name=class_name)
+            else f"    global {class_name}\n"
         )
         class_src = "{_global}    class {name}(object):\n        pass".format(
             _global=_global, name=class_name
@@ -254,12 +254,8 @@ def _set_source(func, func_source):
     def _process_function():
         _def, _ast, fv_body = _process_freevars()
         name = func.__name__
-        ret = "    return {name}".format(name=name)
-        _global = (
-            []
-            if name in func.__code__.co_freevars
-            else ["    global {name}".format(name=name)]
-        )
+        ret = f"    return {name}"
+        _global = [] if name in func.__code__.co_freevars else [f"    global {name}"]
         to_parse = "\n".join([_def] + _global + fv_body + ["    pass", ret])
         new_source = _parse(to_parse)
         new_source.body[0].body[-2] = _ast
