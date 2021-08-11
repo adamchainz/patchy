@@ -111,29 +111,29 @@ def test_patch_invalid_hunk_2():
     We need to balk on patches that fail on application
     """
 
-    def sample():
-        if True:
+    def sample(x):
+        if x == 1:
             print("yes")
-        if False:
+        elif x == 2:
             print("no")
         return 1
 
     bad_patch = """\
         @@ -1,2 +1,2 @@
          def sample():
-        -    if True:
-        +    if False:
+        -    if x == 1:
+        +    if x == 2:
         @@ -3,5 +3,5 @@
                  print("yes")
-        -    if Falsy:
-        +    if Truey:
+        -    elif x == 3:
+        +    elif x == 4:
                  print("no")
         """
     with pytest.raises(ValueError) as excinfo:
         patchy.patch(sample, bad_patch)
 
     assert "Hunk #2 FAILED" in str(excinfo.value)
-    assert sample() == 1
+    assert sample(0) == 1
 
 
 def test_patch_twice():
@@ -433,10 +433,10 @@ def test_patch_freevars_nested():
 
 @pytest.mark.xfail(raises=NameError)
 def test_patch_freevars_re_close():
-    def nasty_filling(v):
+    def nasty_filling():
         return "Chalk"
 
-    def nice_filling(v):
+    def nice_filling():
         return "Cheese"
 
     def sample():
@@ -541,7 +541,9 @@ def test_patch_instancemethod_mangled_freevars():
     class Artist:
         def method(self):
             filling = "Chalk"
-            return plain_name(__mangled_name(filling))  # noqa: F821
+            return plain_name(
+                __mangled_name(filling)  # type: ignore [name-defined]  # noqa: F821
+            )
 
     patchy.patch(
         Artist.method,
@@ -627,7 +629,7 @@ def test_patch_init_change_arg():
         """,
     )
 
-    a = Artist("new")
+    a = Artist("new")  # type: ignore [call-arg]
     assert a.prop == "new"
 
 

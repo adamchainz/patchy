@@ -1,18 +1,21 @@
 import random
+from typing import Dict, Tuple
 
 
 class PatchingCache:
-    def __init__(self, maxsize):
+    def __init__(self, maxsize: int) -> None:
         self.maxsize = maxsize
+        self._cache: Dict[Tuple[str, str, bool], str] = {}
+
+    def clear(self) -> None:
         self._cache = {}
 
-    def clear(self):
-        self._cache = {}
-
-    def retrieve(self, source, patch_text, forwards):
+    def retrieve(self, source: str, patch_text: str, forwards: bool) -> str:
         return self._cache[(source, patch_text, forwards)]
 
-    def store(self, source, patch_text, forwards, new_source):
+    def store(
+        self, source: str, patch_text: str, forwards: bool, new_source: str
+    ) -> None:
         if len(self._cache) + 2 > self.maxsize:
             # Delete a random 25%, at least 2
             delete_count = max(2, len(self._cache) // 4)

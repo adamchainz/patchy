@@ -233,7 +233,7 @@ Decorator example, using the same ``sample`` and ``patch_text``:
 ----------------------------------------------
 
 Check that function or dotted path to function ``func`` has an AST matching
-`expected_source``, then replace its inner code object with source compiled
+``expected_source``, then replace its inner code object with source compiled
 from ``new_source``. If the AST check fails, ``ValueError`` will be raised with
 current/expected source code in the message. In the author's opinion it's
 preferable to call ``patch()`` so your call makes it clear to see what is being

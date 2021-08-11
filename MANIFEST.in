@@ -6,6 +6,7 @@ include HISTORY.rst
 include LICENSE
 include pirate.png
 include README.rst
+include src/patchy/py.typed
 exclude .coveragerc
 exclude .editorconfig
 exclude .pre-commit-config.yaml
