@@ -5,8 +5,8 @@ Patchy
 .. image:: https://img.shields.io/github/workflow/status/adamchainz/patchy/CI/main?style=for-the-badge
    :target: https://github.com/adamchainz/patchy/actions?workflow=CI
 
-.. image:: https://img.shields.io/codecov/c/github/adamchainz/patchy/main?style=for-the-badge
-  :target: https://app.codecov.io/gh/adamchainz/patchy
+.. image:: https://img.shields.io/badge/Coverage-100%25-success?style=for-the-badge
+   :target: https://github.com/adamchainz/patchy/actions?workflow=CI
 
 .. image:: https://img.shields.io/pypi/v/patchy.svg?style=for-the-badge
    :target: https://pypi.org/project/patchy/
