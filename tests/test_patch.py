@@ -739,52 +739,7 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7"
-)
-def test_patch_future_python_3_6(tmpdir):
-    tmpdir.join("future_user.py").write(
-        dedent(
-            """\
-        from __future__ import generator_stop
-
-        def f(x):
-            raise StopIteration()
-
-
-        def sample():
-            return list(f(x) for x in range(10))
-    """
-        )
-    )
-    sys.path.insert(0, str(tmpdir))
-
-    try:
-        from future_user import sample
-    finally:
-        sys.path.pop(0)
-
-    with pytest.raises(RuntimeError):
-        sample()
-
-    patchy.patch(
-        sample,
-        """\
-        @@ -1,2 +1,3 @@
-         def sample():
-        +    pass
-             return list(f(x) for x in range(10))
-        """,
-    )
-
-    with pytest.raises(RuntimeError):
-        sample()
-
-
-@pytest.mark.skipif(
-    sys.version_info < (3, 7), reason="__future__.annotations introduced in Python 3.7"
-)
-def test_patch_future_python_3_7_plus(tmpdir):
+def test_patch_future_python(tmpdir):
     tmpdir.join("future_user.py").write(
         dedent(
             """\
@@ -818,52 +773,7 @@ def test_patch_future_python_3_7_plus(tmpdir):
     assert sample.__code__.co_flags & __future__.annotations.compiler_flag
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 7), reason="generator_stop made mandatory in Python 3.7"
-)
-def test_patch_future_instancemethod_python_3_6(tmpdir):
-    tmpdir.join("future_instancemethod.py").write(
-        dedent(
-            """\
-        from __future__ import generator_stop
-
-        def f(x):
-            raise StopIteration()
-
-        class Sample(object):
-            def meth(self):
-                return list(f(x) for x in range(10))
-    """
-        )
-    )
-    sys.path.insert(0, str(tmpdir))
-
-    try:
-        from future_instancemethod import Sample
-    finally:
-        sys.path.pop(0)
-
-    with pytest.raises(RuntimeError):
-        Sample().meth()
-
-    patchy.patch(
-        Sample.meth,
-        """\
-        @@ -1,2 +1,3 @@
-         def meth(self):
-        +    pass
-             return list(f(x) for x in range(10))
-        """,
-    )
-
-    with pytest.raises(RuntimeError):
-        Sample().meth()
-
-
-@pytest.mark.skipif(
-    sys.version_info < (3, 7), reason="__future__.annotations introduced in Python 3.7"
-)
-def test_patch_future_instancemethod_python_3_7_plus(tmpdir):
+def test_patch_future_instancemetho(tmpdir):
     tmpdir.join("future_instancemethod.py").write(
         dedent(
             """\
@@ -898,32 +808,19 @@ def test_patch_future_instancemethod_python_3_7_plus(tmpdir):
 
 
 def test_patch_nonlocal_fails(tmpdir):
-    # Put in separate file since it would SyntaxError on Python 2
-    tmpdir.join("py3_nonlocal.py").write(
-        dedent(
-            """\
-        variab = 20
+    variab = 20
 
+    def get_function():
+        variab = 15
 
-        def get_function():
-            variab = 15
+        def sample():
+            nonlocal variab
+            multiple = 3
+            return variab * multiple
 
-            def sample():
-                nonlocal variab
-                multiple = 3
-                return variab * multiple
+        return sample
 
-            return sample
-
-        sample = get_function()
-    """
-        )
-    )
-    sys.path.insert(0, str(tmpdir))
-    try:
-        from py3_nonlocal import sample
-    finally:
-        sys.path.pop(0)
+    sample = get_function()
 
     assert sample() == 15 * 3
 
