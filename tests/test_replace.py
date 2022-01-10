@@ -8,6 +8,8 @@ def test_replace():
     def sample():
         return 1
 
+    assert sample() == 1
+
     patchy.replace(
         sample,
         """\
@@ -27,6 +29,8 @@ def test_replace_only_cares_about_ast():
     def sample():
         return 1
 
+    assert sample() == 1
+
     patchy.replace(sample, "def sample(): return 1", "def sample(): return 42")
 
     assert sample() == 42
@@ -35,6 +39,8 @@ def test_replace_only_cares_about_ast():
 def test_replace_twice():
     def sample():
         return 1
+
+    assert sample() == 1
 
     patchy.replace(sample, "def sample(): return 1", "def sample(): return 2")
     patchy.replace(sample, "def sample(): return 2", "def sample(): return 3")
@@ -80,6 +86,8 @@ def test_replace_instancemethod():
         def method(self):
             return "Chalk"
 
+    assert Artist().method() == "Chalk"
+
     patchy.replace(
         Artist.method,
         """\
@@ -98,6 +106,8 @@ def test_replace_instancemethod():
 def test_replace_unexpected_source():
     def sample():
         return 2
+
+    assert sample() == 2
 
     with pytest.raises(ValueError) as excinfo:
         patchy.replace(
@@ -121,6 +131,8 @@ def test_replace_unexpected_source():
 def test_replace_no_expected_source():
     def sample():
         return 2
+
+    assert sample() == 2
 
     patchy.replace(
         sample,

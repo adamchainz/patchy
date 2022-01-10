@@ -6,6 +6,8 @@ def test_patch_unpatch():
     def sample():
         return 1
 
+    assert sample() == 1
+
     patch_text = """\
         @@ -1,2 +1,2 @@
          def sample():
@@ -19,7 +21,7 @@ def test_patch_unpatch():
     # Check that we use the cache
     orig_mkdtemp = patchy.api.mkdtemp
 
-    def mkdtemp(*args, **kwargs):
+    def mkdtemp(*args, **kwargs):  # pragma: no cover
         raise AssertionError(
             "mkdtemp should not be called, the unpatch should be cached."
         )

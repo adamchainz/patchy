@@ -13,6 +13,8 @@ def test_patch():
     def sample():
         return 1
 
+    assert sample() == 1
+
     patchy.patch(
         sample,
         """\
@@ -29,6 +31,8 @@ def test_mc_patchface():
     def sample():
         return 1
 
+    assert sample() == 1
+
     patchy.mc_patchface(
         sample,
         """\
@@ -43,6 +47,8 @@ def test_mc_patchface():
 def test_patch_simple_no_newline():
     def sample():
         return 1
+
+    assert sample() == 1
 
     patchy.patch(
         sample,
@@ -118,6 +124,9 @@ def test_patch_invalid_hunk_2():
             print("no")
         return 1
 
+    assert sample(1) == 1
+    assert sample(2) == 1
+
     bad_patch = """\
         @@ -1,2 +1,2 @@
          def sample():
@@ -139,6 +148,8 @@ def test_patch_invalid_hunk_2():
 def test_patch_twice():
     def sample():
         return 1
+
+    assert sample() == 1
 
     patchy.patch(
         sample,
@@ -192,6 +203,8 @@ def test_patch_instancemethod():
         def method(self):
             return "Chalk"
 
+    assert Artist().method() == "Chalk"
+
     patchy.patch(
         Artist.method,
         """\
@@ -213,6 +226,8 @@ def test_patch_instancemethod_freevars():
         def method(self):
             filling = "Chalk"
             return free_func(filling)
+
+    assert Artist().method() == "Chalk on toast"
 
     patchy.patch(
         Artist.method,
@@ -320,6 +335,8 @@ def test_patch_init_super_new():
             super().__init__()
             self.prop = "old"
 
+    assert Artist().prop == "old"
+
     patchy.patch(
         Artist.__init__,
         """\
@@ -343,6 +360,8 @@ def test_patch_freevars():
     def sample():
         filling = "Chalk"
         return free_func(filling)
+
+    assert sample() == "Chalk on toast"
 
     patchy.patch(
         sample,
@@ -368,6 +387,8 @@ def test_patch_freevars_order():
     def sample():
         return ", ".join([tastes_good("Cheese"), tastes_bad("Chalk")])
 
+    assert sample() == "Cheese tastes good, Chalk tastes bad"
+
     patchy.patch(
         sample,
         """\
@@ -390,6 +411,8 @@ def test_patch_freevars_remove():
 
     def sample():
         return ", ".join([tastes_bad("Chalk"), tastes_good("Cheese")])
+
+    assert sample() == "Chalk tastes bad, Cheese tastes good"
 
     patchy.patch(
         sample,
@@ -415,6 +438,8 @@ def test_patch_freevars_nested():
             return free_func(filling)
 
         return _inner_func
+
+    assert sample()() == "Chalk on toast"
 
     patchy.patch(
         sample,
@@ -443,6 +468,10 @@ def test_patch_freevars_re_close():
         filling = nasty_filling()
         return filling + " on toast"
 
+    assert nasty_filling() == "Chalk"
+    assert nice_filling() == "Cheese"
+    assert sample() == "Chalk on toast"
+
     patchy.patch(
         sample,
         """\
@@ -461,6 +490,8 @@ def test_patch_instancemethod_twice():
     class Artist:
         def method(self):
             return "Chalk"
+
+    assert Artist().method() == "Chalk"
 
     patchy.patch(
         Artist.method,
@@ -494,28 +525,7 @@ def test_patch_instancemethod_mangled():
             filling = "Chalk"
             return self.__mangled_name(filling)
 
-    patchy.patch(
-        Artist.method,
-        """\
-        @@ -1,2 +1,2 @@
-         def method(self):
-        -    filling = "Chalk"
-        +    filling = "Cheese"
-             return self.__mangled_name(filling)
-        """,
-    )
-
-    assert Artist().method() == "Cheese on toast"
-
-
-def test_patch_old_class_instancemethod_mangled():
-    class Artist:
-        def __mangled_name(self, v):
-            return v + " on toast"
-
-        def method(self):
-            filling = "Chalk"
-            return self.__mangled_name(filling)
+    assert Artist().method() == "Chalk on toast"
 
     patchy.patch(
         Artist.method,
@@ -544,6 +554,8 @@ def test_patch_instancemethod_mangled_freevars():
             return plain_name(
                 __mangled_name(filling)  # type: ignore [name-defined]  # noqa: F821
             )
+
+    assert Artist().method() == "Chalk on toast"
 
     patchy.patch(
         Artist.method,
@@ -599,6 +611,8 @@ def test_patch_init():
         def __init__(self):
             self.prop = "old"
 
+    assert Artist().prop == "old"
+
     patchy.patch(
         Artist.__init__,
         """\
@@ -617,6 +631,8 @@ def test_patch_init_change_arg():
     class Artist:
         def __init__(self):
             self.prop = "old"
+
+    assert Artist().prop == "old"
 
     patchy.patch(
         Artist.__init__,
@@ -642,6 +658,8 @@ def test_patch_classmethod():
         def create(cls, name):
             return cls(name)
 
+    assert Emotion.create("alright").name == "alright"
+
     patchy.patch(
         Emotion.create,
         """\
@@ -664,6 +682,8 @@ def test_patch_classmethod_twice():
         @classmethod
         def create(cls, name):
             return cls(name)
+
+    assert Emotion.create("alright").name == "alright"
 
     patchy.patch(
         Emotion.create,
@@ -697,6 +717,8 @@ def test_patch_staticmethod():
         def bark():
             return "Woof"
 
+    assert Doge.bark() == "Woof"
+
     patchy.patch(
         Doge.bark,
         """\
@@ -715,6 +737,8 @@ def test_patch_staticmethod_twice():
         @staticmethod
         def bark():
             return "Woof"
+
+    assert Doge.bark() == "Woof"
 
     patchy.patch(
         Doge.bark,
