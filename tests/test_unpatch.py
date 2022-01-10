@@ -8,6 +8,8 @@ def test_unpatch():
     def sample():
         return 9001
 
+    sample()
+
     patchy.unpatch(
         sample,
         """\
