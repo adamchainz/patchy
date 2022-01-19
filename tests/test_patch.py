@@ -1,4 +1,4 @@
-import __future__
+from __future__ import annotations
 
 import sys
 from textwrap import dedent
@@ -7,6 +7,9 @@ import pytest
 
 import patchy
 import patchy.api
+
+if True:
+    import __future__
 
 
 def test_patch():
