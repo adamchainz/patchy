@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 import random
-from typing import Dict, Tuple
 
 
 class PatchingCache:
     def __init__(self, maxsize: int) -> None:
         self.maxsize = maxsize
-        self._cache: Dict[Tuple[str, str, bool], str] = {}
+        self._cache: dict[tuple[str, str, bool], str] = {}
 
     def clear(self) -> None:
         self._cache = {}

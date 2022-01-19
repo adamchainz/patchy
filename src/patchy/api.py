@@ -1,4 +1,4 @@
-import __future__
+from __future__ import annotations
 
 import ast
 import inspect
@@ -10,21 +10,13 @@ from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
 from types import CodeType, TracebackType
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Any, Callable, Dict, TypeVar, cast
 from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache
+
+if True:
+    import __future__
 
 if sys.version_info >= (3, 9):
     from pkgutil import resolve_name as pkgutil_resolve_name
@@ -37,20 +29,20 @@ __all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch")
 # Public API
 
 
-def patch(func: Union[Callable[..., Any], str], patch_text: str) -> None:
+def patch(func: Callable[..., Any] | str, patch_text: str) -> None:
     _do_patch(func, patch_text, forwards=True)
 
 
 mc_patchface = patch
 
 
-def unpatch(func: Union[Callable[..., Any], str], patch_text: str) -> None:
+def unpatch(func: Callable[..., Any] | str, patch_text: str) -> None:
     _do_patch(func, patch_text, forwards=False)
 
 
 def replace(
     func: Callable[..., Any],
-    expected_source: Optional[str],
+    expected_source: str | None,
     new_source: str,
 ) -> None:
     if expected_source is not None:
@@ -66,7 +58,7 @@ AnyFunc = TypeVar("AnyFunc", bound=Callable[..., Any])
 
 
 class temp_patch:
-    def __init__(self, func: Union[Callable[..., Any], str], patch_text: str) -> None:
+    def __init__(self, func: Callable[..., Any] | str, patch_text: str) -> None:
         self.func = func
         self.patch_text = patch_text
 
@@ -75,9 +67,9 @@ class temp_patch:
 
     def __exit__(
         self,
-        exc_type: Union[Type[BaseException], None],
-        exc_val: Union[BaseException, None],
-        exc_tb: Union[TracebackType, None],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         unpatch(self.func, self.patch_text)
 
@@ -94,7 +86,7 @@ class temp_patch:
 
 
 def _do_patch(
-    func: Union[Callable[..., Any], str],
+    func: Callable[..., Any] | str,
     patch_text: str,
     forwards: bool,
 ) -> None:
@@ -180,7 +172,7 @@ FEATURE_MASK = _get_flags_mask()
 
 # Stores the source of functions that have had their source changed
 # Bad type hints because WeakKeyDictionary only indexable on Python 3.9+
-_source_map: Dict[Callable[..., Any], str] = cast(
+_source_map: dict[Callable[..., Any], str] = cast(
     Dict[Callable[..., Any], str],
     WeakKeyDictionary(),
 )
@@ -196,7 +188,7 @@ def _get_source(func: Callable[..., Any]) -> str:
         return source
 
 
-def _class_name(func: Callable[..., Any]) -> Optional[str]:
+def _class_name(func: Callable[..., Any]) -> str | None:
     split_name = func.__qualname__.split(".")
     try:
         class_name = split_name[-2]
@@ -217,9 +209,9 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
     class_name = _class_name(func)
 
     def _compile(
-        code: Union[str, ast.Module],
+        code: str | ast.Module,
         flags: int = 0,
-    ) -> Union[CodeType, ast.Module]:
+    ) -> CodeType | ast.Module:
         return compile(
             code, "<patchy>", "exec", flags=feature_flags | flags, dont_inherit=True
         )
@@ -229,7 +221,7 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
         assert isinstance(result, ast.Module)
         return result
 
-    def _process_freevars() -> Tuple[str, ast.AST, List[str]]:
+    def _process_freevars() -> tuple[str, ast.AST, list[str]]:
         """
         Wrap the new function in a __patchy_freevars__ method that provides all
         freevars of the original function.
@@ -310,7 +302,7 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
         new_source = _process_function()
 
     # Compile and retrieve the new Code object
-    localz: Dict[str, Any] = {}
+    localz: dict[str, Any] = {}
     new_code = cast(CodeType, _compile(new_source))
 
     exec(
