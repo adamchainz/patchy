@@ -307,7 +307,7 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
 
     exec(
         new_code,
-        dict(func.__globals__),  # type: ignore [attr-defined]
+        dict(func.__globals__),
         localz,
     )
     new_func = localz["__patchy_freevars__"]()
