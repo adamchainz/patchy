@@ -8,12 +8,12 @@ import patchy.api
 
 
 def test_context_manager():
-    def sample():
+    def sample() -> int:
         return 1234
 
     patch_text = """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> int:
         -    return 1234
         +    return 5678
         """
@@ -25,18 +25,18 @@ def test_context_manager():
 
 
 def test_decorator():
-    def sample():
+    def sample() -> int:
         return 3456
 
     patch_text = """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> int:
         -    return 3456
         +    return 7890
         """
 
     @patchy.temp_patch(sample, patch_text)
-    def decorated():
+    def decorated() -> None:
         assert sample() == 7890
 
     assert sample() == 3456

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 from textwrap import dedent
+from typing import Callable
 
 import pytest
 
@@ -13,7 +14,7 @@ if True:
 
 
 def test_patch():
-    def sample():
+    def sample() -> int:
         return 1
 
     assert sample() == 1
@@ -22,7 +23,7 @@ def test_patch():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> int:
         -    return 1
         +    return 9001
         """,
@@ -31,7 +32,7 @@ def test_patch():
 
 
 def test_mc_patchface():
-    def sample():
+    def sample() -> int:
         return 1
 
     assert sample() == 1
@@ -48,7 +49,7 @@ def test_mc_patchface():
 
 
 def test_patch_simple_no_newline():
-    def sample():
+    def sample() -> int:
         return 1
 
     assert sample() == 1
@@ -68,7 +69,7 @@ def test_patch_invalid():
     We need to balk on empty patches
     """
 
-    def sample():
+    def sample() -> int:
         return 1
 
     bad_patch = """garbage
@@ -84,7 +85,7 @@ def test_patch_invalid():
         patch: **** Only garbage was found in the patch input.
 
         The code to patch was:
-        def sample():
+        def sample() -> int:
             return 1
 
         The patch was:
@@ -100,12 +101,12 @@ def test_patch_invalid_hunk():
     We need to balk on patches that fail on application
     """
 
-    def sample():
+    def sample() -> int:
         return 1
 
     bad_patch = """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> int:
         -    return 2
         +    return 23"""
     with pytest.raises(ValueError) as excinfo:
@@ -120,7 +121,7 @@ def test_patch_invalid_hunk_2():
     We need to balk on patches that fail on application
     """
 
-    def sample(x):
+    def sample(x: int) -> int:
         if x == 1:
             print("yes")
         elif x == 2:
@@ -132,7 +133,7 @@ def test_patch_invalid_hunk_2():
 
     bad_patch = """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample(x: int) -> int:
         -    if x == 1:
         +    if x == 2:
         @@ -3,5 +3,5 @@
@@ -149,7 +150,7 @@ def test_patch_invalid_hunk_2():
 
 
 def test_patch_twice():
-    def sample():
+    def sample() -> int:
         return 1
 
     assert sample() == 1
@@ -158,7 +159,7 @@ def test_patch_twice():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> int:
         -    return 1
         +    return 2""",
     )
@@ -166,7 +167,7 @@ def test_patch_twice():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> int:
         -    return 2
         +    return 3
         """,
@@ -176,7 +177,7 @@ def test_patch_twice():
 
 
 def test_patch_mutable_default_arg():
-    def foo(append=None, mutable=[]):  # noqa: B006
+    def foo(append: str | None = None, mutable: list[str] = []) -> int:  # noqa: B006
         if append is not None:
             mutable.append(append)
         return len(mutable)
@@ -190,7 +191,7 @@ def test_patch_mutable_default_arg():
         foo,
         """\
         @@ -1,2 +1,3 @@
-         def foo(append=None, mutable=[]):
+         def foo(append: str | None=None, mutable: list[str] = []) -> int:
         +    len(mutable)
              if append is not None:
         """,
@@ -203,7 +204,7 @@ def test_patch_mutable_default_arg():
 
 def test_patch_instancemethod():
     class Artist:
-        def method(self):
+        def method(self) -> str:
             return "Chalk"
 
     assert Artist().method() == "Chalk"
@@ -212,7 +213,7 @@ def test_patch_instancemethod():
         Artist.method,
         """\
         @@ -1,2 +1,2 @@
-         def method(self):
+         def method(self) -> str:
         -    return "Chalk"
         +    return "Cheese"
         """,
@@ -222,11 +223,11 @@ def test_patch_instancemethod():
 
 
 def test_patch_instancemethod_freevars():
-    def free_func(v):
+    def free_func(v: str) -> str:
         return v + " on toast"
 
     class Artist:
-        def method(self):
+        def method(self) -> str:
             filling = "Chalk"
             return free_func(filling)
 
@@ -236,7 +237,7 @@ def test_patch_instancemethod_freevars():
         Artist.method,
         """\
         @@ -1,2 +1,2 @@
-         def method(self):
+         def method(self) -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
              return free_func(filling)
@@ -256,13 +257,13 @@ def test_patch_init_module_level(tmpdir):
         dedent(
             """\
         class Person(object):
-            def __init__(self):
+            def __init__(self) -> None:
                 self.base_prop = 'yo'
 
 
         class Artist(Person):
-            def __init__(self):
-                super(Artist, self).__init__()
+            def __init__(self) -> None:
+                super().__init__()
                 self.prop = 'old'
     """
         )
@@ -274,8 +275,8 @@ def test_patch_init_module_level(tmpdir):
         Artist.__init__,
         """\
         @@ -1,3 +1,3 @@
-         def __init__(self):
-             super(Artist, self).__init__()
+         def __init__(self) -> None:
+             super().__init__()
         -    self.prop = 'old'
         +    self.prop = 'new'
     """,
@@ -330,11 +331,11 @@ def test_patch_recursive_module_level(tmpdir):
 
 def test_patch_init_super_new():
     class Person:
-        def __init__(self):
+        def __init__(self) -> None:
             self.base_prop = "yo"
 
     class Artist(Person):
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__()
             self.prop = "old"
 
@@ -344,7 +345,7 @@ def test_patch_init_super_new():
         Artist.__init__,
         """\
         @@ -1,3 +1,3 @@
-         def __init__(self):
+         def __init__(self) -> None:
              super().__init__()
         -    self.prop = "old"
         +    self.prop = "new"
@@ -357,10 +358,10 @@ def test_patch_init_super_new():
 
 
 def test_patch_freevars():
-    def free_func(v):
+    def free_func(v: str) -> str:
         return v + " on toast"
 
-    def sample():
+    def sample() -> str:
         filling = "Chalk"
         return free_func(filling)
 
@@ -370,7 +371,7 @@ def test_patch_freevars():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def method():
+         def sample() -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
              return free_func(filling)
@@ -381,13 +382,13 @@ def test_patch_freevars():
 
 
 def test_patch_freevars_order():
-    def tastes_good(v):
+    def tastes_good(v: str) -> str:
         return v + " tastes good"
 
-    def tastes_bad(v):
+    def tastes_bad(v: str) -> str:
         return v + " tastes bad"
 
-    def sample():
+    def sample() -> str:
         return ", ".join([tastes_good("Cheese"), tastes_bad("Chalk")])
 
     assert sample() == "Cheese tastes good, Chalk tastes bad"
@@ -396,7 +397,7 @@ def test_patch_freevars_order():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> str:
         -    return ", ".join([tastes_good("Cheese"), tastes_bad("Chalk")])
         +    return ", ".join([tastes_bad("Chalk"), tastes_good("Cheese")])
         """,
@@ -406,13 +407,13 @@ def test_patch_freevars_order():
 
 
 def test_patch_freevars_remove():
-    def tastes_good(v):
+    def tastes_good(v: str) -> str:
         return v + " tastes good"
 
-    def tastes_bad(v):
+    def tastes_bad(v: str) -> str:
         return v + " tastes bad"
 
-    def sample():
+    def sample() -> str:
         return ", ".join([tastes_bad("Chalk"), tastes_good("Cheese")])
 
     assert sample() == "Chalk tastes bad, Cheese tastes good"
@@ -421,7 +422,7 @@ def test_patch_freevars_remove():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> str:
         -    return ", ".join([tastes_bad("Chalk"), tastes_good("Cheese")])
         +    return ", ".join([tastes_good("Cheese")])
         """,
@@ -431,13 +432,13 @@ def test_patch_freevars_remove():
 
 
 def test_patch_freevars_nested():
-    def free_func(v):
+    def free_func(v: str) -> str:
         return v + " on toast"
 
-    def sample():
+    def sample() -> Callable[[], str]:
         filling = "Chalk"
 
-        def _inner_func():
+        def _inner_func() -> str:
             return free_func(filling)
 
         return _inner_func
@@ -448,7 +449,7 @@ def test_patch_freevars_nested():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> Callable[[], str]:
         -    filling = "Chalk"
         +    filling = "Cheese"
 
@@ -461,13 +462,13 @@ def test_patch_freevars_nested():
 
 @pytest.mark.xfail(raises=NameError)
 def test_patch_freevars_re_close():
-    def nasty_filling():
+    def nasty_filling() -> str:
         return "Chalk"
 
-    def nice_filling():
+    def nice_filling() -> str:
         return "Cheese"
 
-    def sample():
+    def sample() -> str:
         filling = nasty_filling()
         return filling + " on toast"
 
@@ -479,7 +480,7 @@ def test_patch_freevars_re_close():
         sample,
         """\
         @@ -1,2 +1,2 @@
-         def sample():
+         def sample() -> str:
         -    filling = nasty_filling()
         +    filling = nice_filling()
              return filling + ' on toast'
@@ -491,7 +492,7 @@ def test_patch_freevars_re_close():
 
 def test_patch_instancemethod_twice():
     class Artist:
-        def method(self):
+        def method(self) -> str:
             return "Chalk"
 
     assert Artist().method() == "Chalk"
@@ -500,7 +501,7 @@ def test_patch_instancemethod_twice():
         Artist.method,
         """\
         @@ -1,2 +1,2 @@
-         def method(self):
+         def method(self) -> str:
         -    return "Chalk"
         +    return "Cheese"
         """,
@@ -510,7 +511,7 @@ def test_patch_instancemethod_twice():
         Artist.method,
         """\
         @@ -1,2 +1,2 @@
-         def method(self):
+         def method(self) -> str:
         -    return "Cheese"
         +    return "Crackers"
         """,
@@ -521,10 +522,10 @@ def test_patch_instancemethod_twice():
 
 def test_patch_instancemethod_mangled():
     class Artist:
-        def __mangled_name(self, v):
+        def __mangled_name(self, v: str) -> str:
             return v + " on toast"
 
-        def method(self):
+        def method(self) -> str:
             filling = "Chalk"
             return self.__mangled_name(filling)
 
@@ -534,7 +535,7 @@ def test_patch_instancemethod_mangled():
         Artist.method,
         """\
         @@ -1,2 +1,2 @@
-         def method(self):
+         def method(self) -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
              return self.__mangled_name(filling)
@@ -545,14 +546,14 @@ def test_patch_instancemethod_mangled():
 
 
 def test_patch_instancemethod_mangled_freevars():
-    def _Artist__mangled_name(v):
+    def _Artist__mangled_name(v: str) -> str:
         return v + " on "
 
-    def plain_name(v):
+    def plain_name(v: str) -> str:
         return v + "toast"
 
     class Artist:
-        def method(self):
+        def method(self) -> str:
             filling = "Chalk"
             return plain_name(
                 __mangled_name(filling)  # type: ignore [name-defined]  # noqa: F821
@@ -564,7 +565,7 @@ def test_patch_instancemethod_mangled_freevars():
         Artist.method,
         """\
         @@ -1,2 +1,2 @@
-         def method(self):
+         def method(self) -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
              return plain_name(__mangled_name(filling))  # noqa: F821
@@ -579,10 +580,10 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
         dedent(
             """\
         class Artist:
-        \tdef __mangled_name(self, v):
+        \tdef __mangled_name(self, v: str) -> str:
         \t\treturn v + ' on toast'
 
-        \tdef method(self):
+        \tdef method(self) -> str:
         \t\tfilling = 'Chalk'
         \t\treturn self.__mangled_name(filling)
     """
@@ -599,7 +600,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
         Artist.method,
         """\
         @@ -1,2 +1,2 @@
-         def method(self):
+         def method(self) -> str:
         -\tfilling = 'Chalk'
         +\tfilling = 'Cheese'
         \treturn __mangled_name(filling)
@@ -611,7 +612,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
 
 def test_patch_init():
     class Artist:
-        def __init__(self):
+        def __init__(self) -> None:
             self.prop = "old"
 
     assert Artist().prop == "old"
@@ -620,7 +621,7 @@ def test_patch_init():
         Artist.__init__,
         """\
         @@ -1,2 +1,2 @@
-         def __init__(self):
+         def __init__(self) -> None:
         -    self.prop = "old"
         +    self.prop = "new"
         """,
@@ -632,7 +633,7 @@ def test_patch_init():
 
 def test_patch_init_change_arg():
     class Artist:
-        def __init__(self):
+        def __init__(self) -> None:
             self.prop = "old"
 
     assert Artist().prop == "old"
@@ -641,9 +642,9 @@ def test_patch_init_change_arg():
         Artist.__init__,
         """\
         @@ -1,2 +1,2 @@
-        -def __init__(self):
+        -def __init__(self) -> None:
         -    self.prop = "old"
-        +def __init__(self, arg):
+        +def __init__(self, arg: str) -> None:
         +    self.prop = arg
         """,
     )
@@ -654,11 +655,11 @@ def test_patch_init_change_arg():
 
 def test_patch_classmethod():
     class Emotion:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
         @classmethod
-        def create(cls, name):
+        def create(cls, name: str) -> Emotion:
             return cls(name)
 
     assert Emotion.create("alright").name == "alright"
@@ -668,7 +669,7 @@ def test_patch_classmethod():
         """\
         @@ -1,2 +1,3 @@
          @classmethod
-         def create(cls, name):
+         def create(cls, name: str) -> Emotion:
         +    name = name.title()
              return cls(name)""",
     )
@@ -679,11 +680,11 @@ def test_patch_classmethod():
 
 def test_patch_classmethod_twice():
     class Emotion:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
         @classmethod
-        def create(cls, name):
+        def create(cls, name: str) -> Emotion:
             return cls(name)
 
     assert Emotion.create("alright").name == "alright"
@@ -693,7 +694,7 @@ def test_patch_classmethod_twice():
         """\
         @@ -1,2 +1,3 @@
          @classmethod
-         def create(cls, name):
+         def create(cls, name: str) -> Emotion:
         +    name = name.title()
              return cls(name)""",
     )
@@ -703,7 +704,7 @@ def test_patch_classmethod_twice():
         """\
         @@ -1,3 +1,3 @@
          @classmethod
-         def create(cls, name):
+         def create(cls, name: str) -> Emotion:
         -    name = name.title()
         +    name = name.lower()
              return cls(name)""",
@@ -717,7 +718,7 @@ def test_patch_classmethod_twice():
 def test_patch_staticmethod():
     class Doge:
         @staticmethod
-        def bark():
+        def bark() -> str:
             return "Woof"
 
     assert Doge.bark() == "Woof"
@@ -727,7 +728,7 @@ def test_patch_staticmethod():
         """\
         @@ -1,3 +1,3 @@
          @staticmethod
-         def bark():
+         def bark() -> str:
         -    return "Woof"
         +    return "Wow\"""",
     )
@@ -738,7 +739,7 @@ def test_patch_staticmethod():
 def test_patch_staticmethod_twice():
     class Doge:
         @staticmethod
-        def bark():
+        def bark() -> str:
             return "Woof"
 
     assert Doge.bark() == "Woof"
@@ -748,7 +749,7 @@ def test_patch_staticmethod_twice():
         """\
         @@ -1,3 +1,3 @@
          @staticmethod
-         def bark():
+         def bark() -> str:
         -    return "Woof"
         +    return "Wow\"""",
     )
@@ -758,7 +759,7 @@ def test_patch_staticmethod_twice():
         """\
         @@ -1,3 +1,3 @@
          @staticmethod
-         def bark():
+         def bark() -> str:
         -    return "Wow"
         +    return "Wowowow\"""",
     )
@@ -773,7 +774,7 @@ def test_patch_future_python(tmpdir):
         from __future__ import annotations
 
 
-        def sample():
+        def sample() -> None:
             pass
     """
         )
@@ -791,7 +792,7 @@ def test_patch_future_python(tmpdir):
         sample,
         """\
         @@ -1,2 +1,3 @@
-         def sample():
+         def sample() -> None:
         +    pass
              pass
         """,
@@ -800,14 +801,14 @@ def test_patch_future_python(tmpdir):
     assert sample.__code__.co_flags & __future__.annotations.compiler_flag
 
 
-def test_patch_future_instancemetho(tmpdir):
+def test_patch_future_instancemethod(tmpdir):
     tmpdir.join("future_instancemethod.py").write(
         dedent(
             """\
         from __future__ import annotations
 
-        class Sample(object):
-            def meth(self):
+        class Sample:
+            def meth(self) -> None:
                 pass
     """
         )
@@ -825,7 +826,7 @@ def test_patch_future_instancemetho(tmpdir):
         Sample.meth,
         """\
         @@ -1,2 +1,3 @@
-         def meth(self):
+         def meth(self) -> None:
         +    pass
              pass
         """,
@@ -837,10 +838,10 @@ def test_patch_future_instancemetho(tmpdir):
 def test_patch_nonlocal_fails(tmpdir):
     variab = 20
 
-    def get_function():
+    def get_function() -> Callable[[], int]:
         variab = 15
 
-        def sample():
+        def sample() -> int:
             nonlocal variab
             multiple = 3
             return variab * multiple
@@ -870,8 +871,8 @@ def test_patch_by_path(tmpdir):
     package.join("mod.py").write(
         dedent(
             """\
-        class Foo(object):
-            def sample(self):
+        class Foo:
+            def sample(self) -> int:
                 return 1
         """
         )
@@ -899,8 +900,8 @@ def test_patch_by_path_already_imported(tmpdir):
     package.join("mod.py").write(
         dedent(
             """\
-        class Foo(object):
-            def sample(self):
+        class Foo:
+            def sample(self) -> int:
                 return 1
         """
         )
