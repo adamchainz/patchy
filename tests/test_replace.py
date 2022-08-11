@@ -7,7 +7,7 @@ import patchy.api
 
 
 def test_replace():
-    def sample():
+    def sample() -> int:
         return 1
 
     assert sample() == 1
@@ -15,11 +15,11 @@ def test_replace():
     patchy.replace(
         sample,
         """\
-        def sample():
+        def sample() -> int:
             return 1
         """,
         """\
-        def sample():
+        def sample() -> int:
             return 42
         """,
     )
@@ -28,30 +28,36 @@ def test_replace():
 
 
 def test_replace_only_cares_about_ast():
-    def sample():
+    def sample() -> int:
         return 1
 
     assert sample() == 1
 
-    patchy.replace(sample, "def sample(): return 1", "def sample(): return 42")
+    patchy.replace(
+        sample, "def sample() -> int: return 1", "def sample() -> int: return 42"
+    )
 
     assert sample() == 42
 
 
 def test_replace_twice():
-    def sample():
+    def sample() -> int:
         return 1
 
     assert sample() == 1
 
-    patchy.replace(sample, "def sample(): return 1", "def sample(): return 2")
-    patchy.replace(sample, "def sample(): return 2", "def sample(): return 3")
+    patchy.replace(
+        sample, "def sample() -> int: return 1", "def sample() -> int: return 2"
+    )
+    patchy.replace(
+        sample, "def sample() -> int: return 2", "def sample() -> int: return 3"
+    )
 
     assert sample() == 3
 
 
 def test_replace_mutable_default_arg():
-    def foo(append=None, mutable=[]):  # noqa: B006
+    def foo(append: str | None = None, mutable: list[str] = []) -> int:  # noqa: B006
         if append is not None:
             mutable.append(append)
         return len(mutable)
@@ -64,13 +70,13 @@ def test_replace_mutable_default_arg():
     patchy.replace(
         foo,
         """\
-        def foo(append=None, mutable=[]):
+        def foo(append: str | None = None, mutable: list[str] = []) -> int:
             if append is not None:
                 mutable.append(append)
             return len(mutable)
         """,
         """\
-        def foo(append=None, mutable=[]):
+        def foo(append: str | None = None, mutable: list[str] = []) -> int:
             len(mutable)
             if append is not None:
                 mutable.append(append)
@@ -85,7 +91,7 @@ def test_replace_mutable_default_arg():
 
 def test_replace_instancemethod():
     class Artist:
-        def method(self):
+        def method(self) -> str:
             return "Chalk"
 
     assert Artist().method() == "Chalk"
@@ -93,11 +99,11 @@ def test_replace_instancemethod():
     patchy.replace(
         Artist.method,
         """\
-        def method(self):
+        def method(self) -> str:
             return 'Chalk'
         """,
         """\
-        def method(self):
+        def method(self) -> str:
             return 'Cheese'
         """,
     )
@@ -106,7 +112,7 @@ def test_replace_instancemethod():
 
 
 def test_replace_unexpected_source():
-    def sample():
+    def sample() -> int:
         return 2
 
     assert sample() == 2
@@ -115,11 +121,11 @@ def test_replace_unexpected_source():
         patchy.replace(
             sample,
             """\
-            def sample():
+            def sample() -> int:
                 return 1
             """,
             """\
-            def sample():
+            def sample() -> int:
                 return 42
             """,
         )
@@ -131,7 +137,7 @@ def test_replace_unexpected_source():
 
 
 def test_replace_no_expected_source():
-    def sample():
+    def sample() -> int:
         return 2
 
     assert sample() == 2
@@ -140,7 +146,7 @@ def test_replace_no_expected_source():
         sample,
         None,
         """\
-        def sample():
+        def sample() -> int:
             return 42
         """,
     )
