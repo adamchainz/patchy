@@ -9,8 +9,13 @@ import sys
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
-from types import CodeType, TracebackType
-from typing import Any, Callable, Dict, TypeVar, cast
+from types import CodeType
+from types import TracebackType
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import Dict
+from typing import TypeVar
 from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache

@@ -3,7 +3,6 @@ from __future__ import annotations
 import sys
 from textwrap import dedent
 
-import patchy
 import patchy.api
 
 
