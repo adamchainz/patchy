@@ -6,7 +6,6 @@ from typing import Callable
 
 import pytest
 
-import patchy
 import patchy.api
 
 if True:
