@@ -311,11 +311,10 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
     localz: dict[str, Any] = {}
 
     globalz = dict(func.__globals__)
-    func_closure = func.__closure__
-    if func_closure:
-        for cell in func_closure:
-            cell_contents = cell.cell_contents
-            globalz.update(cell_contents.__dict__)
+
+    for cell in func.__closure__ or ():
+        cell_contents = cell.cell_contents
+        globalz.update(cell_contents.__dict__)
 
     new_code = cast(CodeType, _compile(new_source))
 
