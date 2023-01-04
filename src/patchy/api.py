@@ -314,7 +314,8 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
 
     for cell in func.__closure__ or ():
         cell_contents = cell.cell_contents
-        globalz.update(cell_contents.__dict__)
+        if isinstance(cell_contents, type):
+            globalz.update(cell_contents.__dict__)
 
     new_code = cast(CodeType, _compile(new_source))
 
