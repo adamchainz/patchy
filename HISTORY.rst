@@ -2,6 +2,9 @@
 History
 =======
 
+2.6.1 (2023-01-16)
+------------------
+
 * Use the ``--force`` flag to ``patch``, so it doesn’t hang waiting input for invalid reverse patches.
   This seems to happen with the new version on macOS.
 
