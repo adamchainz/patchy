@@ -40,7 +40,13 @@ def test_unpatch_invalid_unreversed():
     with pytest.raises(ValueError) as excinfo:
         patchy.unpatch(sample, bad_patch)
 
-    assert "Unreversed patch detected!" in str(excinfo.value)
+    msg = str(excinfo.value)
+    assert (
+        # GNU patch
+        "Unreversed patch detected!" in msg
+        # BSD patch
+        or msg.startswith("Could not unapply the patch")
+    )
     assert sample() == 1
 
 

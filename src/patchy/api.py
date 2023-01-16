@@ -134,7 +134,7 @@ def _apply_patch(
                 patch_file.write("\n")
 
         # Call `patch` command
-        command = ["patch"]
+        command = ["patch", "--force"]
         if not forwards:
             command.append("--reverse")
         command.extend([source_path, patch_path])
