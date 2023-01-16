@@ -39,7 +39,7 @@ def test_mc_patchface():
     patchy.mc_patchface(
         sample,
         """\
-        @@ -2,2 +2,2 @@
+        @@ -2,1 +2,1 @@
         -    return 1
         +    return 2
         """,
@@ -56,7 +56,7 @@ def test_patch_simple_no_newline():
     patchy.patch(
         sample,
         """\
-        @@ -2,2 +2,2 @@
+        @@ -2,1 +2,1 @@
         -    return 1
         +    return 2""",
     )
@@ -235,7 +235,7 @@ def test_patch_instancemethod_freevars():
     patchy.patch(
         Artist.method,
         """\
-        @@ -1,2 +1,2 @@
+        @@ -1,3 +1,3 @@
          def method(self) -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
@@ -369,7 +369,7 @@ def test_patch_freevars():
     patchy.patch(
         sample,
         """\
-        @@ -1,2 +1,2 @@
+        @@ -1,3 +1,3 @@
          def sample() -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
@@ -447,7 +447,7 @@ def test_patch_freevars_nested():
     patchy.patch(
         sample,
         """\
-        @@ -1,2 +1,2 @@
+        @@ -1,4 +1,4 @@
          def sample() -> Callable[[], str]:
         -    filling = "Chalk"
         +    filling = "Cheese"
@@ -478,7 +478,7 @@ def test_patch_freevars_re_close():
     patchy.patch(
         sample,
         """\
-        @@ -1,2 +1,2 @@
+        @@ -1,3 +1,3 @@
          def sample() -> str:
         -    filling = nasty_filling()
         +    filling = nice_filling()
@@ -533,7 +533,7 @@ def test_patch_instancemethod_mangled():
     patchy.patch(
         Artist.method,
         """\
-        @@ -1,2 +1,2 @@
+        @@ -1,3 +1,3 @@
          def method(self) -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
@@ -563,7 +563,7 @@ def test_patch_instancemethod_mangled_freevars():
     patchy.patch(
         Artist.method,
         """\
-        @@ -1,2 +1,2 @@
+        @@ -1,3 +1,3 @@
          def method(self) -> str:
         -    filling = "Chalk"
         +    filling = "Cheese"
@@ -598,7 +598,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
     patchy.patch(
         Artist.method,
         """\
-        @@ -1,2 +1,2 @@
+        @@ -1,3 +1,3 @@
          def method(self) -> str:
         -\tfilling = 'Chalk'
         +\tfilling = 'Cheese'
@@ -666,7 +666,7 @@ def test_patch_classmethod():
     patchy.patch(
         Emotion.create,
         """\
-        @@ -1,2 +1,3 @@
+        @@ -1,3 +1,4 @@
          @classmethod
          def create(cls, name: str) -> Emotion:
         +    name = name.title()
@@ -691,7 +691,7 @@ def test_patch_classmethod_twice():
     patchy.patch(
         Emotion.create,
         """\
-        @@ -1,2 +1,3 @@
+        @@ -1,3 +1,4 @@
          @classmethod
          def create(cls, name: str) -> Emotion:
         +    name = name.title()
@@ -701,7 +701,7 @@ def test_patch_classmethod_twice():
     patchy.patch(
         Emotion.create,
         """\
-        @@ -1,3 +1,3 @@
+        @@ -1,4 +1,4 @@
          @classmethod
          def create(cls, name: str) -> Emotion:
         -    name = name.title()
@@ -881,7 +881,7 @@ def test_patch_by_path(tmpdir):
         patchy.patch(
             "patch_by_path_pkg.mod.Foo.sample",
             """\
-            @@ -2,2 +2,2 @@
+            @@ -2,1 +2,1 @@
             -    return 1
             +    return 2
             """,
@@ -913,7 +913,7 @@ def test_patch_by_path_already_imported(tmpdir):
         patchy.patch(
             "patch_by_path_pkg2.mod.Foo.sample",
             """\
-            @@ -2,2 +2,2 @@
+            @@ -2,1 +2,1 @@
             -    return 1
             +    return 2
             """,
