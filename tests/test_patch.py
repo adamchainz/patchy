@@ -267,13 +267,13 @@ def test_patch_instancemethod_freevars():
     assert Artist().method() == "Cheese on toast"
 
 
-def test_patch_init_module_level(tmpdir):
+def test_patch_init_module_level(tmp_path):
     """
     Module level classes do not have a freevar for their class name, whilst
     classes defined in a scope do...
     """
-    example_py = tmpdir.join("patch_init_module_level.py")
-    example_py.write(
+    example_py = tmp_path / "patch_init_module_level.py"
+    example_py.write_text(
         dedent(
             """\
         class Person(object):
@@ -288,7 +288,12 @@ def test_patch_init_module_level(tmpdir):
     """
         )
     )
-    mod = example_py.pyimport()
+
+    sys.path.insert(0, str(tmp_path))
+    try:
+        import patch_init_module_level as mod
+    finally:
+        sys.path.pop(0)
     Artist = mod.Artist
 
     patchy.patch(
@@ -308,13 +313,13 @@ def test_patch_init_module_level(tmpdir):
     assert a.prop == "new"
 
 
-def test_patch_recursive_module_level(tmpdir):
+def test_patch_recursive_module_level(tmp_path):
     """
     Module level recursive functions do not have a freevar for their name,
     whilst functions defined in a scope do...
     """
-    example_py = tmpdir.join("patch_recursive_module_level.py")
-    example_py.write(
+    example_py = tmp_path / "patch_recursive_module_level.py"
+    example_py.write_text(
         dedent(
             """\
         def factorial(n):
@@ -325,7 +330,11 @@ def test_patch_recursive_module_level(tmpdir):
     """
         )
     )
-    mod = example_py.pyimport()
+    sys.path.insert(0, str(tmp_path))
+    try:
+        import patch_recursive_module_level as mod
+    finally:
+        sys.path.pop(0)
     factorial = mod.factorial
 
     assert factorial(10) == 3628800
@@ -595,8 +604,8 @@ def test_patch_instancemethod_mangled_freevars():
     assert Artist().method() == "Cheese on toast"
 
 
-def test_patch_instancemethod_mangled_tabs(tmpdir):
-    tmpdir.join("tabs_mangled.py").write(
+def test_patch_instancemethod_mangled_tabs(tmp_path):
+    (tmp_path / "tabs_mangled.py").write_text(
         dedent(
             """\
         class Artist:
@@ -609,8 +618,7 @@ def test_patch_instancemethod_mangled_tabs(tmpdir):
     """
         )
     )
-    sys.path.insert(0, str(tmpdir))
-
+    sys.path.insert(0, str(tmp_path))
     try:
         from tabs_mangled import Artist
     finally:
@@ -787,8 +795,8 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
-def test_patch_future_python(tmpdir):
-    tmpdir.join("future_user.py").write(
+def test_patch_future_python(tmp_path):
+    (tmp_path / "future_user.py").write_text(
         dedent(
             """\
         from __future__ import annotations
@@ -799,8 +807,7 @@ def test_patch_future_python(tmpdir):
     """
         )
     )
-    sys.path.insert(0, str(tmpdir))
-
+    sys.path.insert(0, str(tmp_path))
     try:
         from future_user import sample
     finally:
@@ -821,8 +828,8 @@ def test_patch_future_python(tmpdir):
     assert sample.__code__.co_flags & __future__.annotations.compiler_flag
 
 
-def test_patch_future_instancemethod(tmpdir):
-    tmpdir.join("future_instancemethod.py").write(
+def test_patch_future_instancemethod(tmp_path):
+    (tmp_path / "future_instancemethod.py").write_text(
         dedent(
             """\
         from __future__ import annotations
@@ -833,8 +840,7 @@ def test_patch_future_instancemethod(tmpdir):
     """
         )
     )
-    sys.path.insert(0, str(tmpdir))
-
+    sys.path.insert(0, str(tmp_path))
     try:
         from future_instancemethod import Sample
     finally:
@@ -855,7 +861,7 @@ def test_patch_future_instancemethod(tmpdir):
     assert Sample.meth.__code__.co_flags & __future__.annotations.compiler_flag
 
 
-def test_patch_nonlocal_fails(tmpdir):
+def test_patch_nonlocal_fails():
     variab = 20
 
     def get_function() -> Callable[[], int]:
@@ -885,10 +891,11 @@ def test_patch_nonlocal_fails(tmpdir):
     assert sample() == 15 * 4
 
 
-def test_patch_by_path(tmpdir):
-    package = tmpdir.mkdir("patch_by_path_pkg")
-    package.join("__init__.py").ensure(file=True)
-    package.join("mod.py").write(
+def test_patch_by_path(tmp_path):
+    package = tmp_path / "patch_by_path_pkg"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    (package / "mod.py").write_text(
         dedent(
             """\
         class Foo:
@@ -897,7 +904,7 @@ def test_patch_by_path(tmpdir):
         """
         )
     )
-    sys.path.insert(0, str(tmpdir))
+    sys.path.insert(0, str(tmp_path))
     try:
         patchy.patch(
             "patch_by_path_pkg.mod.Foo.sample",
@@ -914,10 +921,11 @@ def test_patch_by_path(tmpdir):
     assert Foo().sample() == 2
 
 
-def test_patch_by_path_already_imported(tmpdir):
-    package = tmpdir.mkdir("patch_by_path_pkg2")
-    package.join("__init__.py").ensure(file=True)
-    package.join("mod.py").write(
+def test_patch_by_path_already_imported(tmp_path):
+    package = tmp_path / "patch_by_path_pkg2"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    (package / "mod.py").write_text(
         dedent(
             """\
         class Foo:
@@ -926,7 +934,7 @@ def test_patch_by_path_already_imported(tmpdir):
         """
         )
     )
-    sys.path.insert(0, str(tmpdir))
+    sys.path.insert(0, str(tmp_path))
     try:
         from patch_by_path_pkg2.mod import Foo
 
