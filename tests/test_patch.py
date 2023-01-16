@@ -77,6 +77,7 @@ def test_patch_invalid():
         patchy.patch(sample, bad_patch)
 
     msg = str(excinfo.value)
+    # GNU patch
     expected = dedent(
         """\
         Could not apply the patch to 'sample'. The message from `patch` was:
@@ -91,7 +92,9 @@ def test_patch_invalid():
         garbage
     """
     )
-    assert msg == expected
+    # BSD patch
+    expected2_fragment = "I can't seem to find a patch in there anywhere."
+    assert msg == expected or expected2_fragment in msg
     assert sample() == 1
 
 
@@ -111,7 +114,13 @@ def test_patch_invalid_hunk():
     with pytest.raises(ValueError) as excinfo:
         patchy.patch(sample, bad_patch)
 
-    assert "Hunk #1 FAILED" in str(excinfo.value)
+    msg = str(excinfo.value)
+    assert (
+        # GNU patch
+        "Hunk #1 FAILED" in msg
+        # BSD patch
+        or "1 out of 1 hunks failed" in msg
+    )
     assert sample() == 1
 
 
@@ -123,6 +132,7 @@ def test_patch_invalid_hunk_2():
     def sample(x: int) -> int:
         if x == 1:
             print("yes")
+        # or
         elif x == 2:
             print("no")
         return 1
@@ -131,12 +141,13 @@ def test_patch_invalid_hunk_2():
     assert sample(2) == 1
 
     bad_patch = """\
-        @@ -1,2 +1,2 @@
+        @@ -1,3 +1,3 @@
          def sample(x: int) -> int:
         -    if x == 1:
         +    if x == 2:
-        @@ -3,5 +3,5 @@
-                 print("yes")
+         # or
+        @@ -3,3 +3,3 @@
+         # or
         -    elif x == 3:
         +    elif x == 4:
                  print("no")
@@ -144,7 +155,13 @@ def test_patch_invalid_hunk_2():
     with pytest.raises(ValueError) as excinfo:
         patchy.patch(sample, bad_patch)
 
-    assert "Hunk #2 FAILED" in str(excinfo.value)
+    msg = str(excinfo.value)
+    assert (
+        # GNU patch
+        "Hunk #2 FAILED" in msg
+        # BSD patch
+        or "1 out of 2 hunks failed" in msg
+    )
     assert sample(0) == 1
 
 
@@ -186,11 +203,15 @@ def test_patch_mutable_default_arg():
     assert foo("v2") == 2
     assert foo(mutable=[]) == 0
 
+    def_line = (
+        "def foo(append: str | None = None, mutable: list[str] = [])"
+        + " -> int:  # noqa: B006"
+    )
     patchy.patch(
         foo,
-        """\
+        f"""\
         @@ -1,2 +1,3 @@
-         def foo(append: str | None=None, mutable: list[str] = []) -> int:
+         {def_line}
         +    len(mutable)
              if append is not None:
         """,
