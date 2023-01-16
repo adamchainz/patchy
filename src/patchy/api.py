@@ -138,17 +138,16 @@ def _apply_patch(
         if not forwards:
             command.append("--reverse")
         command.extend([source_path, patch_path])
-        proc = subprocess.Popen(command, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout, stderr = proc.communicate()
+        result = subprocess.run(command, capture_output=True, text=True)
 
-        if proc.returncode != 0:
+        if result.returncode != 0:
             msg = "Could not {action} the patch {prep} '{name}'.".format(
                 action=("apply" if forwards else "unapply"),
                 prep=("to" if forwards else "from"),
                 name=name,
             )
             msg += " The message from `patch` was:\n{}\n{}".format(
-                stdout.decode("utf-8"), stderr.decode("utf-8")
+                result.stdout, result.stderr
             )
             msg += "\nThe code to patch was:\n{}\nThe patch was:\n{}".format(
                 source, patch_text
