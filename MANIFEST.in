@@ -1,4 +1,4 @@
-include HISTORY.rst
+include CHANGELOG.rst
 include LICENSE
 include pirate.png
 include pyproject.toml
