@@ -18,7 +18,7 @@ Patchy
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
 
-.. figure:: https://raw.github.com/adamchainz/patchy/main/pirate.png
+.. figure:: https://raw.githubusercontent.com/adamchainz/patchy/main/pirate.png
    :alt: A patchy pirate.
 
 ..
