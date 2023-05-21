@@ -1,9 +1,18 @@
 [build-system]
-requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools",
+]
 
 [tool.black]
 target-version = ['py37']
+
+[tool.pytest.ini_options]
+addopts = """\
+    --strict-config
+    --strict-markers
+    """
+xfail_strict = true
 
 [tool.mypy]
 mypy_path = "src/"
@@ -16,9 +25,5 @@ warn_unreachable = true
 module = "tests.*"
 allow_untyped_defs = true
 
-[tool.pytest.ini_options]
-addopts = """\
-    --strict-config
-    --strict-markers
-    """
-xfail_strict = true
+[tool.rstcheck]
+report_level = "ERROR"
