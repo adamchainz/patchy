@@ -49,6 +49,12 @@ function object itself the same. It's thus more versatile than monkey patching,
 since if the function has been imported in multiple places they'll also call
 the new behaviour.
 
+----
+
+**Hacking on a Django project?**
+Check out my book `Boost Your Django DX <https://adamchainz.gumroad.com/l/byddx>`__ which covers many ways to improve your development experience.
+
+----
 
 Installation
 ============
@@ -60,13 +66,6 @@ Use **pip**:
     python -m pip install patchy
 
 Python 3.8 to 3.12 supported.
-
-----
-
-**Hacking on a Django project?**
-Check out my book `Boost Your Django DX <https://adamchainz.gumroad.com/l/byddx>`__ which covers many ways to improve your development experience.
-
-----
 
 Why?
 ====
