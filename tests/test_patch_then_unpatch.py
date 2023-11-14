@@ -30,7 +30,7 @@ def test_patch_unpatch():
         )
 
     try:
-        patchy.api.mkdtemp = mkdtemp  # type: ignore [attr-defined]
+        patchy.api.mkdtemp = mkdtemp  # type: ignore [attr-defined,assignment]
         patchy.unpatch(sample, patch_text)
     finally:
         patchy.api.mkdtemp = orig_mkdtemp  # type: ignore [attr-defined]
@@ -38,7 +38,7 @@ def test_patch_unpatch():
 
     # Check that we use the cache going forwards again
     try:
-        patchy.api.mkdtemp = mkdtemp  # type: ignore [attr-defined]
+        patchy.api.mkdtemp = mkdtemp  # type: ignore [attr-defined,assignment]
         patchy.patch(sample, patch_text)
     finally:
         patchy.api.mkdtemp = orig_mkdtemp  # type: ignore [attr-defined]
