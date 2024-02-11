@@ -13,9 +13,9 @@ from types import CodeType
 from types import TracebackType
 from typing import Any
 from typing import Callable
-from typing import cast
 from typing import Dict
 from typing import TypeVar
+from typing import cast
 from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache
