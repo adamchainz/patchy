@@ -30,12 +30,8 @@ def test_replace_substring_twice():
 
     assert sample() == 1
 
-    patchy.replace_substring(
-        sample, "return 1", "return 2"
-    )
-    patchy.replace_substring(
-        sample, "return 2", "return 3"
-    )
+    patchy.replace_substring(sample, "return 1", "return 2")
+    patchy.replace_substring(sample, "return 2", "return 3")
 
     assert sample() == 3
 

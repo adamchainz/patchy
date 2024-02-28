@@ -11,7 +11,7 @@ def test_context_manager():
         return 1234
 
     assert sample() == 1234
-    with patchy.temp_replace_substring(sample, 'return 1234', 'return 5678'):
+    with patchy.temp_replace_substring(sample, "return 1234", "return 5678"):
         assert sample() == 5678
     assert sample() == 1234
 
@@ -20,7 +20,7 @@ def test_decorator():
     def sample() -> int:
         return 3456
 
-    @patchy.temp_replace_substring(sample, 'return 3456', 'return 7890')
+    @patchy.temp_replace_substring(sample, "return 3456", "return 7890")
     def decorated() -> None:
         assert sample() == 7890
 
@@ -50,7 +50,9 @@ def test_patch_by_path(tmp_path):
 
     sys.path.insert(0, str(tmp_path))
     try:
-        with patchy.temp_replace_substring("tmp_by_path_pkg.mod.Foo.sample", 'return 1', 'return 2'):
+        with patchy.temp_replace_substring(
+            "tmp_by_path_pkg.mod.Foo.sample", "return 1", "return 2"
+        ):
             from tmp_by_path_pkg.mod import Foo
 
             assert Foo().sample() == 2
