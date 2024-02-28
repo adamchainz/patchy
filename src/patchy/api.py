@@ -75,8 +75,8 @@ def replace_substring(
     current_source = _get_source(func)
     if expected_source is not None:
         _assert_substring_exists(current_source, expected_source, func.__name__)
+        new_source = current_source.replace(expected_source, new_source)
 
-    new_source = current_source.replace(expected_source, new_source)
     _set_source(func, new_source)
 
 
