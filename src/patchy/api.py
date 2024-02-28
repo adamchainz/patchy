@@ -28,7 +28,7 @@ if sys.version_info >= (3, 9):
 else:
     from pkgutil_resolve_name import resolve_name as pkgutil_resolve_name
 
-__all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch")
+__all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch", "replace_substring", "temp_replace_substring")
 
 
 # Public API
@@ -59,6 +59,19 @@ def replace(
     _set_source(func, new_source)
 
 
+def replace_substring(
+    func: Callable[..., Any],
+    expected_source: str | None,
+    new_source: str,
+) -> None:
+    current_source = _get_source(func)
+    if expected_source is not None:
+        _assert_substring_exists(current_source, expected_source, func.__name__)
+
+    new_source = current_source.replace(expected_source, new_source)
+    _set_source(func, new_source)
+
+
 AnyFunc = TypeVar("AnyFunc", bound=Callable[..., Any])
 
 
@@ -77,6 +90,32 @@ class temp_patch:
         exc_tb: TracebackType | None,
     ) -> None:
         unpatch(self.func, self.patch_text)
+
+    def __call__(self, decorable: AnyFunc) -> AnyFunc:
+        @wraps(decorable)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            with self:
+                decorable(*args, **kwargs)
+
+        return cast(AnyFunc, wrapper)
+
+
+class temp_replace_substring:
+    def __init__(self, func: Callable[..., Any] | str, expected_source: str, new_source: str) -> None:
+        self.func = func
+        self.expected_source = expected_source
+        self.new_source = new_source
+
+    def __enter__(self) -> None:
+        replace_substring(self.func, self.expected_source, self.new_source)
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        replace_substring(self.func, self.new_source, self.expected_source)
 
     def __call__(self, decorable: AnyFunc) -> AnyFunc:
         @wraps(decorable)
@@ -344,6 +383,18 @@ def _assert_ast_equal(current_source: str, expected_source: str, name: str) -> N
             "The code of '{name}' has changed from expected.\n"
             "The current code is:\n{current_source}\n"
             "The expected code is:\n{expected_source}"
+        ).format(
+            name=name, current_source=current_source, expected_source=expected_source
+        )
+        raise ValueError(msg)
+
+
+def _assert_substring_exists(current_source: str, expected_source: str, name: str) -> None:
+    if expected_source not in current_source:
+        msg = (
+            "The code of '{name}' does not include the expected substring.\n"
+            "The current code is:\n{current_source}\n"
+            "The expected substring is:\n{expected_source}"
         ).format(
             name=name, current_source=current_source, expected_source=expected_source
         )
