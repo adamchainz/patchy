@@ -28,7 +28,15 @@ if sys.version_info >= (3, 9):
 else:
     from pkgutil_resolve_name import resolve_name as pkgutil_resolve_name
 
-__all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch", "replace_substring", "temp_replace_substring")
+__all__ = (
+    "patch",
+    "mc_patchface",
+    "unpatch",
+    "replace",
+    "temp_patch",
+    "replace_substring",
+    "temp_replace_substring",
+)
 
 
 # Public API
@@ -101,7 +109,9 @@ class temp_patch:
 
 
 class temp_replace_substring:
-    def __init__(self, func: Callable[..., Any] | str, expected_source: str, new_source: str) -> None:
+    def __init__(
+        self, func: Callable[..., Any] | str, expected_source: str, new_source: str
+    ) -> None:
         self.func = func
         self.expected_source = expected_source
         self.new_source = new_source
@@ -389,7 +399,9 @@ def _assert_ast_equal(current_source: str, expected_source: str, name: str) -> N
         raise ValueError(msg)
 
 
-def _assert_substring_exists(current_source: str, expected_source: str, name: str) -> None:
+def _assert_substring_exists(
+    current_source: str, expected_source: str, name: str
+) -> None:
     if expected_source not in current_source:
         msg = (
             "The code of '{name}' does not include the expected substring.\n"
