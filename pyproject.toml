@@ -8,12 +8,14 @@ requires = [
 name = "patchy"
 version = "2.8.0"
 description = "Patch the inner source of python functions at runtime."
-readme = {file = "README.rst", content-type = "text/x-rst"}
+readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = [
   "patchy",
 ]
-license = {text = "MIT"}
-authors = [{name = "Adam Johnson", email = "me@adamj.eu"}]
+license = { text = "MIT" }
+authors = [
+  { name = "Adam Johnson", email = "me@adamj.eu" },
+]
 requires-python = ">=3.8"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -30,13 +32,13 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  'pkgutil-resolve-name; python_version < "3.9"',
+  "pkgutil-resolve-name; python_version<'3.9'",
 ]
-urls = {Changelog = "https://github.com/adamchainz/patchy/blob/main/CHANGELOG.rst",Funding = "https://adamj.eu/books/",Repository = "https://github.com/adamchainz/patchy"}
+urls = { Changelog = "https://github.com/adamchainz/patchy/blob/main/CHANGELOG.rst", Funding = "https://adamj.eu/books/", Repository = "https://github.com/adamchainz/patchy" }
 
 [tool.isort]
 add_imports = [
-    "from __future__ import annotations"
+  "from __future__ import annotations",
 ]
 force_single_line = true
 profile = "black"
@@ -52,14 +54,14 @@ xfail_strict = true
 branch = true
 parallel = true
 source = [
-    "patchy",
-    "tests",
+  "patchy",
+  "tests",
 ]
 
 [tool.coverage.paths]
 source = [
-    "src",
-    ".tox/**/site-packages",
+  "src",
+  ".tox/**/site-packages",
 ]
 
 [tool.coverage.report]
