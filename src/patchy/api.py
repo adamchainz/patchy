@@ -207,9 +207,21 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
         code: str | ast.Module,
         flags: int = 0,
     ) -> CodeType | ast.Module:
+
         result: CodeType | ast.Module = compile(
             code, "<patchy>", "exec", flags=feature_flags | flags, dont_inherit=True
         )
+
+        import linecache
+
+        filename = "<patchy>"
+        linecache.cache[filename] = (
+            len(func_source),
+            None,
+            func_source.splitlines(True),
+            filename,
+        )
+
         return result
 
     def _parse(code: str) -> ast.Module:
