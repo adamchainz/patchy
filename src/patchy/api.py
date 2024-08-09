@@ -222,8 +222,14 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
         )
 
         import linecache
+
         filename = "<patchy>"
-        linecache.cache[filename] = (len(func_source), None, func_source.splitlines(True), filename)
+        linecache.cache[filename] = (
+            len(func_source),
+            None,
+            func_source.splitlines(True),
+            filename,
+        )
 
         return result
 
