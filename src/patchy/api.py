@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import linecache
 import os
 import shutil
 import subprocess
@@ -207,12 +208,9 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
         code: str | ast.Module,
         flags: int = 0,
     ) -> CodeType | ast.Module:
-
         result: CodeType | ast.Module = compile(
             code, "<patchy>", "exec", flags=feature_flags | flags, dont_inherit=True
         )
-
-        import linecache
 
         filename = "<patchy>"
         linecache.cache[filename] = (
