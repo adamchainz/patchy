@@ -211,15 +211,6 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
         result: CodeType | ast.Module = compile(
             code, "<patchy>", "exec", flags=feature_flags | flags, dont_inherit=True
         )
-
-        filename = "<patchy>"
-        linecache.cache[filename] = (
-            len(func_source),
-            None,
-            func_source.splitlines(True),
-            filename,
-        )
-
         return result
 
     def _parse(code: str) -> ast.Module:
@@ -320,9 +311,22 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
 
     # Put the new Code object in place
     real_func.__code__ = new_func.__code__
+
     # Store the modified source. This used to be attached to the function but
     # that is a bit naughty
     _source_map[real_func] = func_source
+
+    # Store the source in linecache to show it in tools that use it, like pdb
+    # Doing the same way as e.g.
+    # https://github.com/python/cpython/blob/42927f7f2588b32c1033292d673405a94eb36f77/Lib/doctest.py#L1466
+    # https://github.com/python/cpython/blob/42927f7f2588b32c1033292d673405a94eb36f77/Lib/timeit.py#L158-L161
+    filename = "<patchy>"
+    linecache.cache[filename] = (
+        len(func_source),
+        None,
+        func_source.splitlines(keepends=True),
+        filename,
+    )
 
 
 def _get_real_func(func: Callable[..., Any]) -> Callable[..., Any]:
