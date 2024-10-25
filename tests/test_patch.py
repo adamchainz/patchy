@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import inspect
+import linecache
 import sys
 from textwrap import dedent
 from typing import Callable
@@ -951,3 +953,96 @@ def test_patch_by_path_already_imported(tmp_path):
         sys.path.pop(0)
 
     assert Foo().sample() == 2
+
+
+def test_linecache():
+    """Patched source is stored in linecache."""
+
+    def sample() -> int:
+        return 1
+
+    original_firstlineno = sample.__code__.co_firstlineno
+
+    patch = """\
+    @@ -1,2 +1,2 @@
+     def sample() -> int:
+    -    return 1
+    +    return 9001
+    """
+
+    patchy.patch(sample, patch)
+
+    assert sample.__code__.co_firstlineno == original_firstlineno
+
+    line = linecache.getline(__file__, sample.__code__.co_firstlineno)
+    assert line == "    return 9001\n"
+
+    patchy.unpatch(sample, patch)
+
+    assert sample.__code__.co_firstlineno == original_firstlineno
+
+    line = linecache.getline(__file__, sample.__code__.co_firstlineno)
+    assert line == "    return 1\n"
+
+
+def test_linecache_two_functions():
+    """Patched source is available in linecache for patched functions."""
+
+    def sample() -> int:
+        return 1
+
+    def sample2() -> int:
+        return 1
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    patchy.patch(
+        sample2,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample2() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    line1 = linecache.getline(__file__, sample.__code__.co_firstlineno)
+    assert line1 == "    return 9001\n"
+
+    line2 = linecache.getline(__file__, sample2.__code__.co_firstlineno)
+    assert line2 == "    return 9001\n"
+
+
+def test_inspect_getsource():
+    """
+    Using inspect to get a patched function's source returns the new source,
+    via linecache.
+    """
+
+    def sample() -> int:
+        return 1
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    lines, _ = inspect.getsourcelines(sample)
+
+    assert lines == [
+        "def sample() -> int:\n",
+        "    return 9001\n",
+    ]
