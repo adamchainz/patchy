@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import inspect
+import linecache
 import sys
 from textwrap import dedent
 from typing import Callable
@@ -951,3 +953,50 @@ def test_patch_by_path_already_imported(tmp_path):
         sys.path.pop(0)
 
     assert Foo().sample() == 2
+
+
+def test_linecache():
+    """Patched source is stored in linecache for later inspection."""
+
+    def sample() -> int:
+        return 1
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    line = linecache.getline(__file__, sample.__code__.co_firstlineno)
+    assert line == "    return 9001\n"
+
+
+def test_inspect_getsource():
+    """
+    Using inspect to get a patched function's source returns the new source,
+    via linecache.
+    """
+
+    def sample() -> int:
+        return 1
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    lines, _ = inspect.getsourcelines(sample)
+
+    assert lines == [
+        "def sample() -> int:\n",
+        "    return 9001\n",
+    ]
