@@ -2,6 +2,10 @@
 Changelog
 =========
 
+* Store patched source with Python’s `linecache module <https://docs.python.org/3/library/linecache.html>`__, so that tracebacks show the patched source code.
+
+  Thanks to Michael Bianco for the initial work in `PR #542 <https://github.com/adamchainz/patchy/pull/542>`__.
+
 * Drop Python 3.8 support.
 
 * Support Python 3.13.
