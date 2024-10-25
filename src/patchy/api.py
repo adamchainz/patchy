@@ -5,7 +5,6 @@ import inspect
 import os
 import shutil
 import subprocess
-import sys
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
@@ -13,7 +12,6 @@ from types import CodeType
 from types import TracebackType
 from typing import Any
 from typing import Callable
-from typing import Dict
 from typing import TypeVar
 from typing import cast
 from weakref import WeakKeyDictionary
@@ -23,10 +21,7 @@ from .cache import PatchingCache
 if True:
     import __future__
 
-if sys.version_info >= (3, 9):
-    from pkgutil import resolve_name as pkgutil_resolve_name
-else:
-    from pkgutil_resolve_name import resolve_name as pkgutil_resolve_name
+from pkgutil import resolve_name as pkgutil_resolve_name
 
 __all__ = ("patch", "mc_patchface", "unpatch", "replace", "temp_patch")
 
@@ -175,11 +170,7 @@ FEATURE_MASK = _get_flags_mask()
 
 
 # Stores the source of functions that have had their source changed
-# Bad type hints because WeakKeyDictionary only indexable on Python 3.9+
-_source_map: dict[Callable[..., Any], str] = cast(
-    Dict[Callable[..., Any], str],
-    WeakKeyDictionary(),
-)
+_source_map: WeakKeyDictionary[Callable[..., Any], str] = WeakKeyDictionary()
 
 
 def _get_source(func: Callable[..., Any]) -> str:
