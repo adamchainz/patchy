@@ -300,8 +300,7 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
     # Compile and retrieve the new Code object
     localz: dict[str, Any] = {}
 
-    globalz = dict(func.__globals__)
-
+    globalz = func.__globals__.copy()
     for cell in func.__closure__ or ():
         cell_contents = cell.cell_contents
         if isinstance(cell_contents, type):
