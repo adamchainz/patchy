@@ -795,6 +795,49 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
+def test_patch_closure_use_function():
+    DEFAULT_MEDIUM = "Chalk"
+
+    def paint(medium: str = DEFAULT_MEDIUM) -> str:
+        return medium
+
+    assert paint() == "Chalk"
+
+    patchy.patch(
+        paint,
+        """\
+        @@ -1,2 +1,2 @@
+         def paint(medium: str = DEFAULT_MEDIUM) -> str:
+        -    return medium
+        +    return "Cheese"
+        """,
+    )
+
+    assert paint() == "Cheese"
+
+
+def test_patch_closure_use_instancemethod():
+    class Artist:
+        DEFAULT_MEDIUM = "Chalk"
+
+        def paint(self, medium: str = DEFAULT_MEDIUM) -> str:
+            return medium
+
+    assert Artist().paint() == "Chalk"
+
+    patchy.patch(
+        Artist.paint,
+        """\
+        @@ -1,2 +1,2 @@
+         def paint(self, medium: str = DEFAULT_MEDIUM) -> str:
+        -    return medium
+        +    return "Cheese"
+        """,
+    )
+
+    assert Artist().paint() == "Cheese"
+
+
 def test_patch_future_python(tmp_path):
     (tmp_path / "future_user.py").write_text(
         dedent(
