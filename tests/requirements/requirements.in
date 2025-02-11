@@ -1,4 +1,0 @@
-coverage[toml]
-pkgutil-resolve-name ; python_version < '3.9'
-pytest
-pytest-randomly
