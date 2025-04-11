@@ -862,13 +862,13 @@ def test_patch_future_instancemethod(tmp_path):
 
 
 def test_patch_nonlocal_fails():
-    variab = 20
+    variab = 20  # noqa: F841
 
     def get_function() -> Callable[[], int]:
         variab = 15
 
         def sample() -> int:
-            nonlocal variab
+            nonlocal variab  # noqa: F824
             multiple = 3
             return variab * multiple
 
@@ -882,7 +882,7 @@ def test_patch_nonlocal_fails():
         sample,
         """\
         @@ -2,3 +2,3 @@
-             nonlocal variab
+             nonlocal variab  # noqa: F824
         -    multiple = 3
         +    multiple = 4
         """,
