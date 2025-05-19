@@ -8,12 +8,8 @@ import subprocess
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
-from types import CodeType
-from types import TracebackType
-from typing import Any
-from typing import Callable
-from typing import TypeVar
-from typing import cast
+from types import CodeType, TracebackType
+from typing import Any, Callable, TypeVar, cast
 from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache
@@ -141,12 +137,8 @@ def _apply_patch(
                 prep=("to" if forwards else "from"),
                 name=name,
             )
-            msg += " The message from `patch` was:\n{}\n{}".format(
-                result.stdout, result.stderr
-            )
-            msg += "\nThe code to patch was:\n{}\nThe patch was:\n{}".format(
-                source, patch_text
-            )
+            msg += f" The message from `patch` was:\n{result.stdout}\n{result.stderr}"
+            msg += f"\nThe code to patch was:\n{source}\nThe patch was:\n{patch_text}"
             raise ValueError(msg)
 
         with open(source_path) as source_file:
@@ -271,12 +263,8 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
             if class_name in func.__code__.co_freevars
             else f"    global {class_name}\n"
         )
-        class_src = "{_global}    class {name}(object):\n        pass".format(
-            _global=_global, name=class_name
-        )
-        ret = "    return {class_name}.{name}".format(
-            class_name=class_name, name=func.__name__
-        )
+        class_src = f"{_global}    class {class_name}(object):\n        pass"
+        ret = f"    return {class_name}.{func.__name__}"
         to_parse = "\n".join([_def] + fv_body + [class_src, ret])
         new_source = _parse(to_parse)
         new_source.body[0].body[-2].body[0] = _ast  # type: ignore [attr-defined]
@@ -330,12 +318,10 @@ def _get_real_func(func: Callable[..., Any]) -> Callable[..., Any]:
 def _assert_ast_equal(current_source: str, expected_source: str, name: str) -> None:
     current_ast = ast.parse(current_source)
     expected_ast = ast.parse(expected_source)
-    if not ast.dump(current_ast) == ast.dump(expected_ast):
+    if ast.dump(current_ast) != ast.dump(expected_ast):
         msg = (
-            "The code of '{name}' has changed from expected.\n"
-            "The current code is:\n{current_source}\n"
-            "The expected code is:\n{expected_source}"
-        ).format(
-            name=name, current_source=current_source, expected_source=expected_source
+            f"The code of '{name}' has changed from expected.\n"
+            f"The current code is:\n{current_source}\n"
+            f"The expected code is:\n{expected_source}"
         )
         raise ValueError(msg)
