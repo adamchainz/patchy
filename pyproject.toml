@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "patchy"
-version = "2.9.0"
+version = "2.10.0"
 description = "Patch the inner source of python functions at runtime."
 readme = "README.rst"
 keywords = [
