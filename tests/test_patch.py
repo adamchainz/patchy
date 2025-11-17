@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from textwrap import dedent
-from typing import Callable
 
 import pytest
 
@@ -868,7 +868,7 @@ def test_patch_nonlocal_fails():
         variab = 15
 
         def sample() -> int:
-            nonlocal variab  # noqa: F824
+            nonlocal variab
             multiple = 3
             return variab * multiple
 

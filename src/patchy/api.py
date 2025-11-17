@@ -5,11 +5,12 @@ import inspect
 import os
 import shutil
 import subprocess
+from collections.abc import Callable
 from functools import wraps
 from tempfile import mkdtemp
 from textwrap import dedent
 from types import CodeType, TracebackType
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 from weakref import WeakKeyDictionary
 
 from .cache import PatchingCache
