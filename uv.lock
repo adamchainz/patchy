@@ -177,7 +177,7 @@ test = [
 test = [
     { name = "coverage", extras = ["toml"] },
     { name = "pkgutil-resolve-name", marker = "python_full_version < '3.9'" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">=9" },
     { name = "pytest-randomly" },
 ]
 
