@@ -38,7 +38,7 @@ urls = { Changelog = "https://github.com/adamchainz/patchy/blob/main/CHANGELOG.r
 test = [
   "coverage[toml]",
   "pkgutil-resolve-name; python_version<'3.9'",
-  "pytest",
+  "pytest>=9",
   "pytest-randomly",
 ]
 
@@ -95,11 +95,7 @@ warn_unreachable = true
 overrides = [ { module = "tests.*", allow_untyped_defs = true } ]
 
 [tool.pytest]
-ini_options.addopts = """\
-    --strict-config
-    --strict-markers
-    """
-ini_options.xfail_strict = true
+strict = true
 
 [tool.coverage]
 run.branch = true
