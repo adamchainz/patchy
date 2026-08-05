@@ -288,11 +288,18 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
 
     # Compile and retrieve the new Code object
     localz: dict[str, Any] = {}
+
+    globalz = func.__globals__.copy()
+    for cell in func.__closure__ or ():
+        cell_contents = cell.cell_contents
+        if isinstance(cell_contents, type):
+            globalz.update(cell_contents.__dict__)
+
     new_code = cast(CodeType, _compile(new_source))
 
     exec(
         new_code,
-        dict(func.__globals__),
+        globalz,
         localz,
     )
     new_func = localz["__patchy_freevars__"]()
