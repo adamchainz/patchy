@@ -65,7 +65,7 @@ Use **pip**:
 
     python -m pip install patchy
 
-Python 3.10 to 3.14 supported.
+Python 3.10 to 3.15 supported.
 
 Why?
 ====
