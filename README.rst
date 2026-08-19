@@ -80,7 +80,7 @@ I found this with some small but important patches to Django for a project.
 Since it takes a lot of energy to maintain a fork, writing monkey patches was
 the chosen quick solution, but then writing actual patches would be better.
 
-The patches are applied with the standard ``patch`` commandline utility.
+The patches are applied in-memory by `unipatch <https://pypi.org/project/unipatch/>`__, a pure-Python implementation of unified diff patching, compatible with the behaviour of the GNU ``patch`` commandline utility.
 
 
 Why not?
@@ -88,8 +88,6 @@ Why not?
 
 There are of course a lot of reasons against:
 
-* It’s (relatively) slow (since it writes the source to disk and calls the
-  ``patch`` command)
 * If you have a patch file, why not just fork the library and apply it?
 * At least with monkey-patching you know what end up with, rather than having
   the changes being done at runtime to source that may have changed.
@@ -101,16 +99,10 @@ solution.
 How?
 ====
 
-The standard library function ``inspect.getsource()`` is used to retrieve the
-source code of the function, the patch is applied with the commandline utility
-``patch``, the code is recompiled, and the function’s code object is replaced
-the new one. Because nothing tends to poke around at code objects apart from
-dodgy hacks like this, you don’t need to worry about chasing any references
-that may exist to the function, unlike ``mock.patch``.
+The standard library function ``inspect.getsource()`` is used to retrieve the source code of the function, the patch is applied in-memory with `unipatch <https://pypi.org/project/unipatch/>`__, the code is recompiled, and the function’s code object is replaced the new one.
+Because nothing tends to poke around at code objects apart from dodgy hacks like this, you don’t need to worry about chasing any references that may exist to the function, unlike ``mock.patch``.
 
-A little special treatment is given to ``instancemethod``, ``classmethod``, and
-``staticmethod`` objects to make sure the underlying function is what gets
-patched and that you don't have to worry about the details.
+A little special treatment is given to ``instancemethod``, ``classmethod``, and ``staticmethod`` objects to make sure the underlying function is what gets patched and that you don't have to worry about the details.
 
 
 API

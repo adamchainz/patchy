@@ -41,11 +41,10 @@ def test_unpatch_invalid_unreversed():
         patchy.unpatch(sample, bad_patch)
 
     msg = str(excinfo.value)
+    assert msg.startswith("Could not unapply the patch")
     assert (
-        # GNU patch
-        "Unreversed patch detected!" in msg
-        # BSD patch
-        or msg.startswith("Could not unapply the patch")
+        "Applying it forwards succeeds, so it looks like the patch is"
+        " unreversed and has not been applied yet." in msg
     )
     assert sample() == 1
 
@@ -67,10 +66,5 @@ def test_unpatch_invalid_hunk():
         patchy.unpatch(sample, bad_patch)
 
     msg = str(excinfo.value)
-    assert (
-        # GNU patch
-        "Hunk #1 FAILED" in msg
-        # BSD patch
-        or "1 out of 1 hunks failed" in msg
-    )
+    assert "Hunk #1 failed to apply" in msg
     assert sample() == 1
