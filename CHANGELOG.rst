@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+3.0.0 (2026-08-19)
+------------------
 
 * Apply patches in-memory with `unipatch <https://pypi.org/project/unipatch/>`__, a pure-Python implementation of unified diff built especially for patchy.
 
