@@ -77,12 +77,9 @@ def test_patch_invalid():
         patchy.patch(sample, bad_patch)
 
     msg = str(excinfo.value)
-    # GNU patch
     expected = dedent(
         """\
-        Could not apply the patch to 'sample'. The message from `patch` was:
-
-        patch: **** Only garbage was found in the patch input.
+        Could not apply the patch to 'sample'. The patch does not contain any hunks; it does not appear to be valid unified diff format.
 
         The code to patch was:
         def sample() -> int:
@@ -92,9 +89,7 @@ def test_patch_invalid():
         garbage
     """
     )
-    # BSD patch
-    expected2_fragment = "I can't seem to find a patch in there anywhere."
-    assert msg == expected or expected2_fragment in msg
+    assert msg == expected
     assert sample() == 1
 
 
@@ -115,12 +110,7 @@ def test_patch_invalid_hunk():
         patchy.patch(sample, bad_patch)
 
     msg = str(excinfo.value)
-    assert (
-        # GNU patch
-        "Hunk #1 FAILED" in msg
-        # BSD patch
-        or "1 out of 1 hunks failed" in msg
-    )
+    assert "Hunk #1 failed to apply" in msg
     assert sample() == 1
 
 
@@ -156,13 +146,30 @@ def test_patch_invalid_hunk_2():
         patchy.patch(sample, bad_patch)
 
     msg = str(excinfo.value)
-    assert (
-        # GNU patch
-        "Hunk #2 FAILED" in msg
-        # BSD patch
-        or "1 out of 2 hunks failed" in msg
-    )
+    assert "Hunk #2 failed to apply" in msg
     assert sample(0) == 1
+
+
+def test_patch_already_applied():
+    def sample() -> int:
+        return 9001
+
+    # This patch has already been applied, going by the source
+    patch_text = """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """
+    with pytest.raises(ValueError) as excinfo:
+        patchy.patch(sample, patch_text)
+
+    msg = str(excinfo.value)
+    assert (
+        "Applying it in reverse succeeds, so it looks like the patch has"
+        " already been applied." in msg
+    )
+    assert sample() == 9001
 
 
 def test_patch_twice():

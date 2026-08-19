@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import ast
 import inspect
-import os
-import shutil
-import subprocess
 from collections.abc import Callable
 from functools import wraps
-from tempfile import mkdtemp
 from textwrap import dedent
 from types import CodeType, TracebackType
 from typing import Any, TypeVar, cast
 from weakref import WeakKeyDictionary
+
+from unipatch import HunkApplyError, PatchError, apply_patch
 
 from .cache import PatchingCache
 
@@ -112,40 +110,34 @@ def _apply_patch(
     except KeyError:
         pass
 
-    # Write out files
-    tempdir = mkdtemp(prefix="patchy")
     try:
-        source_path = os.path.join(tempdir, name + ".py")
-        with open(source_path, "w") as source_file:
-            source_file.write(source)
-
-        patch_path = os.path.join(tempdir, name + ".patch")
-        with open(patch_path, "w") as patch_file:
-            patch_file.write(patch_text)
-            if not patch_text.endswith("\n"):
-                patch_file.write("\n")
-
-        # Call `patch` command
-        command = ["patch", "--force"]
-        if not forwards:
-            command.append("--reverse")
-        command.extend([source_path, patch_path])
-        result = subprocess.run(command, capture_output=True, text=True)
-
-        if result.returncode != 0:
-            msg = "Could not {action} the patch {prep} '{name}'.".format(
-                action=("apply" if forwards else "unapply"),
-                prep=("to" if forwards else "from"),
-                name=name,
-            )
-            msg += f" The message from `patch` was:\n{result.stdout}\n{result.stderr}"
-            msg += f"\nThe code to patch was:\n{source}\nThe patch was:\n{patch_text}"
-            raise ValueError(msg)
-
-        with open(source_path) as source_file:
-            new_source = source_file.read()
-    finally:
-        shutil.rmtree(tempdir)
+        new_source = apply_patch(source, patch_text, forwards=forwards)
+    except PatchError as exc:
+        detail = str(exc)
+        if isinstance(exc, HunkApplyError):
+            try:
+                apply_patch(source, patch_text, forwards=not forwards)
+            except PatchError:
+                pass
+            else:
+                if forwards:
+                    detail += (
+                        " Applying it in reverse succeeds, so it looks like"
+                        + " the patch has already been applied."
+                    )
+                else:
+                    detail += (
+                        " Applying it forwards succeeds, so it looks like the"
+                        + " patch is unreversed and has not been applied yet."
+                    )
+        msg = "Could not {action} the patch {prep} '{name}'. {detail}".format(
+            action=("apply" if forwards else "unapply"),
+            prep=("to" if forwards else "from"),
+            name=name,
+            detail=detail,
+        )
+        msg += f"\n\nThe code to patch was:\n{source}\nThe patch was:\n{patch_text}"
+        raise ValueError(msg) from None
 
     _patching_cache.store(source, patch_text, forwards, new_source)
 

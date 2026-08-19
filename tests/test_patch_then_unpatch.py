@@ -22,24 +22,24 @@ def test_patch_unpatch():
     assert sample() == 9001
 
     # Check that we use the cache
-    orig_mkdtemp = patchy.api.mkdtemp  # type: ignore [attr-defined]
+    orig_apply_patch = patchy.api.apply_patch  # type: ignore [attr-defined]
 
-    def mkdtemp(*args: Any, **kwargs: Any) -> None:  # pragma: no cover
+    def apply_patch(*args: Any, **kwargs: Any) -> None:  # pragma: no cover
         raise AssertionError(
-            "mkdtemp should not be called, the unpatch should be cached."
+            "apply_patch should not be called, the unpatch should be cached."
         )
 
     try:
-        patchy.api.mkdtemp = mkdtemp  # type: ignore [attr-defined,assignment]
+        patchy.api.apply_patch = apply_patch  # type: ignore [attr-defined,assignment]
         patchy.unpatch(sample, patch_text)
     finally:
-        patchy.api.mkdtemp = orig_mkdtemp  # type: ignore [attr-defined]
+        patchy.api.apply_patch = orig_apply_patch  # type: ignore [attr-defined]
     assert sample() == 1
 
     # Check that we use the cache going forwards again
     try:
-        patchy.api.mkdtemp = mkdtemp  # type: ignore [attr-defined,assignment]
+        patchy.api.apply_patch = apply_patch  # type: ignore [attr-defined,assignment]
         patchy.patch(sample, patch_text)
     finally:
-        patchy.api.mkdtemp = orig_mkdtemp  # type: ignore [attr-defined]
+        patchy.api.apply_patch = orig_apply_patch  # type: ignore [attr-defined]
     assert sample() == 9001

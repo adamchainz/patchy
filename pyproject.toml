@@ -32,7 +32,9 @@ classifiers = [
   "Programming Language :: Python :: 3.15",
   "Typing :: Typed",
 ]
-dependencies = []
+dependencies = [
+  "unipatch",
+]
 urls = { Changelog = "https://github.com/adamchainz/patchy/blob/main/CHANGELOG.rst", Funding = "https://adamj.eu/books/", Repository = "https://github.com/adamchainz/patchy" }
 
 [dependency-groups]

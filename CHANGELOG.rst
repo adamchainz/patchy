@@ -5,6 +5,13 @@ Changelog
 Unreleased
 ----------
 
+* Apply patches in-memory with `unipatch <https://pypi.org/project/unipatch/>`__, a pure-Python implementation of unified diff built especially for patchy.
+
+  unipatch supersedes using the GNU ``patch`` commandline utility, speeding up patching significantly (milliseconds down to microseconds) and extending support to Windows.
+  unipatch tries to follow the implementation of ``patch`` as closely as possible, so patches should continue to work.
+
+  `PR #618 <https://github.com/adamchainz/patchy/pull/618>`__.
+
 * Support Python 3.15.
 
 * Switch package build backend from setuptools to `uv_build <https://docs.astral.sh/uv/concepts/build-backend/>`__.
