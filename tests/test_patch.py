@@ -802,6 +802,119 @@ def test_patch_staticmethod_twice():
     assert Doge.bark() == "Wowowow"
 
 
+def test_patch_closure_use_function():
+    DEFAULT_MEDIUM = "Chalk"
+
+    def paint(medium: str = DEFAULT_MEDIUM) -> str:
+        return medium
+
+    assert paint() == "Chalk"
+
+    patchy.patch(
+        paint,
+        """\
+        @@ -1,2 +1,2 @@
+         def paint(medium: str = DEFAULT_MEDIUM) -> str:
+        -    return medium
+        +    return "Cheese"
+        """,
+    )
+
+    assert paint() == "Cheese"
+
+
+def test_patch_closure_use_instancemethod():
+    class Artist:
+        DEFAULT_MEDIUM = "Chalk"
+
+        def paint(self, medium: str = DEFAULT_MEDIUM) -> str:
+            return medium
+
+    assert Artist().paint() == "Chalk"
+
+    patchy.patch(
+        Artist.paint,
+        """\
+        @@ -1,2 +1,2 @@
+         def paint(self, medium: str = DEFAULT_MEDIUM) -> str:
+        -    return medium
+        +    return "Cheese"
+        """,
+    )
+
+    assert Artist().paint() == "Cheese"
+
+
+def test_patch_closure_use_instancemethod_super():
+    class Artist:
+        def paint(self) -> str:
+            return "Watercolour"
+
+    class Miniaturist(Artist):
+        DEFAULT_SIZE = "Small"
+
+        def paint(self, size: str = DEFAULT_SIZE) -> str:
+            return size + " " + super().paint()
+
+    assert Miniaturist().paint() == "Small Watercolour"
+
+    patchy.patch(
+        Miniaturist.paint,
+        """\
+        @@ -1,2 +1,2 @@
+         def paint(self, size: str = DEFAULT_SIZE) -> str:
+        -    return size + " " + super().paint()
+        +    return size + " " + super().paint() + "!"
+        """,
+    )
+
+    assert Miniaturist().paint() == "Small Watercolour!"
+
+
+def test_patch_closure_use_kwonly():
+    class Artist:
+        DEFAULT_MEDIUM = "Chalk"
+
+        def paint(self, *, size: str, medium: str = DEFAULT_MEDIUM) -> str:
+            return size + " " + medium
+
+    assert Artist().paint(size="Small") == "Small Chalk"
+
+    patchy.patch(
+        Artist.paint,
+        """\
+        @@ -1,2 +1,2 @@
+         def paint(self, *, size: str, medium: str = DEFAULT_MEDIUM) -> str:
+        -    return size + " " + medium
+        +    return size + " " + medium + "!"
+        """,
+    )
+
+    assert Artist().paint(size="Small") == "Small Chalk!"
+
+
+def test_patch_closure_default_value_preserved():
+    DEFAULT_MEDIUM = "Chalk"
+
+    def paint(medium: str = DEFAULT_MEDIUM) -> str:
+        return medium
+
+    assert paint() == "Chalk"
+
+    patchy.patch(
+        paint,
+        """\
+        @@ -1,2 +1,2 @@
+         def paint(medium: str = DEFAULT_MEDIUM) -> str:
+        -    return medium
+        +    return medium + "!"
+        """,
+    )
+
+    assert paint() == "Chalk!"
+    assert paint("Charcoal") == "Charcoal!"
+
+
 def test_patch_future_python(tmp_path):
     (tmp_path / "future_user.py").write_text(
         dedent(

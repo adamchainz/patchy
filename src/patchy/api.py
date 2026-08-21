@@ -233,8 +233,35 @@ def _set_source(func: Callable[..., Any], func_source: str) -> None:
         else:
             fv_force_use = []
         _ast = _parse(func_source).body[0]
-        _ast.body = _ast.body + fv_force_use  # type: ignore [attr-defined]
+        assert isinstance(_ast, (ast.FunctionDef, ast.AsyncFunctionDef))
+        _replace_defaults(_ast)
+        _ast.body = _ast.body + fv_force_use
         return _def, _ast, fv_body
+
+    def _replace_defaults(
+        func_ast: ast.FunctionDef | ast.AsyncFunctionDef,
+    ) -> None:
+        """
+        Replace default value expressions with None. Only the code object of
+        the new function is transplanted onto the original function, so the
+        recompiled defaults are discarded and the original ones remain in use.
+        The expressions may not even evaluate at patch time, since they can
+        refer to names that were only available when the function was
+        originally defined, such as class attributes or enclosing function
+        locals.
+        """
+        args = func_ast.args
+        args.defaults = [
+            ast.copy_location(ast.Constant(None), default) for default in args.defaults
+        ]
+        args.kw_defaults = [
+            (
+                None
+                if default is None
+                else ast.copy_location(ast.Constant(None), default)
+            )
+            for default in args.kw_defaults
+        ]
 
     def _process_method() -> ast.Module:
         """
