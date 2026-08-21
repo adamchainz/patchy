@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+3.1.0 (2026-08-22)
+------------------
 
 * Fix the ``temp_patch`` decorator form to return the decorated function’s return value.
 
