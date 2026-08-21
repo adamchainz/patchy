@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import inspect
+import linecache
 import sys
+import traceback
 from collections.abc import Callable
 from textwrap import dedent
 
@@ -1071,3 +1074,157 @@ def test_patch_by_path_already_imported(tmp_path):
         sys.path.pop(0)
 
     assert Foo().sample() == 2
+
+
+def test_linecache():
+    """Patched source is stored in linecache under a virtual filename, and
+    unpatching updates it."""
+
+    def sample() -> int:
+        return 1
+
+    patch = """\
+    @@ -1,2 +1,2 @@
+     def sample() -> int:
+    -    return 1
+    +    return 9001
+    """
+
+    assert sample() == 1
+
+    patchy.patch(sample, patch)
+
+    filename = sample.__code__.co_filename
+    assert filename == f"<patchy: {__name__}.test_linecache.<locals>.sample>"
+    assert sample.__code__.co_firstlineno == 1
+
+    line = linecache.getline(filename, 2)
+    assert line == "    return 9001\n"
+
+    patchy.unpatch(sample, patch)
+
+    line = linecache.getline(filename, 2)
+    assert line == "    return 1\n"
+
+
+def test_linecache_two_functions():
+    """Patched source is stored in linecache for all patched functions."""
+
+    def sample() -> int:
+        return 1
+
+    def sample2() -> int:
+        return 1
+
+    assert sample() == 1
+    assert sample2() == 1
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    patchy.patch(
+        sample2,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample2() -> int:
+        -    return 1
+        +    return 9002
+        """,
+    )
+
+    assert sample.__code__.co_filename != sample2.__code__.co_filename
+
+    line1 = linecache.getline(sample.__code__.co_filename, 2)
+    assert line1 == "    return 9001\n"
+
+    line2 = linecache.getline(sample2.__code__.co_filename, 2)
+    assert line2 == "    return 9002\n"
+
+
+def test_linecache_survives_checkcache():
+    """The stored entry is not dropped by linecache.checkcache(), which tools
+    like pdb call."""
+
+    def sample() -> int:
+        return 1
+
+    assert sample() == 1
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    linecache.checkcache()
+
+    line = linecache.getline(sample.__code__.co_filename, 2)
+    assert line == "    return 9001\n"
+
+
+def test_inspect_getsource():
+    """
+    Using inspect to get a patched function's source returns the new source,
+    via linecache.
+    """
+
+    def sample() -> int:
+        return 1
+
+    assert sample() == 1
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> int:
+        -    return 1
+        +    return 9001
+        """,
+    )
+
+    lines, lnum = inspect.getsourcelines(sample)
+
+    assert lines == [
+        "def sample() -> int:\n",
+        "    return 9001\n",
+    ]
+    assert lnum == 1
+
+
+def test_traceback_shows_patched_source():
+    """Tracebacks from patched functions show the patched source line."""
+
+    def sample() -> None:
+        raise ValueError("original")
+
+    with pytest.raises(ValueError, match="original"):
+        sample()
+
+    patchy.patch(
+        sample,
+        """\
+        @@ -1,2 +1,2 @@
+         def sample() -> None:
+        -    raise ValueError("original")
+        +    raise ValueError("patched")
+        """,
+    )
+
+    try:
+        sample()
+    except ValueError:
+        formatted = traceback.format_exc()
+
+    assert 'raise ValueError("patched")' in formatted
