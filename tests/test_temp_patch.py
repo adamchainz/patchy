@@ -35,11 +35,12 @@ def test_decorator():
         """
 
     @patchy.temp_patch(sample, patch_text)
-    def decorated() -> None:
+    def decorated() -> int:
         assert sample() == 7890
+        return 42
 
     assert sample() == 3456
-    decorated()
+    assert decorated() == 42
     assert sample() == 3456
 
 
