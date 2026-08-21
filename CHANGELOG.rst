@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* Fix the ``temp_patch`` decorator form to return the decorated function’s return value.
+
+  `PR #619 <https://github.com/adamchainz/patchy/pull/619>`__.
+
 3.0.0 (2026-08-19)
 ------------------
 

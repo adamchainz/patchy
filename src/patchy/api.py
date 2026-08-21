@@ -72,7 +72,7 @@ class temp_patch:
         @wraps(decorable)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             with self:
-                decorable(*args, **kwargs)
+                return decorable(*args, **kwargs)
 
         return cast(AnyFunc, wrapper)
 
