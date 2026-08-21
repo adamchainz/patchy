@@ -9,6 +9,13 @@ Unreleased
 
   `PR #619 <https://github.com/adamchainz/patchy/pull/619>`__.
 
+* Fix patching functions whose argument default values refer to names that are unavailable at patch time, such as class attributes or enclosing function locals.
+  Such default value expressions previously raised ``NameError`` when re-evaluated during patching.
+  They are now replaced with ``None`` before recompilation, since patchy discards their values anyway, keeping the original function’s default values.
+
+  `PR #620 <https://github.com/adamchainz/patchy/pull/620>`__.
+  Thanks to Anton Kovalevich for the initial work in `PR #431 <https://github.com/adamchainz/patchy/pull/431>`__.
+
 3.0.0 (2026-08-19)
 ------------------
 
