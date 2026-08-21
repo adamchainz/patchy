@@ -16,6 +16,12 @@ Unreleased
   `PR #620 <https://github.com/adamchainz/patchy/pull/620>`__.
   Thanks to Anton Kovalevich for the initial work in `PR #431 <https://github.com/adamchainz/patchy/pull/431>`__.
 
+* Store patched source with Python’s `linecache module <https://docs.python.org/3/library/linecache.html>`__, under a per-function virtual filename like ``<patchy: example.some_func>``.
+  This makes tracebacks, ``pdb``, ``inspect.getsource()``, and other tools show the patched source code.
+
+  `PR #621 <https://github.com/adamchainz/patchy/pull/621>`__.
+  Thanks to Michael Bianco for the initial work in `PR #542 <https://github.com/adamchainz/patchy/pull/542>`__.
+
 3.0.0 (2026-08-19)
 ------------------
 
